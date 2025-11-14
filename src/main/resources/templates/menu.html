@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú Principal - PREMIER</title>
+    <link href="/css/style.css" rel="stylesheet" />
+    <link href="/css/menu.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="menu-container">
+
+        <img src="img/logo.png" alt="Logo Premier" class="background-logo">
+
+        <header class="menu-header">
+            <h1 class="menu-title">HOTEL PREMIER</h1>
+            <button class="logout-btn" id="logoutBtn">Cerrar Sesión</button>
+        </header>
+
+        <div class="menu-content">
+            <p class="welcome-text">Bienvenido al Sistema de Gestión</p>
+            
+            <div class="menu-buttons">
+                <a href="/crearhuesped" class="menu-btn">Crear Huésped</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/logout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    window.location.href = '/login';
+                } else {
+                    console.error('Error al cerrar sesión');
+                }
+            } catch (error) {
+                console.error('Error de conexión:', error);
+            }
+        });
+    </script>
+</body>
+</html>

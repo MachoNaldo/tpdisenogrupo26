@@ -1,0 +1,193 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Georgia', serif;
+    background-color: #000000;
+    color: #b8975a;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.container {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    display: flex;
+}
+
+/* Redes sociales */
+.social-icons {
+    position: absolute;
+    top: 40px;
+    left: 40px;
+    display: flex;
+    gap: 20px;
+    z-index: 10;
+}
+
+.social-icon {
+    color: #b8975a;
+    font-size: 32px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    opacity: 0.8;
+}
+
+.social-icon:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* Contenido principal */
+.content {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+/* Sección izquierda */
+.left-section {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    padding: 40px;
+}
+
+.tagline {
+    font-size: 64px;
+    font-style: italic;
+    font-weight: 300;
+    line-height: 1.2;
+    color: #b8975a;
+    text-align: center;
+}
+
+.btn-ingresar {
+    background-color: #b8975a;
+    color: #000000;
+    border: none;
+    padding: 20px 60px;
+    font-size: 28px;
+    font-family: 'Georgia', serif;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(184, 151, 90, 0.3);
+}
+
+.btn-ingresar:hover {
+    background-color: #d4b06a;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(184, 151, 90, 0.5);
+}
+
+.right-section {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    padding: 40px;
+    position: relative;
+}
+
+.logo-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.3;
+}
+
+.logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.hotel-name {
+    font-size: 72px;
+    font-weight: bold;
+    letter-spacing: 12px;
+    text-align: center;
+    line-height: 1.1;
+    color: #b8975a;
+    position: relative;
+    z-index: 2;
+    text-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+
+@media (max-width: 1024px) {
+    .content {
+        flex-direction: column;
+    }
+
+    .left-section,
+    .right-section {
+        width: 100%;
+        height: 50vh;
+    }
+
+    .tagline {
+        font-size: 48px;
+    }
+
+    .hotel-name {
+        font-size: 56px;
+    }
+}
+
+@media (max-width: 768px) {
+    .social-icons {
+        top: 20px;
+        left: 20px;
+    }
+
+    .tagline {
+        font-size: 36px;
+    }
+
+    .btn-ingresar {
+        font-size: 24px;
+        padding: 16px 48px;
+    }
+
+    .hotel-name {
+        font-size: 48px;
+    }
+
+    .left-section,
+    .right-section {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .tagline {
+        font-size: 28px;
+    }
+
+    .btn-ingresar {
+        font-size: 20px;
+        padding: 14px 40px;
+    }
+
+    .hotel-name {
+        font-size: 36px;
+        letter-spacing: 8px;
+    }
+}

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dar Alta de Huésped - Premier</title>
+    <link href="/css/estilos.css" rel="stylesheet" />
+    <link href="/css/crearhuesped.css" rel="stylesheet" />
+</head>
+
+<body>
+    <header>
+        <form action="/menu" method="get">
+            <button class="back-btn" aria-label="Regresar">&larr;</button>
+        </form>
+    </header>
+
+    <main class="form-container">
+        <div class="form-header">
+            <div class="laurel-wreath"> S.F </div>
+            <h1 class="form-title">PREMIER</h1>
+            <p class="form-subtitle">Dar alta de huésped</p>
+        </div>
+
+        <form id="formularioHuesped" class="formularioHuesped">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="apellido">Apellido</label>
+                    <input type="text" id="apellido" name="apellido" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="nombres">Nombres</label>
+                    <input type="text" id="nombres" name="nombres" required>
+                </div>
+            </div>
+
+            <div class="form-row two-col">
+                <div class="form-group">
+                    <label for="tipoDocumento">Tipo de documento</label>
+                    <select id="tipoDocumento" name="tipoDocumento" required>
+                        <option value="">---</option>
+                        <option value="DNI">DNI</option>
+                        <option value="LE">LE</option>
+                        <option value="LC">LC</option>
+                        <option value="PASAPORTE">PASAPORTE</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                </div>
+                <div class="form-group solo-numeros">
+                    <label for="documento">Documento</label>
+                    <input type="text" id="documento" name="documento" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Fecha de nacimiento</label>
+                    <div class="date-group">
+                        <select id="dia" name="dia" required>
+                            <option value="">Día</option>
+                        </select>
+                        <select id="mes" name="mes" required>
+                            <option value="">Mes</option>
+                        </select>
+                        <select id="anio" name="anio" required>
+                            <option value="">Año</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="sexo">Sexo</label>
+                    <select id="sexo" name="sexo" required>
+                        <option value="">---</option>
+                        <option value="Masculino">Masculino</option>
+                        <option value="Femenino">Femenino</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="consumidorFinal">Consumidor final</label>
+                    <select id="consumidorFinal" name="consumidorFinal" required>
+                        <option value="">---</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="email">Email (opcional)</label>
+                    <input type="email" id="email" name="email">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="cuit">CUIT (opcional)</label>
+                    <input class="solo-numeros" type="text" id="cuit" name="cuit" placeholder="##/########/#">
+                </div>
+            </div>
+
+            <div class="form-row four-col">
+                <div class="form-group">
+                    <label for="calle">Calle</label>
+                    <input type="text" id="calle" name="calle" required>
+                </div>
+                <div class="form-group">
+                    <label for="numero">Núm</label>
+                    <input type="text" class="solo-numeros" id="numero" name="numero" required>
+                </div>
+                <div class="form-group">
+                    <label for="piso">Piso</label>
+                    <input type="text" id="piso" name="piso">
+                </div>
+                <div class="form-group">
+                    <label for="departamento">Dept</label>
+                    <input type="text" id="departamento" name="departamento">
+                </div>
+            </div>
+
+            <div class="form-row two-col">
+                <div class="form-group">
+                    <label for="localidad">Localidad</label>
+                    <input type="text" id="localidad" name="localidad" required>
+                </div>
+                <div class="form-group">
+                    <label for="codigoPostal">Cod. Postal</label>
+                    <input type="text" id="codigoPostal" name="codigoPostal" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="telefono">Num. de Teléfono</label>
+                    <div style="display: flex; gap: 10px;">
+                        <select id="codigoPais" name="codigoPais" style="max-width: 100px;" required>
+                            <option value="+#">+#</option>
+                            <option value="+54">+54 (Argentina)</option>
+                            <option value="+598">+598 (Uruguay)</option>
+                            <option value="+51">+51 (Peru)</option>
+                            <option value="+55">+55 (Brasil)</option>
+                        </select>
+                        <input type="tel" id="telefono" class="solo-numeros" name="telefono" style="flex: 1;" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row three-col">
+                <div class="form-group">
+                    <label for="provincia">Provincia</label>
+                    <input type="text" id="provincia" name="provincia" required>
+                </div>
+                <div class="form-group">
+                    <label for="pais">País</label>
+                    <input type="text" id="pais" name="pais" required>
+                </div>
+                <div class="form-group">
+                    <label for="nacionalidad">Nacionalidad</label>
+                    <input type="text" id="nacionalidad" name="nacionalidad" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="ocupacion">Ocupación</label>
+                    <input type="text" id="ocupacion" name="ocupacion" required>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">Siguiente</button>
+                <button type="button" class="btn-cancel" onclick="window.location.href='/menu'">Cancelar</button>
+            </div>
+        </form>
+    </main>
+
+    <!-- POPUP DE EXITO -->
+    <div class="popup" id="successPopup" style="display: none;">
+        <div class="popup-content">
+            <h2 style="color: #b8975a; margin-bottom: 20px; font-size: 24px;">✓ Huésped Cargado Exitosamente</h2>
+            <p style="color: #b8975a; margin-bottom: 30px; font-size: 18px;">¿Desea cargar otro huésped?</p>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button id="btnSi"
+                    style="background-color: #b8975a; color: #000; border: none; padding: 12px 30px; font-size: 16px; font-family: 'Georgia', serif; font-weight: bold; cursor: pointer; border-radius: 6px;">Sí</button>
+                <button id="btnNo"
+                    style="background-color: transparent; color: #b8975a; border: 2px solid #b8975a; padding: 12px 30px; font-size: 16px; font-family: 'Georgia', serif; font-weight: bold; cursor: pointer; border-radius: 6px;">No</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- POPUP DE DOCUMENTO DUPLICADO -->
+    <div class="popup" id="duplicatePopup" style="display: none;">
+        <div class="popup-content" style="max-width: 600px;">
+            <div style="display: flex; align-items: center; gap: 30px; margin-bottom: 30px;">
+                <div style="font-size: 80px; color: #4CAF50; font-weight: bold;">!</div>
+                <div style="text-align: left; flex: 1;">
+                    <h2 style="color: #b8975a; margin-bottom: 15px; font-size: 22px;">Documento ya registrado</h2>
+                    <p id="duplicateMessage" style="color: #b8975a; font-size: 16px; line-height: 1.5;"></p>
+                </div>
+            </div>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button id="btnAceptarIgual"
+                    style="background-color: #b8975a; color: #000; border: none; padding: 12px 30px; font-size: 16px; font-family: 'Georgia', serif; font-weight: bold; cursor: pointer; border-radius: 6px;">Aceptar
+                    Igualmente</button>
+                <button id="btnCorregir"
+                    style="background-color: transparent; color: #b8975a; border: 2px solid #b8975a; padding: 12px 30px; font-size: 16px; font-family: 'Georgia', serif; font-weight: bold; cursor: pointer; border-radius: 6px;">Corregir</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Poblar selectores de fecha
+        const diaSelect = document.getElementById('dia');
+        const mesSelect = document.getElementById('mes');
+        const anioSelect = document.getElementById('anio');
+
+        for (let i = 1; i <= 31; i++) {
+            const option = document.createElement('option');
+            option.value = i;
+            option.textContent = i;
+            diaSelect.appendChild(option);
+        }
+
+        const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+        ];
+        meses.forEach((mes, index) => {
+            const option = document.createElement('option');
+            option.value = index + 1;
+            option.textContent = mes;
+            mesSelect.appendChild(option);
+        });
+
+        const currentYear = new Date().getFullYear();
+        for (let i = currentYear; i >= currentYear - 100; i--) {
+            const option = document.createElement('option');
+            option.value = i;
+            option.textContent = i;
+            anioSelect.appendChild(option);
+        }
+
+        // Variable global para guardar los datos del formulario
+        let formDataGlobal = null;
+
+        // Funcion para enviar el formulario
+        async function enviarFormulario(forzar = false) {
+            const dia = document.getElementById('dia').value.padStart(2, '0');
+            const mes = document.getElementById('mes').value.padStart(2, '0');
+            const anio = document.getElementById('anio').value;
+
+            formDataGlobal = {
+                apellido: document.getElementById('apellido').value,
+                nombres: document.getElementById('nombres').value,
+                tipoDocumento: document.getElementById('tipoDocumento').value,
+                documentacion: document.getElementById('documento').value,
+                sexo: document.getElementById('sexo').value,
+                fechaNacimiento: `${anio}-${mes}-${dia}`,
+                consumidorFinal: document.getElementById('consumidorFinal').value,
+                email: document.getElementById('email').value,
+                cuit: document.getElementById('cuit').value,
+                direccion: {
+                    nombreCalle: document.getElementById('calle').value,
+                    numCalle: document.getElementById('numero').value,
+                    piso: document.getElementById('piso').value,
+                    departamento: document.getElementById('departamento').value,
+                    localidad: document.getElementById('localidad').value,
+                    codPostal: document.getElementById('codigoPostal').value,
+                    provincia: document.getElementById('provincia').value,
+                    pais: document.getElementById('pais').value
+                },
+                telefono: `${document.getElementById('codigoPais').value} ${document.getElementById('telefono').value}`,
+                nacionalidad: document.getElementById('nacionalidad').value,
+                ocupacion: document.getElementById('ocupacion').value
+            };
+
+            try {
+                const url = forzar ? '/crearhuesped?forzar=true' : '/crearhuesped';
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formDataGlobal)
+                });
+
+                if (response.ok) {
+                    //popup de exito
+                    document.getElementById('successPopup').style.display = 'flex';
+                } else if (response.status === 409) {
+                    //popup de duplicado
+                    const mensaje = await response.text();
+                    document.getElementById('duplicateMessage').textContent = mensaje;
+                    document.getElementById('duplicatePopup').style.display = 'flex';
+                } else {
+                    const result = await response.json();
+                    alert(result.error || 'Error al crear huésped');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error de conexión');
+            }
+        }
+
+        document.getElementById('formularioHuesped').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await enviarFormulario(false);
+        });
+
+        document.querySelectorAll(".solo-numeros").forEach(i => {
+            i.addEventListener("input", e => {
+                e.target.value = e.target.value.replace(/\D/g, "");
+            });
+        });
+
+        // Botones del popup de exito
+        document.getElementById('btnSi').addEventListener('click', () => {
+            document.getElementById('successPopup').style.display = 'none';
+            document.getElementById('formularioHuesped').reset();
+            window.scrollTo(0, 0);
+        });
+
+        document.getElementById('btnNo').addEventListener('click', () => {
+            window.location.href = '/menu';
+        });
+
+        // Botones del popup de documento duplicado
+        document.getElementById('btnAceptarIgual').addEventListener('click', async () => {
+            document.getElementById('duplicatePopup').style.display = 'none';
+            await enviarFormulario(true); // Reenviar con forzar=true
+        });
+
+        document.getElementById('btnCorregir').addEventListener('click', () => {
+            document.getElementById('duplicatePopup').style.display = 'none';
+            // Los datos ya estan en el formulario, solo cerramos el popup
+            document.getElementById('documento').focus(); // Poner foco en el campo documento
+        });
+    </script>
+</body>
+
+</html>
