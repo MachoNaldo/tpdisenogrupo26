@@ -1,38 +1,45 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <title>Lista de Huéspedes</title>
     <link href="/css/estilos.css" rel="stylesheet" />
     <link href="/css/tabla.css" rel="stylesheet" />
 </head>
+
 <body>
+    <header>
+        <form action="/menu" method="get">
+            <button class="back-btn" aria-label="Regresar">&larr;</button>
+        </form>
+    </header>
+    <h1>Huéspedes Registrados</h1>
 
-<h1>Huéspedes Registrados</h1>
+    <table class="tabla-huespedes">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Tipo de Documento</th>
+                <th>Documentacion</th>
+                <th>Teléfono</th>
+                <th>fecha de nacimiento</th>
+            </tr>
+        </thead>
 
-<table class="tabla-huespedes">
-    <thead>
-        <tr>
-            <th>Nombre</th>
-            <th>Apellido</th>
-            <th>Tipo de Documento</th>
-            <th>Documentacion</th>
-            <th>Teléfono</th>
-            <th>fecha de nacimiento</th>
-        </tr>
-    </thead>
-
-    <tbody>
-        <tr th:each="h : ${huespedes}">
-            <td th:text="${h.nombres}"></td>
-            <td th:text="${h.apellido}"></td>
-            <td th:text="${h.tipoDocumento}"></td>
-            <td th:text="${h.documentacion}"></td>
-            <td th:text="${h.telefono}"></td>
-            <td th:text="${h.fechaNacimiento}"></td>
-        </tr>
-    </tbody>
-</table>
+        <tbody>
+            <tr th:each="h : ${huespedes}">
+                <td th:text="${h.nombres}"></td>
+                <td th:text="${h.apellido}"></td>
+                <td th:text="${h.tipoDocumento}"></td>
+                <td th:text="${h.documentacion}"></td>
+                <td th:text="${h.telefono}"></td>
+                <td th:text="${h.fechaNacimiento}"></td>
+            </tr>
+        </tbody>
+    </table>
 
 </body>
+
 </html>

@@ -1,29 +1,52 @@
+header {
+    height: 80px; 
+}
+
+.back-btn {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    background-color: transparent;
+    color: #b8975a;
+    border: 2px solid #b8975a;
+    padding: 10px 20px;
+    font-size: 24px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    font-family: 'Georgia', serif;
+}
+
+.back-btn:hover {
+    background-color: #b8975a;
+    color: #000000;
+}
 
 .tabla-huespedes {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 2rem;
-  font-size: 1rem;
-  color: var(--text-light);
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 2rem;
+    font-size: 1rem;
+    color: var(--text-light);
 }
 
 .tabla-huespedes th,
 .tabla-huespedes td {
-  border: 1px solid var(--accent-color);
-  padding: 0.8rem 1rem;
-  text-align: left;
+    border: 1px solid var(--accent-color);
+    padding: 0.8rem 1rem;
+    text-align: left;
 }
 
 .tabla-huespedes th {
-  background-color: rgba(177, 139, 69, 0.15); /* dorado suave */
-  color: var(--accent-color);
-  font-weight: bold;
+    background-color: rgba(177, 139, 69, 0.15);
+    color: var(--accent-color);
+    font-weight: bold;
 }
 
 .tabla-huespedes tr:nth-child(even) {
-  background-color: rgba(255, 255, 255, 0.05); /* gris oscuro leve */
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
 .tabla-huespedes tr:hover {
-  background-color: rgba(177, 139, 69, 0.15); /* dorado tenue al hover */
+    background-color: rgba(177, 139, 69, 0.15);
 }
