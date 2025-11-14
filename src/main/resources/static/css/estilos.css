@@ -193,7 +193,6 @@ input[type="password"].input-error {
   background: #b71c1c;
 }
 
-/* ===== ACCESIBILIDAD ===== */
 .visually-hidden {
   position: absolute;
   width: 1px;

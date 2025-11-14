@@ -27,8 +27,8 @@ public class HuespedController {
         try {
             LocalDate hoy = LocalDate.now();
             LocalDate nacimiento = huesped.getFechaNacimiento().toInstant()
-            .atZone(ZoneId.systemDefault())
-            .toLocalDate();
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate();
             int edad = Period.between(nacimiento, hoy).getYears();
             huesped.setEdad(edad);
             Huesped nuevoHuesped = huespedService.agregarHuesped(huesped, forzar);

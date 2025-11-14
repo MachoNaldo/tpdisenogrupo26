@@ -1,0 +1,29 @@
+
+.tabla-huespedes {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 2rem;
+  font-size: 1rem;
+  color: var(--text-light);
+}
+
+.tabla-huespedes th,
+.tabla-huespedes td {
+  border: 1px solid var(--accent-color);
+  padding: 0.8rem 1rem;
+  text-align: left;
+}
+
+.tabla-huespedes th {
+  background-color: rgba(177, 139, 69, 0.15); /* dorado suave */
+  color: var(--accent-color);
+  font-weight: bold;
+}
+
+.tabla-huespedes tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.05); /* gris oscuro leve */
+}
+
+.tabla-huespedes tr:hover {
+  background-color: rgba(177, 139, 69, 0.15); /* dorado tenue al hover */
+}

@@ -1,12 +1,13 @@
 package grupo26diseno.tpdisenogrupo26.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import grupo26diseno.tpdisenogrupo26.excepciones.DocumentoUsadoException;
 import grupo26diseno.tpdisenogrupo26.model.Huesped;
 import grupo26diseno.tpdisenogrupo26.repository.HuespedRepository;
-
 
 @Service
 public class HuespedServiceImpl implements HuespedService {
@@ -23,6 +24,11 @@ public class HuespedServiceImpl implements HuespedService {
             } 
         }
         return huespedRepository.save(huesped);
+    }
+
+    @Override
+    public List<Huesped> listarHuespedes() {
+        return huespedRepository.findAll();
     }
 
 }
