@@ -241,8 +241,8 @@ body {
     display: flex;
 }
 
-/* Redes sociales */
-.social-icons {
+
+.redes-sociales {
     position: absolute;
     top: 40px;
     left: 40px;
@@ -251,7 +251,7 @@ body {
     z-index: 10;
 }
 
-.social-icon {
+.red-social {
     color: #b8975a;
     font-size: 32px;
     text-decoration: none;
@@ -412,3 +412,12 @@ body {
         letter-spacing: 8px;
     }
 }
+
+.login-card .logo-container {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  opacity: 1 !important;
+}
+
+

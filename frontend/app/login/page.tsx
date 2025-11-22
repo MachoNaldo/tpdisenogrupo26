@@ -9,15 +9,16 @@ export default function Login() {
   const router = useRouter();
   const [usuario, setUsuario] = useState('');
   const [contrasena, setContrasena] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  const [mostrarContra, setmostrarContra] = useState(false);
   const [error, setError] = useState('');
-  const [showPopup, setShowPopup] = useState(false);
+  const [mostrarPopup, setmostrarPopup] = useState(false);
+  const [tieneError, settieneError] = useState(false); 
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const loguearse = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
+    settieneError(false); 
     
-    console.log('Formulario enviado:', { usuario, contrasena }); // Debug
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
@@ -32,37 +33,37 @@ export default function Login() {
         }),
       });
 
-      console.log('Respuesta:', response.status); // Debug
 
       if (response.ok) {
         router.push('/menu');
       } else {
         const result = await response.json();
         setError(result.error || 'Usuario o contraseña incorrectos');
-        setShowPopup(true);
+        setmostrarPopup(true);
+        settieneError(true);
       }
     } catch (error) {
       console.error('Error de conexión:', error);
       setError('Error de conexión con el servidor');
-      setShowPopup(true);
+      setmostrarPopup(true);
+      settieneError(true);
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const cambiarColor = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (name === 'usuario') {
       setUsuario(value);
     } else if (name === 'contrasena') {
       setContrasena(value);
     }
-    // Limpiar clase de error al escribir
-    e.target.classList.remove('input-error');
+    settieneError(false);
   };
 
   return (
     <>
       <header className="header">
-        <nav className="nav" aria-label="Navegación principal">
+        <nav className="nav" aria-label="Pagina inicial">
           <Link href="/">
             <button type="button" className="back-btn" aria-label="Regresar">
               &larr;
@@ -73,7 +74,7 @@ export default function Login() {
       
       <main className="main">
         <section className="login-card">
-          <div className="logo-container">
+          <div className="login-logo-container">
             <Image 
               src="/img/Logotipo_2.png" 
               alt="Logotipo" 
@@ -81,41 +82,44 @@ export default function Login() {
               height={150}
               className="logo"
             />
+            <h1 className="brand-title">PREMIER</h1>
           </div>
           
-          <form onSubmit={handleSubmit} className="form">
+          <form onSubmit={loguearse} className="form">
             <label htmlFor="usuario" className="visually-hidden">Usuario</label>
             <input
               type="text"
               id="usuario"
               name="usuario"
               value={usuario}
-              onChange={handleInputChange}
+              onChange={cambiarColor}
               placeholder="Usuario"
               required
               autoComplete="username"
+              className={tieneError ? 'input-error' : ''}
             />
             
             <label htmlFor="contrasena" className="visually-hidden">Contraseña</label>
             <div className="password-wrapper">
               <input
-                type={showPassword ? 'text' : 'password'}
+                type={mostrarContra ? 'text' : 'password'}
                 id="contrasena"
                 name="contrasena"
                 value={contrasena}
-                onChange={handleInputChange}
+                onChange={cambiarColor}
                 placeholder="Contraseña"
                 required
                 autoComplete="current-password"
+                className={tieneError ? 'input-error' : ''}
               />
               <span 
                 className="eye-icon"
-                onClick={() => setShowPassword(!showPassword)}
+                onClick={() => setmostrarContra(!mostrarContra)}
                 style={{ cursor: 'pointer' }}
                 role="button"
                 tabIndex={0}
               >
-                {showPassword ? '🤓' : '🤫'}
+                {mostrarContra ? '🤓' : '🤫'}
               </span>
             </div>
             
@@ -128,12 +132,11 @@ export default function Login() {
       
       <footer className="footer"></footer>
 
-      {/* POPUP DE ERROR */}
-      {showPopup && (
+      {mostrarPopup && (
         <div className="popup" style={{ display: 'flex' }}>
           <div className="popup-content">
             <p id="popup-message">{error}</p>
-            <button onClick={() => setShowPopup(false)}>Cerrar</button>
+            <button onClick={() => setmostrarPopup(false)}>Cerrar</button>
           </div>
         </div>
       )}
