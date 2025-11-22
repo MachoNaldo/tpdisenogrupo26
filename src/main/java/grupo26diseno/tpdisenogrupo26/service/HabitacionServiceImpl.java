@@ -1,12 +1,13 @@
 package grupo26diseno.tpdisenogrupo26.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.time.LocalDate;
+import java.util.TreeMap;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import grupo26diseno.tpdisenogrupo26.model.PeriodoEstado;
 import grupo26diseno.tpdisenogrupo26.model.TipoEstadoHabitacion;
@@ -19,6 +20,7 @@ public class HabitacionServiceImpl implements HabitacionService {
     private PeriodoRepository periodoRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public Map<LocalDate, grupo26diseno.tpdisenogrupo26.model.TipoEstadoHabitacion> obtenerEstadosHabitacionEnPeriodo(Long numeroHabitacion, LocalDate fechaInicio, LocalDate fechaFin) {
         List<PeriodoEstado> periodos = periodoRepository
                 .findByHabitacionNumeroAndFechaInicioLessThanEqualAndFechaFinGreaterThanEqual(
@@ -26,7 +28,7 @@ public class HabitacionServiceImpl implements HabitacionService {
                         fechaFin,
                         fechaInicio
                 );
-        Map<LocalDate, TipoEstadoHabitacion> estadosPorDia = new HashMap<>();
+        Map<LocalDate, TipoEstadoHabitacion> estadosPorDia = new TreeMap<>();
         LocalDate fecha = fechaInicio;
         while (!fecha.isAfter(fechaFin)) {
             estadosPorDia.put(fecha, TipoEstadoHabitacion.LIBRE);
