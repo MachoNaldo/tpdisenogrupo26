@@ -152,7 +152,7 @@ export default function CrearHuesped() {
     try {
       const baseUrl = process.env.NEXT_PUBLIC_API_URL;
       const endpoint = forzar ? '/crearhuesped?forzar=true' : '/crearhuesped';
-      const fullUrl = `${baseUrl}/api/huespedes/${endpoint}`;
+      const fullUrl = `${baseUrl}/api/huespedes${endpoint}`;
       
       const response = await fetch(fullUrl, {
         method: 'POST',
