@@ -14,7 +14,7 @@ export function useAuth() {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/check-session`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/revisar-sesion`, {
         credentials: 'include',
       });
 
@@ -27,7 +27,7 @@ export function useAuth() {
       console.error('Error:', error);
       router.push('/login');
     } finally {
-      setcargando(false);
+      setCargando(false);
     }
   };
 

@@ -1,7 +1,11 @@
 package grupo26diseno.tpdisenogrupo26.controller;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,8 +24,7 @@ public class UsuarioController {
     public ResponseEntity<?> login(@RequestBody Usuario usuario, HttpSession session) {
         boolean valido = usuarioService.autenticarUsuario(usuario.getNombre(), usuario.getContra());
         if (valido) {
-            session.setAttribute("usuario", usuario.getNombre());
-            session.setAttribute("autenticado", true);
+            session.setAttribute("usuario", usuario);
             return ResponseEntity.ok().body("{\"success\": true}");
         } else {
             return ResponseEntity
@@ -29,4 +32,30 @@ public class UsuarioController {
                     .body("{\"error\": \"Usuario o contraseña incorrectos\"}");
         }
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+
+        if (usuario != null) {
+            System.out.println("✓ Usuario " + usuario.getNombre() + " cerró sesión");
+            session.invalidate();
+        }
+
+        return ResponseEntity.ok(Map.of("message", "Sesión cerrada"));
+    }
+
+    @GetMapping("/revisar-sesion")
+    public ResponseEntity<?> checkSession(HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario != null) {
+            return ResponseEntity.ok(Map.of(
+                    "autenticado", true,
+                    "usuario", usuario
+            ));
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of("autenticado", false));
+    }
+
 }

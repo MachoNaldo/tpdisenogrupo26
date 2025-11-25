@@ -1,5 +1,6 @@
 /* ====== estilos.css ====== */
-
+@import './menu.css';
+@import './crearhuesped.css';
 :root {
   --primary-bg: #0b0b0b;
   --accent-color: #b18b45;
@@ -217,8 +218,6 @@ input.input-error {
   }
 }
 
-/* ====== style.css ====== */
-/* Tiene prioridad sobre todo lo anterior */
 
 * {
     margin: 0;

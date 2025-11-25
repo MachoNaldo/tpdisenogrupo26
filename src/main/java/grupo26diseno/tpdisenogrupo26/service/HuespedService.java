@@ -4,8 +4,13 @@ import java.util.List;
 
 import grupo26diseno.tpdisenogrupo26.excepciones.DocumentoUsadoException;
 import grupo26diseno.tpdisenogrupo26.model.Huesped;
+import grupo26diseno.tpdisenogrupo26.model.TipoDoc;
 
 public interface HuespedService {
+
     Huesped agregarHuesped(Huesped huesped, boolean forzar) throws DocumentoUsadoException;
+
     public List<Huesped> listarHuespedes();
+
+    List<Huesped> buscarHuespedesPorCriterios(String apellido, String nombres, TipoDoc tipoDocumento, String documentacion);
 }
