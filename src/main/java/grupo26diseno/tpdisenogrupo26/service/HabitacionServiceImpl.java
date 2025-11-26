@@ -9,15 +9,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import grupo26diseno.tpdisenogrupo26.model.Habitacion;
 import grupo26diseno.tpdisenogrupo26.model.PeriodoEstado;
 import grupo26diseno.tpdisenogrupo26.model.TipoEstadoHabitacion;
 import grupo26diseno.tpdisenogrupo26.repository.PeriodoRepository;
+import grupo26diseno.tpdisenogrupo26.excepciones.DisponibilidadException;
+import grupo26diseno.tpdisenogrupo26.repository.HabitacionRepository;
 
 @Service
 public class HabitacionServiceImpl implements HabitacionService {
 
     @Autowired
     private PeriodoRepository periodoRepository;
+    @Autowired
+    private HabitacionRepository habitacionRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -48,5 +53,28 @@ public class HabitacionServiceImpl implements HabitacionService {
         }
 
         return estadosPorDia;
+    }
+    @Override
+    public void validarDisponibilidad(Long numeroHabitacion, LocalDate fechaInicio, LocalDate fechaFin) throws DisponibilidadException {
+        boolean existePeriodo = periodoRepository
+                .existsByHabitacionNumeroAndFechaInicioLessThanEqualAndFechaFinGreaterThanEqual(
+                        numeroHabitacion,
+                        fechaFin,
+                        fechaInicio
+                );
+        if (existePeriodo) {
+            throw new DisponibilidadException(
+                    "La habitación " + numeroHabitacion +
+                    " no está disponible para las fechas seleccionadas");
+        }
+    }
+
+
+    @Override
+    public Habitacion buscarPorNumero(Long numeroHabitacion) {
+        return habitacionRepository.findByNumero(numeroHabitacion)
+            .orElseThrow(() -> new RuntimeException(
+                "Habitación no encontrada: " + numeroHabitacion
+            ));
     }
 }

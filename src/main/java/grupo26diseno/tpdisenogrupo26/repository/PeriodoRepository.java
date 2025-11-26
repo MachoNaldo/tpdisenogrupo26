@@ -16,4 +16,9 @@ public interface PeriodoRepository extends JpaRepository<PeriodoEstado, Long> {
             LocalDate fechaFin, 
             LocalDate fechaInicio 
     );
+    boolean existsByHabitacionNumeroAndFechaInicioLessThanEqualAndFechaFinGreaterThanEqual(
+            Long habitacionId,
+            LocalDate fechaFin, 
+            LocalDate fechaInicio 
+    );
 }
