@@ -43,12 +43,10 @@ public class ReservaServiceImpl implements ReservaService {
 
             // Crear la reserva
             Reserva reserva = new Reserva();
-            reserva.setCliente(cliente);
+            reserva.setApellidoReservador(null);
             reserva.setHabitacion(habitacion);
             reserva.setFechaInicio(fechaInicio);
-            reserva.setFechaFin(fechaFin);
-            reserva.setEstado("CONFIRMADA");
-            reserva.setFechaCreacion(LocalDate.now());
+            reserva.setFechaFinal(fechaFin);  
 
             reservaRepository.save(reserva);
         }
