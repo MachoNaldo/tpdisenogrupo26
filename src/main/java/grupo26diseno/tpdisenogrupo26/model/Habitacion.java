@@ -21,6 +21,7 @@ public class Habitacion {
     private Long numero;
     @Enumerated(EnumType.STRING)
     private TipoHabitacion tipo;
+    
     @OneToMany(mappedBy = "habitacion")
     private List<PeriodoEstado> periodos;
 }

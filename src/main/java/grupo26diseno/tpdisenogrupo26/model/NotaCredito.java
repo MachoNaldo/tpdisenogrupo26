@@ -1,6 +1,6 @@
 package grupo26diseno.tpdisenogrupo26.model;
 
-import java.time.LocalDate;
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,29 +18,29 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-public class Reserva {
+@Entity(name = "Nota_Credito")
+public class NotaCredito {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false)
-    private LocalDate fechaInicio;
-    @Column(nullable = false)
-    private LocalDate fechaFinal;
+    
+    @Column(nullable = false, unique = true)
+    private int numero;
     
     @Column(nullable = false)
-    private String nombreReservador;
+    private float importeNeto;
+    
     @Column(nullable = false)
-    private String apellidoReservador;
+    private int iva;
+    
     @Column(nullable = false)
-    private String telefonoReservador;
+    private float montoTotal;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "numero_habitacion", nullable = false)
-    private Habitacion habitacion;
+    @JoinColumn(name = "responsable_pago_id", nullable = false)
+    private ResponsablePago responsablePago;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "huesped_id", nullable = true)
-    private Huesped huespedReservador; 
+    @OneToMany(mappedBy = "notaCreditoCompensada")
+    private List<Factura> facturasCompensadas;
 }

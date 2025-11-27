@@ -1,0 +1,60 @@
+package grupo26diseno.tpdisenogrupo26.model;
+
+import java.util.Date;
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Entity
+public class Estadia {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @Temporal(TemporalType.DATE)
+    @Column(nullable = false)
+    private Date fechaCheckIn;
+    
+    @Temporal(TemporalType.DATE)
+    @Column(nullable = true) 
+    private Date fechaCheckOut;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "numero_habitacion", nullable = false)
+    private Habitacion habitacion;
+
+    @OneToMany(mappedBy = "estadia")
+    private List<Factura> facturas;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "huesped_principal_id", nullable = false)
+    private Huesped huespedPrincipal; 
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+        name = "estadia_servicio",
+        joinColumns = @JoinColumn(name = "estadia_id"),
+        inverseJoinColumns = @JoinColumn(name = "servicio_id")
+    )
+    private List<Servicio> serviciosConsumidos;
+}
