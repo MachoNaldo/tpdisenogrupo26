@@ -17,7 +17,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-
 @Entity
 public class Reserva {
 
@@ -28,14 +27,15 @@ public class Reserva {
     private LocalDate fechaInicio;
     @Column(nullable = false)
     private LocalDate fechaFinal;
+    
     @Column(nullable = false)
     private String nombreReservador;
     @Column(nullable = false)
     private String apellidoReservador;
     @Column(nullable = false)
     private String telefonoReservador;
+    
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "numero", nullable = false)
+    @JoinColumn(name = "numero_habitacion", nullable = false)
     private Habitacion habitacion;
-
 }
