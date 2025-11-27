@@ -1,10 +1,7 @@
 package grupo26diseno.tpdisenogrupo26.service;
 
 import java.time.LocalDate;
-import java.util.Map;
-import java.util.List;
 import java.time.format.DateTimeFormatter;
-
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +11,7 @@ import DTOs.ReservaDTO.HabitacionReservaDTO;
 import grupo26diseno.tpdisenogrupo26.excepciones.DisponibilidadException;
 import grupo26diseno.tpdisenogrupo26.model.Habitacion;
 import grupo26diseno.tpdisenogrupo26.model.Reserva;
+import grupo26diseno.tpdisenogrupo26.repository.ReservaRepository;
 import jakarta.transaction.Transactional;
 @Service
 public class ReservaServiceImpl implements ReservaService {
@@ -21,6 +19,12 @@ public class ReservaServiceImpl implements ReservaService {
 
     @Autowired
     private HabitacionService habitacionService;
+
+    @Autowired
+    private ReservaRepository reservaRepository;
+
+    @Autowired
+    private PeriodoEstadoService periodoService;
 
     @Override
     @Transactional
@@ -35,18 +39,18 @@ public class ReservaServiceImpl implements ReservaService {
             // Buscar la habitación en la BD
             Habitacion habitacion = habitacionService.buscarPorNumero(Long.valueOf( habReserva.getNumeroHabitacion()));
             // Validar disponibilidad
-            if (!habitacionDisponible(habitacion, fechaInicio, fechaFin)) {
-                throw new DisponibilidadException(
-                        "La habitación " + habitacion.getNumero() + 
-                        " no está disponible para las fechas seleccionadas");
-            }
+            habitacionService.validarDisponibilidad(habitacion.getNumero(), fechaInicio, fechaFin);
 
             // Crear la reserva
             Reserva reserva = new Reserva();
-            reserva.setApellidoReservador(null);
+            reserva.setApellidoReservador(reservaDTO.getCliente().getApellido());
+            reserva.setNombreReservador(reservaDTO.getCliente().getNombre());
+            reserva.setTelefonoReservador(reservaDTO.getCliente().getTelefono());
             reserva.setHabitacion(habitacion);
             reserva.setFechaInicio(fechaInicio);
             reserva.setFechaFinal(fechaFin);  
+            //Crear el periodo de estado reservado asociado a la reserva
+            periodoService.crearPeriodoEstadoReservado(habitacion, fechaInicio, fechaFin);
 
             reservaRepository.save(reserva);
         }

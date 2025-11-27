@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import grupo26diseno.tpdisenogrupo26.model.Habitacion;
 import grupo26diseno.tpdisenogrupo26.model.PeriodoEstado;
 import grupo26diseno.tpdisenogrupo26.model.TipoEstadoHabitacion;
-import grupo26diseno.tpdisenogrupo26.repository.PeriodoRepository;
 import grupo26diseno.tpdisenogrupo26.excepciones.DisponibilidadException;
 import grupo26diseno.tpdisenogrupo26.repository.HabitacionRepository;
 
@@ -20,19 +19,14 @@ import grupo26diseno.tpdisenogrupo26.repository.HabitacionRepository;
 public class HabitacionServiceImpl implements HabitacionService {
 
     @Autowired
-    private PeriodoRepository periodoRepository;
+    private PeriodoEstadoService periodoEstadoService;
     @Autowired
     private HabitacionRepository habitacionRepository;
 
     @Override
     @Transactional(readOnly = true)
     public Map<LocalDate, grupo26diseno.tpdisenogrupo26.model.TipoEstadoHabitacion> obtenerEstadosHabitacionEnPeriodo(Long numeroHabitacion, LocalDate fechaInicio, LocalDate fechaFin) {
-        List<PeriodoEstado> periodos = periodoRepository
-                .findByHabitacionNumeroAndFechaInicioLessThanEqualAndFechaFinGreaterThanEqual(
-                        numeroHabitacion,
-                        fechaFin,
-                        fechaInicio
-                );
+        List<PeriodoEstado> periodos = periodoEstadoService.obtenerPeriodosEstadoEnRango(numeroHabitacion, fechaFin, fechaInicio);
         Map<LocalDate, TipoEstadoHabitacion> estadosPorDia = new TreeMap<>();
         LocalDate fecha = fechaInicio;
         while (!fecha.isAfter(fechaFin)) {
@@ -56,12 +50,7 @@ public class HabitacionServiceImpl implements HabitacionService {
     }
     @Override
     public void validarDisponibilidad(Long numeroHabitacion, LocalDate fechaInicio, LocalDate fechaFin) throws DisponibilidadException {
-        boolean existePeriodo = periodoRepository
-                .existsByHabitacionNumeroAndFechaInicioLessThanEqualAndFechaFinGreaterThanEqual(
-                        numeroHabitacion,
-                        fechaFin,
-                        fechaInicio
-                );
+        boolean existePeriodo = periodoEstadoService.existePeriodoEstadoEnRango(numeroHabitacion, fechaFin, fechaInicio);
         if (existePeriodo) {
             throw new DisponibilidadException(
                     "La habitación " + numeroHabitacion +
