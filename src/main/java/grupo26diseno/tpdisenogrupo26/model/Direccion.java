@@ -48,4 +48,5 @@ public class Direccion {
         this.localidad = localidad;
         this.pais = pais;
     }
+    
 }

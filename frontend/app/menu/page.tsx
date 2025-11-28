@@ -2,72 +2,107 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import Image from 'next/image';
+import './menu.css';
 
 export default function Menu() {
   const router = useRouter();
   const [usuario, setUsuario] = useState<string | null>(null);
 
   useEffect(() => {
-      const verificarSesion = async () => {
-          try {
-              const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/revisar-sesion`, {
-                  credentials: "include",
-              });
-  
-              if (!res.ok) {
-                  router.push("/login");
-                  return;
-              }
-  
-              const data = await res.json();
-              if (!data.autenticado) {
-                  router.push("/login");
-              }
-  
-          } catch (err) {
-              router.push("/login");
-          }
-      };
-  
-      verificarSesion();
+    const verificarSesion = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/revisar-sesion`, {
+          credentials: 'include',
+        });
+
+        if (!res.ok) {
+          router.push('/login');
+          return;
+        }
+
+        const data = await res.json();
+
+        if (!data.autenticado) {
+          router.push('/login');
+        }
+
+        setUsuario(data.usuario.nombre);
+      } catch (err) {
+        router.push('/login');
+      }
+    };
+
+    verificarSesion();
   }, []);
 
-  // Mantengo tu logout
   const desloguearse = async () => {
     try {
       await fetch(`${process.env.NEXT_PUBLIC_API_URL}/logout`, {
         method: 'POST',
         credentials: 'include',
       });
-
       router.push('/login');
-    } catch (error) {
+    } catch {
       router.push('/login');
     }
   };
 
-
   return (
-    <div className="menu-container">
-      <div className="menu-header">
-        <h1 className="menu-title">PREMIER</h1>
-        <button onClick={desloguearse} className="logout-btn">
-          Cerrar Sesión
-        </button>
-      </div>
+    <div className="menu-bg">
+      <button className="menu-back" onClick={() => router.push('/inicio')}>
+        ←
+      </button>
 
-      <div className="menu-content">
-        <p className="welcome-text">Bienvenido {usuario}</p>
+      <Image 
+        src="/img/Logotipo3.png"
+        alt="Decoración"
+        width={180}
+        height={180}
+        className="menu-corner-img"/>
 
-        <div className="menu-buttons">
-          <Link href="/crearhuesped" className="menu-btn">
-            Dar Alta de Huésped
+      <div className="menu-container">
+        <h1 className="menu-title font-serif italic">HOTEL PREMIER</h1>
+        <p className="welcome font-serif italic">Bienvenido, {usuario}</p>
+
+        <div className="menu-grid">
+
+          {/* Buscar huesped */}
+          <Link href="/huespedes" className="menu-card">
+            <div className="icon-wrapper">
+              <Image src="/img/LupaBus.png" alt="Buscar" width={80} height={80} className="menu-icon opacity-80" />
+            </div>
+            <p className="menu-label font-serif">Buscar Huésped</p>
           </Link>
-          <Link href="/huespedes" className="menu-btn">
-            Buscar Huésped
+
+          {/* Crear huesped */}
+          <Link href="/crearhuesped" className="menu-card">
+            <div className="icon-wrapper">
+              <Image src="/img/AgregarHuesped.png" alt="Agregar" width={80} height={80} className="menu-icon opacity-80" />
+            </div>
+            <p className="menu-label font-serif">Agregar Huésped</p>
           </Link>
+
+          {/* Reservar habitacion */}
+          <Link href="/seleccionarFechas" className="menu-card">
+            <div className="icon-wrapper">
+              <Image src="/img/AlmanaqueReservar.png" alt="Reservar" width={80} height={80} className="menu-icon opacity-90" />
+            </div>
+            <p className="menu-label font-serif">Reservar Habitación</p>
+          </Link>
+
+          {/* Ocupar habitacion */}
+          <Link href="/ocupar" className="menu-card">
+            <div className="icon-wrapper">
+              <Image src="/img/LlaveOcup.png" alt="Ocupar" width={90} height={80} className="menu-icon opacity-80" />
+            </div>
+            <p className="menu-label font-serif">Ocupar Habitación</p>
+          </Link>
+
         </div>
+
+        <button className="logout-btn font-serif" onClick={desloguearse}>Cerrar Sesión</button>
       </div>
     </div>
   );

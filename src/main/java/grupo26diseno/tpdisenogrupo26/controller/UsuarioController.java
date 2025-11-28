@@ -5,6 +5,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+//import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,7 +26,7 @@ public class UsuarioController {
         boolean valido = usuarioService.autenticarUsuario(usuario.getNombre(), usuario.getContra());
         if (valido) {
             session.setAttribute("usuario", usuario);
-            return ResponseEntity.ok().body("{\"success\": true}");
+            return ResponseEntity.ok(Map.of("success", true, "usuario", usuario));
         } else {
             return ResponseEntity
                     .badRequest()
@@ -57,5 +58,7 @@ public class UsuarioController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(Map.of("autenticado", false));
     }
+
+    
 
 }

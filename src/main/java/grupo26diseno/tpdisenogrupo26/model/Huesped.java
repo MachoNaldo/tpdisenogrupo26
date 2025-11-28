@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+
 public class Huesped extends Persona {
 
     @Column(nullable = false)
@@ -28,14 +29,10 @@ public class Huesped extends Persona {
     private int edad;
     @Enumerated(EnumType.STRING)
     private TipoSexo sexo;
-    @Enumerated(EnumType.STRING) 
+    @Enumerated(EnumType.STRING)
     private TipoDoc tipoDocumento;
     @Column(nullable = false)
-    private String documentacion; 
-    
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date horaSalida; 
-
+    private String documentacion;
     @Temporal(TemporalType.DATE)
     private Date fechaNacimiento;
     @Enumerated(EnumType.STRING)
@@ -45,8 +42,8 @@ public class Huesped extends Persona {
     @Column(nullable = false)
     private String ocupacion;
     
+    //ya se hospedo en el hotel
     @Column
     private boolean hospedado=false;
-
 
 }

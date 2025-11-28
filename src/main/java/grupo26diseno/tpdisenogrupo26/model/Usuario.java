@@ -21,4 +21,5 @@ public class Usuario {
     private String nombre;
     @Column(nullable = false)
     private String contra;
+    
 }
