@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import grupo26diseno.tpdisenogrupo26.excepciones.DisponibilidadException;
-import grupo26diseno.tpdisenogrupo26.service.ReservaService;
 import DTOs.ReservaDTO;
+import grupo26diseno.tpdisenogrupo26.service.HabitacionService;
 
 
 @RestController
@@ -19,13 +19,13 @@ import DTOs.ReservaDTO;
 public class ReservaController {
 
     @Autowired
-    private ReservaService reservaService;
+    private HabitacionService habitacionService;
 
     @PostMapping("/reservar")
     public ResponseEntity<?> crearReserva(
             @RequestBody ReservaDTO reservaDTO) {
         try {
-            reservaService.crearReserva(reservaDTO);
+            habitacionService.agregarReserva(reservaDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(reservaDTO);
         } catch (DisponibilidadException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());

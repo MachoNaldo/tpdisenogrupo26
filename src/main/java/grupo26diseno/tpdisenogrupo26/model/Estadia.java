@@ -1,6 +1,7 @@
 package grupo26diseno.tpdisenogrupo26.model;
 
-import java.util.Date;
+import java.util.ArrayList;
+import java.time.LocalDate;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -21,6 +22,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -33,11 +35,11 @@ public class Estadia {
     
     @Temporal(TemporalType.DATE)
     @Column(nullable = false)
-    private Date fechaCheckIn;
+    private LocalDate fechaCheckIn;
     
     @Temporal(TemporalType.DATE)
     @Column(nullable = true) 
-    private Date fechaCheckOut;
+    private LocalDate fechaCheckOut;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "numero_habitacion", nullable = false)
@@ -49,6 +51,14 @@ public class Estadia {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "huesped_principal_id", nullable = false)
     private Huesped huespedPrincipal; 
+
+    @ManyToMany
+    @JoinTable(
+       name = "estadia_acompanantes",
+       joinColumns = @JoinColumn(name = "estadia_id"),
+       inverseJoinColumns = @JoinColumn(name = "huesped_id")
+    )
+    private List<Huesped> acompanantes = new ArrayList<>();
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(

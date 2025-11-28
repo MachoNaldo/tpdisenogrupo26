@@ -73,4 +73,8 @@ public class HuespedServiceImpl implements HuespedService {
         return huespedRepository.buscarPorCriterios(apellido, nombres, tipoDocumento, documentacion);
     }
 
+    @Override
+    public Optional<Huesped> buscarHuespedPorId(Long id) {
+        return huespedRepository.findById(id);
+    }
 }

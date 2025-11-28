@@ -23,4 +23,5 @@ public interface HuespedRepository  extends JpaRepository<Huesped, Long> {
             @Param("nombres") String nombres,
             @Param("tipoDocumento") TipoDoc tipoDocumento,
             @Param("documentacion") String documentacion);
+    Huesped findById(long id);
 }
