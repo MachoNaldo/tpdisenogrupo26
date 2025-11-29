@@ -19,7 +19,6 @@ import grupo26diseno.tpdisenogrupo26.excepciones.DocumentoUsadoException;
 import grupo26diseno.tpdisenogrupo26.model.Huesped;
 import grupo26diseno.tpdisenogrupo26.model.TipoDoc;
 import grupo26diseno.tpdisenogrupo26.service.HuespedService;
-import DTOs.HuespedDTO;
 
 @RestController
 @RequestMapping("/api/huespedes")
@@ -29,10 +28,16 @@ public class HuespedController {
     private HuespedService huespedService;
 
     @PostMapping("/crearhuesped")
-    public ResponseEntity<?> agregarHuesped(@RequestBody HuespedDTO huesped, @RequestParam(defaultValue = "false") boolean forzar) {
+    public ResponseEntity<?> agregarHuesped(@RequestBody Huesped huesped, @RequestParam(defaultValue = "false") boolean forzar) {
         try {
-            huespedService.agregarHuesped(huesped, forzar);
-            return ResponseEntity.status(HttpStatus.CREATED).body(huesped);
+            LocalDate hoy = LocalDate.now();
+            LocalDate nacimiento = huesped.getFechaNacimiento().toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate();
+            int edad = Period.between(nacimiento, hoy).getYears();
+            huesped.setEdad(edad);
+            Huesped nuevoHuesped = huespedService.agregarHuesped(huesped, forzar);
+            return ResponseEntity.status(HttpStatus.CREATED).body(nuevoHuesped);
         } catch (DocumentoUsadoException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
@@ -45,7 +50,6 @@ public class HuespedController {
             @RequestParam(required = false) TipoDoc tipoDocumento,
             @RequestParam(required = false) String documentacion) {
 
-        // La llamada al servicio y repositorio no cambia
         return huespedService.buscarHuespedesPorCriterios(apellido, nombres, tipoDocumento, documentacion);
     }
 }

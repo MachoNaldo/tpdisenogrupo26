@@ -28,11 +28,11 @@ public class PeriodoEstado {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "numero_habitacion", nullable = false)
-    private Habitacion habitacion; 
+    private Habitacion habitacion;
 
     @Column(nullable = false)
     private LocalDate fechaInicio;
-    
+
     @Column(nullable = false)
     private LocalDate fechaFin;
 

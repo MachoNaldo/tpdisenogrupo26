@@ -2,6 +2,8 @@
 
 import { useState, useEffect, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import "./crearhuesped.css";
+
 
 
 interface Direccion {
@@ -225,12 +227,14 @@ export default function CrearHuesped() {
         </button>
       </header>
 
-      <main className="form-container">
+
         <div className="form-header">
           <div className="laurel-wreath"> S.F </div>
-          <h1 className="form-title">PREMIER</h1>
+          <h1 className="menu-title font-serif italic text-[#b8975a]">HOTEL PREMIER</h1>
           <p className="form-subtitle">Dar alta de huésped</p>
         </div>
+
+      <main className="crearhuesped-bg">
 
         <form id="formularioHuesped" className="formularioHuesped" onSubmit={subirFormulario}>
           <div className="form-row">
@@ -245,9 +249,6 @@ export default function CrearHuesped() {
                 required 
               />
             </div>
-          </div>
-
-          <div className="form-row">
             <div className="form-group">
               <label htmlFor="nombres">Nombres</label>
               <input 
@@ -259,6 +260,10 @@ export default function CrearHuesped() {
                 required 
               />
             </div>
+          </div>
+
+          <div className="form-row">
+            
           </div>
 
           <div className="form-row two-col">
@@ -321,12 +326,7 @@ export default function CrearHuesped() {
                   ))}
                 </select>
                 <select 
-                  id="anio" 
-                  name="anio" 
-                  value={Formulario.anio}
-                  onChange={cambioInput}
-                  required
-                >
+                  id="anio" name="anio" value={Formulario.anio} onChange={cambioInput} required>
                   <option value="">Año</option>
                   {anios.map(a => (
                     <option key={a} value={a}>{a}</option>
@@ -334,9 +334,9 @@ export default function CrearHuesped() {
                 </select>
               </div>
             </div>
-          </div>
 
-          <div className="form-row">
+            
+
             <div className="form-group">
               <label htmlFor="sexo">Sexo</label>
               <select 
@@ -381,10 +381,9 @@ export default function CrearHuesped() {
                 onChange={cambioInput}
               />
             </div>
-          </div>
 
-          <div className="form-row">
-            <div className="form-group">
+
+              <div className="form-group">
               <label htmlFor="cuit">CUIT (opcional)</label>
               <input 
                 className="solo-numeros" 
@@ -396,6 +395,7 @@ export default function CrearHuesped() {
                 onChange={cambioInputNumero}
               />
             </div>
+
           </div>
 
           <div className="form-row four-col">

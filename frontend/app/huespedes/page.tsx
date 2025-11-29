@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Huesped, CriteriosBusqueda, TiposDocumentoArray } from '../lib/tipos'; 
 import { useEffect } from "react";
-
+import "./huespedes.css"; 
 
 
 // URL base del backend, asumimos que está en el .env.local
@@ -143,12 +143,11 @@ export default function BuscarHuespedPage() {
     // Helper para el encabezado (replicando el diseño)
     const renderHeader = () => (
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 40px', backgroundColor: '#000', borderBottom: '2px solid #b8975a' }}>
-            <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '42px', fontStyle: 'italic', color: '#b8975a' }}>
+            <h1 className="font-serif" style={{ fontFamily: 'Georgia, serif', fontSize: '42px', fontStyle: 'italic', color: '#b8975a' }}>
                 Buscar huésped
             </h1>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                <Image src="/img/Logotipo_2.png" alt="S.F Logo" width={80} height={80} style={{ opacity: 1, objectFit: 'contain' }} /> 
-                <span className="brand-title" style={{ fontSize: '1.5rem', marginTop: '5px' }}>PREMIER</span>
+                <Image src="/img/Logotipo3.png" alt="Logo" width={80} height={80} className="opacity-45"/> 
             </div>
         </header>
     );
@@ -157,7 +156,7 @@ export default function BuscarHuespedPage() {
     // --- VISTA 1: CRITERIOS DE BÚSQUEDA (Window.jpg) ---
     if (!isListing) {
         return (
-            <div style={{ backgroundColor: '#000000', minHeight: '100vh', color: '#b8975a' }}>
+            <div className="huespedes-bg">
                 {renderHeader()}
                 <main style={{ maxWidth: '600px', margin: '50px auto' }}>
                     
@@ -166,17 +165,17 @@ export default function BuscarHuespedPage() {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '30px', marginTop: '30px' }}>
                             {/* Fila Apellido */}
                             <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr', gap: '20px', alignItems: 'center' }}>
-                                <label style={{textAlign: 'right', fontStyle: 'italic'}}>Apellido</label>
+                                <label className="font-serif" style={{textAlign: 'right', fontStyle: 'italic'}}>Apellido</label>
                                 <input type="text" name="apellido" placeholder="Ej: Ojeda" value={criterios.apellido} onChange={handleChange} style={inputStyle} />
                             </div>
                             {/* Fila Nombres */}
                             <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr', gap: '20px', alignItems: 'center' }}>
-                                <label style={{textAlign: 'right', fontStyle: 'italic'}}>Nombres</label>
+                                <label className="font-serif" style={{textAlign: 'right', fontStyle: 'italic'}}>Nombres</label>
                                 <input type="text" name="nombres" placeholder="Ej: Eduardo Nicolás" value={criterios.nombres} onChange={handleChange} style={inputStyle} />
                             </div>
                             {/* Fila Tipo de documento */}
                             <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr', gap: '20px', alignItems: 'center' }}>
-                                <label style={{textAlign: 'right', fontStyle: 'italic'}}>Tipo de documento</label>
+                                <label className="font-serif" style={{textAlign: 'right', fontStyle: 'italic'}}>Tipo de documento</label>
                                 <select name="tipoDocumento" value={criterios.tipoDocumento} onChange={handleChange} style={{ ...inputStyle, maxWidth: '200px', cursor: 'pointer' }}>
                                     <option value="">---</option>
                                     {TiposDocumentoArray.map(tipo => (
@@ -186,7 +185,7 @@ export default function BuscarHuespedPage() {
                             </div>
                             {/* Fila Documento */}
                             <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr', gap: '20px', alignItems: 'center' }}>
-                                <label style={{textAlign: 'right', fontStyle: 'italic'}}>Documento</label>
+                                <label className="font-serif" style={{textAlign: 'right', fontStyle: 'italic'}}>Documento</label>
                                 <input type="text" name="documento" value={criterios.documento} onChange={handleChange} style={inputStyle} />
                             </div>
                         </div>
@@ -194,7 +193,7 @@ export default function BuscarHuespedPage() {
                         {error && <p style={{color: 'red', textAlign: 'center', marginTop: '20px'}}>{error}</p>}
                         
                         {/* Botones de Acción */}
-                        <div style={{display: 'flex', justifyContent: 'center', marginTop: '100px', gap: '80px', position: 'relative'}}>
+                        <div className="font-serif" style={{display: 'flex', justifyContent: 'center', marginTop: '100px', gap: '80px', position: 'relative'}}>
                             <button type="submit" disabled={loading} style={submitButtonStyle}>
                                 {loading ? 'Buscando...' : 'Buscar huésped'}
                             </button>
@@ -210,13 +209,13 @@ export default function BuscarHuespedPage() {
     
     // --- VISTA 2: RESULTADOS (Window-1.jpg) ---
     return (
-        <div style={{ backgroundColor: '#000000', minHeight: '100vh', color: '#b8975a' }}>
+        <div className='huespedes-bg'>
             {renderHeader()}
             
             <main style={{ maxWidth: '900px', margin: '50px auto' }}>
                 
                 {/* Tabla de Resultados replicando Window-1.jpg */}
-                <table style={{width: '100%', borderCollapse: 'collapse', border: '2px solid #b8975a'}}>
+                <table className="font-serif"style={{width: '100%', borderCollapse: 'collapse', border: '2px solid #b8975a'}}>
                     <thead>
                         <tr style={{backgroundColor: '#b8975a', color: '#000'}}>
                             <th style={tableHeaderStyle}>Apellido</th>

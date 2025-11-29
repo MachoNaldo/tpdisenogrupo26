@@ -1,48 +1,33 @@
 package grupo26diseno.tpdisenogrupo26.controller;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import java.util.Map;
+import org.springframework.web.bind.annotation.*;
 
-import grupo26diseno.tpdisenogrupo26.model.TipoEstadoHabitacion;
+import grupo26diseno.tpdisenogrupo26.dtos.DisponibilidadDTO;
 import grupo26diseno.tpdisenogrupo26.service.HabitacionService;
 import grupo26diseno.tpdisenogrupo26.excepciones.DisponibilidadException;
 import DTOs.EstadiaDTO;
 
-
-
 @RestController
 @RequestMapping("/api/habitaciones")
+@CrossOrigin(origins = "*")
 public class HabitacionController {
+
     @Autowired
     private HabitacionService habitacionService;
 
-    @GetMapping("/{id}/disponibilidad")
-    public ResponseEntity<Map<LocalDate, TipoEstadoHabitacion>> consultarDisponibilidad(
-            @PathVariable Long id,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
-        
-        try {
-            Map<LocalDate, TipoEstadoHabitacion> disponibilidad = 
-                habitacionService.obtenerEstadosHabitacionEnPeriodo(id, fechaInicio, fechaFin);
-            
-            return ResponseEntity.ok(disponibilidad);
-            
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+    @GetMapping("/disponibilidad")
+    public List<DisponibilidadDTO> disponibilidad(
+        @RequestParam String desde,
+        @RequestParam String hasta
+    ) {
+        LocalDate f1 = LocalDate.parse(desde);
+        LocalDate f2 = LocalDate.parse(hasta);
+
+        return habitacionService.obtenerDisponibilidad(f1, f2);
     }
     @PostMapping("/ocupar")
     public ResponseEntity<?> crearEstadia(@RequestBody EstadiaDTO estadiaDTO) {
@@ -59,6 +44,19 @@ public class HabitacionController {
         }
     }
 
+    @PostMapping("/reservar")
+    public String reservar(
+            @RequestParam Long numero,
+            @RequestParam String desde,
+            @RequestParam String hasta
+    ) {
+        LocalDate f1 = LocalDate.parse(desde);
+        LocalDate f2 = LocalDate.parse(hasta);
 
+        habitacionService.reservarHabitacion(numero, f1, f2);
+        
+        return "OK";
+    }
 
 }
+

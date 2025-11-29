@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+
 @MappedSuperclass
 public abstract class Persona {
     @Id
@@ -26,11 +27,10 @@ public abstract class Persona {
     private String telefono;
     @Column(nullable = false)
     private String nacionalidad;
-    
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "direccion_id", referencedColumnName = "id")
     private Direccion direccion;
-    
+
     public Persona(String cuit, String telefono, String nacionalidad, Direccion direccion) {
         this.cuit = cuit;
         this.telefono = telefono;
@@ -41,4 +41,6 @@ public abstract class Persona {
     public String getNacionalidad(){
         return nacionalidad;
     }
+    
+    
 }
