@@ -54,8 +54,9 @@ public class PeriodoEstadoServiceImpl implements PeriodoEstadoService {
             LocalDate fechaFin) throws DisponibilidadException {
         List<PeriodoEstado> periodos = obtenerPeriodosEstadoEnRango(numeroHabitacion, fechaFin, fechaInicio);
         for (PeriodoEstado periodo : periodos) {
-            if (periodo.getTipoEstado() == TipoEstadoHabitacion.FUERA_SERVICIO && 
+            if (periodo.getTipoEstado() == TipoEstadoHabitacion.FUERA_SERVICIO || 
                     periodo.getTipoEstado() == TipoEstadoHabitacion.OCUPADO) {
+                        System.out.println(">>> PERIODO ENCONTRADO: " + periodo.getTipoEstado());
                 throw new DisponibilidadException(
                         "La habitación " + numeroHabitacion +
                                 " no está disponible para las fechas seleccionadas");

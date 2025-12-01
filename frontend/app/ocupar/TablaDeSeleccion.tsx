@@ -213,15 +213,19 @@ export default function TablaDeInteraccion() {
         );
 
         if (res.ok) {
-          const reservaDTO = await res.json();
-          // Agregamos la info obtenida a la lista
-          reservasInfo.push({
-            numeroHabitacion: Number(roomNum),
-            fechaInicio,
-            fechaFin,
-            clienteNombre: reservaDTO.clienteDTO.nombre,
-            clienteApellido: reservaDTO.clienteDTO.apellido,
-          });
+          const array = await res.json();
+
+          if (array.length > 0) {
+            const r = array[0];
+
+            reservasInfo.push({
+              numeroHabitacion: Number(roomNum),
+              fechaInicio,
+              fechaFin,
+              clienteNombre: r.cliente?.nombre ?? "",
+              clienteApellido: r.cliente?.apellido ?? "",
+            });
+          }
         }
       } catch (e) {
         console.error("Error consultando reserva:", e);
@@ -473,11 +477,10 @@ export default function TablaDeInteraccion() {
           <button
             disabled={selected.size === 0}
             onClick={ocupar}
-            className={`px-8 py-3 rounded-2xl text-xl font-bold shadow ${
-              selected.size === 0
+            className={`px-8 py-3 rounded-2xl text-xl font-bold shadow ${selected.size === 0
                 ? "bg-gray-400 cursor-not-allowed opacity-60"
                 : "bg-[#a67c52] hover:bg-[#c39a4f] text-white"
-            }`}
+              }`}
           >
             Ocupar
           </button>

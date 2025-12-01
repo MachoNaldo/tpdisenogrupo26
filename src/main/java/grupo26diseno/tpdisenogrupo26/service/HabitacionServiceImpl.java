@@ -13,10 +13,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import grupo26diseno.tpdisenogrupo26.dtos.DisponibilidadDTO;
-import grupo26diseno.tpdisenogrupo26.dtos.ReservaDTO;
-import grupo26diseno.tpdisenogrupo26.dtos.ReservaDTO.HabitacionReservaDTO;
 import grupo26diseno.tpdisenogrupo26.dtos.EstadiaDTO;
 import grupo26diseno.tpdisenogrupo26.dtos.EstadiaDTO.HabitacionOcuparDTO;
+import grupo26diseno.tpdisenogrupo26.dtos.ReservaDTO;
+import grupo26diseno.tpdisenogrupo26.dtos.ReservaDTO.HabitacionReservaDTO;
 import grupo26diseno.tpdisenogrupo26.excepciones.DisponibilidadException;
 import grupo26diseno.tpdisenogrupo26.model.Estadia;
 import grupo26diseno.tpdisenogrupo26.model.Habitacion;
@@ -242,10 +242,11 @@ public class HabitacionServiceImpl implements HabitacionService {
             // 6️⃣ Guardar la estadía
             estadiaRepository.save(estadia);
 
+
             // 7️⃣ Crear periodo estado ocupado asociado
             periodoEstadoService.crearPeriodoEstadoOcupado(habitacion, fInicio, fFin);
 
-            // 8️⃣ Eliminamos las reservas si esta ocupacion las solapa (forzar=true)
+            // Eliminamos las reservas si esta ocupacion las solapa (forzar=true)
             if (forzar) {
                 List<Reserva> reservasSolapadas = reservaRepository
                         .findByHabitacionNumeroAndFechaInicioLessThanEqualAndFechaFinalGreaterThanEqual(

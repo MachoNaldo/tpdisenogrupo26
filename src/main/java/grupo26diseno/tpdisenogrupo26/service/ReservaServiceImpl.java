@@ -45,6 +45,7 @@ public class ReservaServiceImpl implements ReservaService {
 
          List<ReservaDTO> reservasSolapadas = reservas.stream().map(reserva -> {
             ReservaDTO dto = new ReservaDTO();
+            System.out.println(">>> RESERVA ENCONTRADA: " + reserva.getApellidoReservador(  ));
             dto.setCliente(new ReservaDTO.ClienteDTO(
                     reserva.getNombreReservador(),
                     reserva.getApellidoReservador(),
@@ -55,6 +56,7 @@ public class ReservaServiceImpl implements ReservaService {
             habReserva.setFechaInicio(reserva.getFechaInicio().toString());
             habReserva.setFechaFin(reserva.getFechaFinal().toString());
             dto.getReservas().add(habReserva);
+            System.out.println(">>> DTO RESERVA CREADA: " + dto.getCliente());
             return dto;
         }).toList();
         return reservasSolapadas;

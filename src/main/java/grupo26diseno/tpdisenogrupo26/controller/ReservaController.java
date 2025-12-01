@@ -34,7 +34,7 @@ public class ReservaController {
     }
 
     @GetMapping
-    public List<ReservaDTO> getMethodName(@RequestParam long numeroHabitacion, @RequestParam LocalDate fechaInicio, @RequestParam LocalDate fechaFin) {
+    public List<ReservaDTO> obtenerReserva(@RequestParam long numeroHabitacion, @RequestParam LocalDate fechaInicio, @RequestParam LocalDate fechaFin) {
         return reservaService.obtenerReservasPorHabitacionYFecha(numeroHabitacion, fechaInicio, fechaFin);
     }
     
