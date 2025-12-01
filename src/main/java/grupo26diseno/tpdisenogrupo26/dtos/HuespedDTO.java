@@ -11,7 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 
 public class HuespedDTO {
- private String apellido;
+    private Long id;
+    private String apellido;
     private String consumidorFinal;
     private String cuit;
     private DireccionDTO direccion;

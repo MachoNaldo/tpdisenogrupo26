@@ -6,6 +6,9 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import grupo26diseno.tpdisenogrupo26.dtos.DireccionDTO;
+import grupo26diseno.tpdisenogrupo26.dtos.HuespedDTO;
+import grupo26diseno.tpdisenogrupo26.mapper.HuespedMapper;
 import grupo26diseno.tpdisenogrupo26.excepciones.DocumentoUsadoException;
 import grupo26diseno.tpdisenogrupo26.model.Direccion;
 import grupo26diseno.tpdisenogrupo26.model.Huesped;
@@ -23,16 +26,22 @@ public class HuespedServiceImpl implements HuespedService {
     @Autowired
     private DireccionRepository direccionRepository;
 
+    @Autowired
+    private HuespedMapper huespedMapper;
+
     @Override
     @Transactional
-    public Huesped agregarHuesped(Huesped huesped, boolean forzar) throws DocumentoUsadoException {
+    public Huesped agregarHuesped(HuespedDTO huesped, boolean forzar) throws DocumentoUsadoException {
         if (!forzar) {
-            Huesped existente = huespedRepository.findByTipoDocumentoAndDocumentacion(huesped.getTipoDocumento(), huesped.getDocumentacion());
+            Huesped existente = huespedRepository.findByTipoDocumentoAndDocumentacion(
+                    TipoDoc.valueOf(huesped.getTipoDocumento()), huesped.getDocumentacion());
             if (existente != null) {
-                throw new DocumentoUsadoException("El documento" + existente.getTipoDocumento() + " " + existente.getDocumentacion() + "ya se encuentra registrado para otro huésped.");
+                throw new DocumentoUsadoException("El documento" + existente.getTipoDocumento() + " "
+                        + existente.getDocumentacion() + "ya se encuentra registrado para otro huésped.");
             }
         }
-        Direccion direccion = huesped.getDireccion();
+        DireccionDTO direccion = huesped.getDireccion();
+        Huesped nuevoHuesped = huespedMapper.crearEntidad(huesped);
         if (direccion != null) {
             Optional<Direccion> direccionExistente = direccionRepository
                     .findByNombreCalleAndNumCalleAndLocalidadAndCodPostalAndProvinciaAndPais(
@@ -41,26 +50,25 @@ public class HuespedServiceImpl implements HuespedService {
                             direccion.getLocalidad(),
                             direccion.getCodPostal(),
                             direccion.getProvincia(),
-                            direccion.getPais()
-                    );
+                            direccion.getPais());
 
             if (direccionExistente.isPresent()) {
-                huesped.setDireccion(direccionExistente.get());
-            } 
+                nuevoHuesped.setDireccion(direccionExistente.get());
+            }
         }
-        return huespedRepository.save(huesped);
+        return huespedRepository.save(nuevoHuesped);
     }
 
-    @Override
+    @Override // Va a HuespedDTO
     public List<Huesped> listarHuespedes() {
         return huespedRepository.findAll();
     }
 
-     @Override
-    public List<Huesped> buscarHuespedesPorCriterios(String apellido, String nombres, TipoDoc tipoDocumento, String documentacion) {
+    @Override
+    public List<Huesped> buscarHuespedesPorCriterios(String apellido, String nombres, TipoDoc tipoDocumento,
+            String documentacion) {
         return huespedRepository.buscarPorCriterios(apellido, nombres, tipoDocumento, documentacion);
     }
-    
 
     @Override
     public Optional<Huesped> buscarHuespedPorId(Long id) {

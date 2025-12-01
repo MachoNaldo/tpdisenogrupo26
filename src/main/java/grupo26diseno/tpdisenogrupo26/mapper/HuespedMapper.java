@@ -6,13 +6,13 @@ import java.time.ZoneId;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import DTOs.HuespedDTO;
+import grupo26diseno.tpdisenogrupo26.dtos.*;
 import grupo26diseno.tpdisenogrupo26.model.Huesped;
 import grupo26diseno.tpdisenogrupo26.model.TipoConsumidor;
 import grupo26diseno.tpdisenogrupo26.model.TipoDoc;
 import grupo26diseno.tpdisenogrupo26.model.TipoSexo;
 import grupo26diseno.tpdisenogrupo26.mapper.DireccionMapper;
-import DTOs.DireccionDTO;
+
 import java.time.LocalDate;
 import java.util.Date;
 import java.time.Period;
