@@ -17,7 +17,7 @@ public interface HuespedService {
 
     public Optional<Huesped> buscarHuespedPorId(Long id);
 
-    List<Huesped> buscarHuespedesPorCriterios(String apellido, String nombres, TipoDoc tipoDocumento, String documentacion);
+    List<HuespedDTO> buscarHuespedesPorCriterios(String apellido, String nombres, TipoDoc tipoDocumento, String documentacion);
 
     
 }

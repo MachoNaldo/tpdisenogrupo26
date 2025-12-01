@@ -38,6 +38,29 @@ public class ReservaServiceImpl implements ReservaService {
     private HabitacionService habitacionService;
 
     @Override
+    public List<ReservaDTO> obtenerReservasPorHabitacionYFecha(long numeroHabitacion, LocalDate fechaInicio, LocalDate fechaFin) {
+        List<Reserva> reservas = reservaRepository
+                .findByHabitacionNumeroAndFechaInicioLessThanEqualAndFechaFinalGreaterThanEqual(
+                        numeroHabitacion, fechaFin, fechaInicio);
+
+         List<ReservaDTO> reservasSolapadas = reservas.stream().map(reserva -> {
+            ReservaDTO dto = new ReservaDTO();
+            dto.setCliente(new ReservaDTO.ClienteDTO(
+                    reserva.getNombreReservador(),
+                    reserva.getApellidoReservador(),
+                    reserva.getTelefonoReservador()
+            ));
+            ReservaDTO.HabitacionReservaDTO habReserva = new ReservaDTO.HabitacionReservaDTO();
+            habReserva.setNumeroHabitacion(reserva.getHabitacion().getNumero());
+            habReserva.setFechaInicio(reserva.getFechaInicio().toString());
+            habReserva.setFechaFin(reserva.getFechaFinal().toString());
+            dto.getReservas().add(habReserva);
+            return dto;
+        }).toList();
+        return reservasSolapadas;
+    }
+
+    @Override // Revisar creo que no se usa
     @Transactional
     public void crearReserva(ReservaDTO dto) throws DisponibilidadException {
 

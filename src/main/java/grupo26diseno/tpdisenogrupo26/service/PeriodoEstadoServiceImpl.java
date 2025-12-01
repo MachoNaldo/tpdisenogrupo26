@@ -9,8 +9,10 @@ import org.springframework.stereotype.Service;
 import grupo26diseno.tpdisenogrupo26.excepciones.DisponibilidadException;
 import grupo26diseno.tpdisenogrupo26.model.Habitacion;
 import grupo26diseno.tpdisenogrupo26.model.PeriodoEstado;
+import grupo26diseno.tpdisenogrupo26.model.TipoEstadoHabitacion;
 import grupo26diseno.tpdisenogrupo26.repository.PeriodoRepository;
 import jakarta.transaction.Transactional;
+
 
 @Service
 public class PeriodoEstadoServiceImpl implements PeriodoEstadoService {
@@ -52,7 +54,8 @@ public class PeriodoEstadoServiceImpl implements PeriodoEstadoService {
             LocalDate fechaFin) throws DisponibilidadException {
         List<PeriodoEstado> periodos = obtenerPeriodosEstadoEnRango(numeroHabitacion, fechaFin, fechaInicio);
         for (PeriodoEstado periodo : periodos) {
-            if (periodo.getTipoEstado() == grupo26diseno.tpdisenogrupo26.model.TipoEstadoHabitacion.FUERA_SERVICIO) {
+            if (periodo.getTipoEstado() == TipoEstadoHabitacion.FUERA_SERVICIO && 
+                    periodo.getTipoEstado() == TipoEstadoHabitacion.OCUPADO) {
                 throw new DisponibilidadException(
                         "La habitación " + numeroHabitacion +
                                 " no está disponible para las fechas seleccionadas");

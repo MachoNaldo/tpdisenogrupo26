@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 
 import grupo26diseno.tpdisenogrupo26.dtos.DireccionDTO;
 import grupo26diseno.tpdisenogrupo26.dtos.HuespedDTO;
-import grupo26diseno.tpdisenogrupo26.mapper.HuespedMapper;
 import grupo26diseno.tpdisenogrupo26.excepciones.DocumentoUsadoException;
+import grupo26diseno.tpdisenogrupo26.mapper.HuespedMapper;
 import grupo26diseno.tpdisenogrupo26.model.Direccion;
 import grupo26diseno.tpdisenogrupo26.model.Huesped;
 import grupo26diseno.tpdisenogrupo26.model.TipoDoc;
@@ -59,15 +59,21 @@ public class HuespedServiceImpl implements HuespedService {
         return huespedRepository.save(nuevoHuesped);
     }
 
-    @Override // Va a HuespedDTO
+    @Override // Va a HuespedDTO, revisar creo que no estamos usando este metodo
     public List<HuespedDTO> listarHuespedes() {
-        return huespedRepository.findAll();
+        List<HuespedDTO> listaHuespedesDTO = huespedRepository.findAll().stream()
+                .map(huesped -> huespedMapper.crearDTO(huesped))
+                .toList();
+        return listaHuespedesDTO;
     }
 
     @Override
-    public List<Huesped> buscarHuespedesPorCriterios(String apellido, String nombres, TipoDoc tipoDocumento,
+    public List<HuespedDTO> buscarHuespedesPorCriterios(String apellido, String nombres, TipoDoc tipoDocumento,
             String documentacion) {
-        return huespedRepository.buscarPorCriterios(apellido, nombres, tipoDocumento, documentacion);
+            List<HuespedDTO> listaHuespedDTOs = huespedRepository.buscarPorCriterios(apellido, nombres, tipoDocumento, documentacion).stream()
+                    .map(huesped -> huespedMapper.crearDTO(huesped))
+                    .toList();
+            return listaHuespedDTOs;
     }
 
     @Override

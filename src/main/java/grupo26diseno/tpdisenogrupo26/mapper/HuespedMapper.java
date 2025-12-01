@@ -2,21 +2,15 @@ package grupo26diseno.tpdisenogrupo26.mapper;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.time.ZoneId;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import grupo26diseno.tpdisenogrupo26.dtos.*;
+
+import grupo26diseno.tpdisenogrupo26.dtos.HuespedDTO;
 import grupo26diseno.tpdisenogrupo26.model.Huesped;
 import grupo26diseno.tpdisenogrupo26.model.TipoConsumidor;
 import grupo26diseno.tpdisenogrupo26.model.TipoDoc;
 import grupo26diseno.tpdisenogrupo26.model.TipoSexo;
-import grupo26diseno.tpdisenogrupo26.mapper.DireccionMapper;
-
-import java.time.LocalDate;
-import java.util.Date;
-import java.time.Period;
-import java.time.ZoneId;
 
 @Component
 public class HuespedMapper {

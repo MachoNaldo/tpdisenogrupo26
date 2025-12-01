@@ -42,6 +42,17 @@ export default function TablaDeInteraccion() {
   const [clienteApellido, setClienteApellido] = useState("");
   const [clienteTelefono, setClienteTelefono] = useState("");
 
+  // Modal de reservas
+  const [modalReservas, setModalReservas] = useState<
+    Array<{
+      numeroHabitacion: number;
+      fechaInicio: string;
+      fechaFin: string;
+      clienteNombre: string;
+      clienteApellido: string;
+    }>
+  >([]);
+
   const keyOf = (d: number, typeId: string, room: number) =>
     `${d}-${typeId}-${room}`;
 
@@ -159,6 +170,72 @@ export default function TablaDeInteraccion() {
     setSelected(new Set());
   };
 
+  const mostrarAlertaReservas = async (
+    habitacionesReservadas: Array<{
+      numeroHabitacion: number;
+      fecha: string;
+      typeId: string;
+    }>
+  ) => {
+    // Agrupamos por habitación
+    const porHabitacion: Record<
+      number,
+      { fechas: string[]; typeId: string }
+    > = {};
+
+    for (const h of habitacionesReservadas) {
+      if (!porHabitacion[h.numeroHabitacion]) {
+        porHabitacion[h.numeroHabitacion] = {
+          fechas: [],
+          typeId: h.typeId,
+        };
+      }
+      porHabitacion[h.numeroHabitacion].fechas.push(h.fecha);
+    }
+
+    //  Informacion a conseguir de las reservas
+    const reservasInfo: Array<{
+      numeroHabitacion: number;
+      fechaInicio: string;
+      fechaFin: string;
+      clienteNombre: string;
+      clienteApellido: string;
+    }> = [];
+
+    for (const [roomNum, data] of Object.entries(porHabitacion)) {
+      const fechasOrdenadas = data.fechas.sort();
+      const fechaInicio = fechasOrdenadas[0];
+      const fechaFin = fechasOrdenadas[fechasOrdenadas.length - 1];
+
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/reservas?numeroHabitacion=${roomNum}&fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`
+        );
+
+        if (res.ok) {
+          const reservaDTO = await res.json();
+          // Agregamos la info obtenida a la lista
+          reservasInfo.push({
+            numeroHabitacion: Number(roomNum),
+            fechaInicio,
+            fechaFin,
+            clienteNombre: reservaDTO.clienteDTO.nombre,
+            clienteApellido: reservaDTO.clienteDTO.apellido,
+          });
+        }
+      } catch (e) {
+        console.error("Error consultando reserva:", e);
+      }
+    }
+
+    // Mostrar alerta personalizada
+    setModalReservas(reservasInfo);
+  };
+
+  const cerrarModal = () => {
+    setModalReservas([]);
+  };
+
   const ocupar = async () => {
     if (selected.size === 0) {
       setError("⚠ Debes seleccionar al menos una celda.");
@@ -176,6 +253,36 @@ export default function TablaDeInteraccion() {
     }
     if (!clienteTelefono.trim()) {
       setError("⚠ Debes ingresar el teléfono del cliente.");
+      return;
+    }
+
+    // Validamos si hay habitaciones reservadas en la selección
+    const habitacionesReservadas: Array<{
+      numeroHabitacion: number;
+      fecha: string;
+      typeId: string;
+    }> = [];
+
+    for (const k of selected) {
+      const [dIndexStr, typeId, roomStr] = k.split("-");
+      const dIndex = Number(dIndexStr);
+      const roomNum = Number(roomStr);
+
+      if (isNaN(dIndex) || isNaN(roomNum)) continue;
+
+      const estado = availability[typeId]?.[roomNum]?.[dIndex];
+      if (estado === "RESERVADO") {
+        habitacionesReservadas.push({
+          numeroHabitacion: roomNum,
+          fecha: dates[dIndex],
+          typeId,
+        });
+      }
+    }
+
+    // Si hay reservadas, llamamos al modal que se encarga de mostrarlas y consultar si quiere forzar la ocupacion
+    if (habitacionesReservadas.length > 0) {
+      await mostrarAlertaReservas(habitacionesReservadas);
       return;
     }
 
@@ -432,6 +539,63 @@ export default function TablaDeInteraccion() {
                 className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-[#a67c52] focus:outline-none"
                 placeholder="Ingrese el teléfono"
               />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de alertas para reservas */}
+      {modalReservas.length > 0 && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-2xl p-8 max-w-3xl w-full mx-4">
+            <h2 className="text-3xl font-bold text-red-600 mb-4 text-center">
+              ⚠️ Habitaciones Reservadas
+            </h2>
+
+            <p className="text-gray-700 text-lg mb-6 text-center">
+              Algunas habitaciones de la selección se encuentran reservadas:
+            </p>
+
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse border-2 border-gray-300">
+                <thead>
+                  <tr className="bg-[#a67c52] text-white">
+                    <th className="border-2 border-gray-300 p-3 text-left">
+                      N° Habitación
+                    </th>
+                    <th className="border-2 border-gray-300 p-3 text-left">
+                      Periodo de Reserva
+                    </th>
+                    <th className="border-2 border-gray-300 p-3 text-left">
+                      Titular de la Reserva
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {modalReservas.map((reserva, idx) => (
+                    <tr key={idx} className="hover:bg-gray-100">
+                      <td className="border-2 border-gray-300 p-3 text-center font-semibold">
+                        {reserva.numeroHabitacion}
+                      </td>
+                      <td className="border-2 border-gray-300 p-3">
+                        {reserva.fechaInicio} → {reserva.fechaFin}
+                      </td>
+                      <td className="border-2 border-gray-300 p-3">
+                        {reserva.clienteNombre} {reserva.clienteApellido}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mt-6 flex justify-center">
+              <button
+                onClick={cerrarModal}
+                className="px-8 py-3 bg-[#a67c52] hover:bg-[#c39a4f] text-white font-bold rounded-lg shadow-lg transition"
+              >
+                Entendido
+              </button>
             </div>
           </div>
         </div>
