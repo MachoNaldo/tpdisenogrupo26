@@ -33,13 +33,7 @@ public class HuespedMapper {
         h.setDocumentacion(dto.getDocumentacion());
         h.setEmail(dto.getEmail());
         LocalDate hoy = LocalDate.now();
-         if (dto.getFechaNacimiento() != null) {
-            h.setFechaNacimiento(
-                Date.from(dto.getFechaNacimiento()
-                    .atStartOfDay(ZoneId.systemDefault())
-                    .toInstant())
-            );
-        }
+        h.setFechaNacimiento(dto.getFechaNacimiento());
         int edad = Period.between(dto.getFechaNacimiento(), hoy).getYears();
         h.setEdad(edad);
         
@@ -54,4 +48,27 @@ public class HuespedMapper {
 
         return h;
     }
+    public HuespedDTO crearDTO(Huesped h) {
+    HuespedDTO dto = new HuespedDTO();
+
+    dto.setApellido(h.getApellido());
+    dto.setConsumidorFinal(h.getConsumidorFinal().name());
+    dto.setCuit(h.getCuit());
+    dto.setDocumentacion(h.getDocumentacion());
+    dto.setEmail(h.getEmail());
+    dto.setFechaNacimiento(h.getFechaNacimiento());
+    dto.setEdad(h.getEdad());
+    dto.setNacionalidad(h.getNacionalidad());
+    dto.setNombres(h.getNombres());
+    dto.setOcupacion(h.getOcupacion());
+    dto.setSexo(h.getSexo().name());
+    dto.setTelefono(h.getTelefono());
+    dto.setTipoDocumento(h.getTipoDocumento().name());
+
+    // Dejo comentado ya que en realidad al buscar huespedes no mostramos la direccion, para mostrarla habria que modificar el front y en el mapper de direccion hacer el crearDTO
+    //dto.setDireccion(direccionMapper.crearDTO(h.getDireccion()));
+
+    return dto;
+}
+
 }

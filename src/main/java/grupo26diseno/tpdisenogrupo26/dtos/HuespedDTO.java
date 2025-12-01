@@ -25,4 +25,5 @@ public class HuespedDTO {
     private String sexo;
     private String telefono;
     private String tipoDocumento;
+    private int edad;
 }

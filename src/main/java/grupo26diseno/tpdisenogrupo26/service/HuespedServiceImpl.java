@@ -60,7 +60,7 @@ public class HuespedServiceImpl implements HuespedService {
     }
 
     @Override // Va a HuespedDTO
-    public List<Huesped> listarHuespedes() {
+    public List<HuespedDTO> listarHuespedes() {
         return huespedRepository.findAll();
     }
 

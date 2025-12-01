@@ -1,6 +1,6 @@
 package grupo26diseno.tpdisenogrupo26.model;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -34,7 +35,7 @@ public class Huesped extends Persona {
     @Column(nullable = false)
     private String documentacion;
     @Temporal(TemporalType.DATE)
-    private Date fechaNacimiento;
+    private LocalDate fechaNacimiento;
     @Enumerated(EnumType.STRING)
     private TipoConsumidor consumidorFinal;
     @Column(nullable = true)

@@ -93,7 +93,7 @@ export default function Menu() {
           </Link>
 
           {/* Ocupar habitacion */}
-          <Link href="/ocupar" className="menu-card">
+          <Link href="/seleccionarFechasOcupar" className="menu-card">
             <div className="icon-wrapper">
               <Image src="/img/LlaveOcup.png" alt="Ocupar" width={90} height={80} className="menu-icon opacity-80" />
             </div>

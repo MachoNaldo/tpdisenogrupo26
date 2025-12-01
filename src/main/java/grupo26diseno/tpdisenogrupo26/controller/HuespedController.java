@@ -39,7 +39,7 @@ public class HuespedController {
     }
 
     @GetMapping("/buscar")
-    public List<Huesped> buscarHuespedes(
+    public List<HuespedDTO> buscarHuespedes(
             @RequestParam(required = false) String apellido,
             @RequestParam(required = false) String nombres,
             @RequestParam(required = false) TipoDoc tipoDocumento,
