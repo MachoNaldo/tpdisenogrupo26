@@ -397,14 +397,14 @@ export default function TablaDeInteraccion() {
       </div>
 
       {selected.size > 0 && (
-        <div className="mt-8 w-full max-w-2xl mx-auto bg-[#f5f5f5] border-4 border-[#a67c52] rounded-xl p-6 shadow-lg">
+        <div className=" bg-black mt-8 w-full max-w-2xl mx-auto bg-[#000000 border-4 border-[#a67c52] rounded-xl p-6 shadow-lg">
           <h3 className="text-2xl font-bold text-[#a67c52] mb-4 text-center">
             Datos del Cliente
           </h3>
 
           <div className="space-y-4">
             <div>
-              <label className="block text-gray-700 font-semibold mb-2">
+              <label className="block text-[#a67c52] font-semibold mb-2">
                 Nombre:
               </label>
               <input
@@ -417,7 +417,7 @@ export default function TablaDeInteraccion() {
             </div>
 
             <div>
-              <label className="block text-gray-700 font-semibold mb-2">
+              <label className="block text-[#a67c52] font-semibold mb-2">
                 Apellido:
               </label>
               <input
