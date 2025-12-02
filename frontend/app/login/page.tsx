@@ -81,7 +81,9 @@ export default function Login() {
 
         {tieneError && (
           <div className="error-box">
-            <div className="error-icon">⚠️</div>
+            <div className="error-icon">
+              <Image src="img/iconoError.svg" alt="icono" width={40} height={40} />
+            </div>
             <p className="error-text">
               Error al verificar el usuario.<br />
               El usuario o la contraseña son inválidos.
@@ -93,54 +95,23 @@ export default function Login() {
         {/* FORMULARIO */}
         <form onSubmit={loguearse} className="form">
 
-          <input
-            type="text"
-            name="usuario"
-            placeholder="Usuario"
-            value={usuario}
-            onChange={manejarCambio}
-            required
-            autoComplete="username"
-            className={tieneError ? "input-error" : ""}
-          />
+          <input type="text" name="usuario" placeholder="Usuario" value={usuario}
+            onChange={manejarCambio} required autoComplete="username" className={tieneError ? "input-error" : ""}/>
 
           <div className="password-wrapper">
-            <input
-              type={mostrarContra ? "text" : "password"}
-              name="contrasena"
-              placeholder="Contraseña"
-              value={contrasena}
-              onChange={manejarCambio}
-              required
-              autoComplete="current-password"
-              className={tieneError ? "input-error" : ""}
-            />
+            <input type={mostrarContra ? "text" : "password"} name="contrasena" placeholder="Contraseña" value={contrasena}
+             onChange={manejarCambio} required autoComplete="current-password" className={tieneError ? "input-error" : ""}/>
 
-            <span
-              className="eye-icon"
-              onClick={() => setMostrarContra(!mostrarContra)}
-            >
-              👁️
+            <span className="eye-icon cursor-pointer" onClick={() => setMostrarContra(!mostrarContra)}>
+               <Image src="img/iconoOjo.svg" alt="icono" width={40} height={40} />
             </span>
           </div>
 
           <button type="submit" className="btn px-8 py-3 rounded-2xl text-xl 
-          font-bold shadow bg-[#a67c52] hover:bg-[#c39a4f] font-serif">
-            Verificar Usuario
-          </button>
+          font-bold shadow bg-[#a67c52] hover:bg-[#c39a4f] font-serif">Verificar Usuario</button>
         </form>
 
       </div>
-
-      {/* POPUP DE ERROR */}
-      {mostrarPopup && (
-        <div className="popup">
-          <div className="popup-content">
-            <p>{error}</p>
-            <button onClick={() => setMostrarPopup(false)}>Cerrar</button>
-          </div>
-        </div>
-      )}
 
     </div>
   );

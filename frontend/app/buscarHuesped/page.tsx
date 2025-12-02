@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Huesped, CriteriosBusqueda, TiposDocumentoArray } from '../lib/tipos'; 
 import { useEffect } from "react";
-import "./huespedes.css"; 
+import "./buscarHuesped.css"; 
 
 
 // URL base del backend, asumimos que está en el .env.local
@@ -143,7 +143,7 @@ export default function BuscarHuespedPage() {
     // Helper para el encabezado (replicando el diseño)
     const renderHeader = () => (
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 40px', backgroundColor: '#000', borderBottom: '2px solid #b8975a' }}>
-            <h1 className="font-serif" style={{ fontFamily: 'Georgia, serif', fontSize: '42px', fontStyle: 'italic', color: '#b8975a' }}>
+            <h1 className="font-serif" style={{ fontFamily: 'Georgia, serif', fontSize: '42px', fontStyle: 'italic'}}>
                 Buscar huésped
             </h1>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
@@ -158,46 +158,54 @@ export default function BuscarHuespedPage() {
         return (
             <div className="huespedes-bg">
                 {renderHeader()}
-                <main style={{ maxWidth: '600px', margin: '50px auto' }}>
+                <main style={{ maxWidth: '500px', margin: '50px auto' }}>
                     
                     <form onSubmit={handleBuscar}>
                         
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '30px', marginTop: '30px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '25px', marginTop: '15px' }}>
                             {/* Fila Apellido */}
                             <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr', gap: '20px', alignItems: 'center' }}>
                                 <label className="font-serif" style={{textAlign: 'right', fontStyle: 'italic'}}>Apellido</label>
-                                <input type="text" name="apellido" placeholder="Ej: Ojeda" value={criterios.apellido} onChange={handleChange} style={inputStyle} />
+                                <form className="form">
+                                <input type="text" name="apellido" placeholder="Ej: Ojeda" value={criterios.apellido} onChange={handleChange} />
+                                </form>
                             </div>
                             {/* Fila Nombres */}
                             <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr', gap: '20px', alignItems: 'center' }}>
                                 <label className="font-serif" style={{textAlign: 'right', fontStyle: 'italic'}}>Nombres</label>
-                                <input type="text" name="nombres" placeholder="Ej: Eduardo Nicolás" value={criterios.nombres} onChange={handleChange} style={inputStyle} />
+                                <form className="form">
+                                <input type="text" name="nombres" placeholder="Ej: Eduardo Nicolás" value={criterios.nombres} onChange={handleChange}/>
+                                </form>
                             </div>
                             {/* Fila Tipo de documento */}
                             <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr', gap: '20px', alignItems: 'center' }}>
                                 <label className="font-serif" style={{textAlign: 'right', fontStyle: 'italic'}}>Tipo de documento</label>
-                                <select name="tipoDocumento" value={criterios.tipoDocumento} onChange={handleChange} style={{ ...inputStyle, maxWidth: '200px', cursor: 'pointer' }}>
-                                    <option value="">---</option>
-                                    {TiposDocumentoArray.map(tipo => (
-                                        <option key={tipo} value={tipo}>{tipo}</option>
-                                    ))}
-                                </select>
+                                <form className="form">
+                                    <select name="tipoDocumento" value={criterios.tipoDocumento} onChange={handleChange} style={{maxWidth: '200px', cursor: 'pointer' }}>
+                                        <option value="">---</option>
+                                        {TiposDocumentoArray.map(tipo => (
+                                            <option key={tipo} value={tipo}>{tipo}</option>
+                                        ))}
+                                    </select>
+                                </form>
                             </div>
                             {/* Fila Documento */}
                             <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr', gap: '20px', alignItems: 'center' }}>
                                 <label className="font-serif" style={{textAlign: 'right', fontStyle: 'italic'}}>Documento</label>
-                                <input type="text" name="documento" value={criterios.documento} onChange={handleChange} style={inputStyle} />
+                                <form className="form">
+                                <input type="text" name="documento" value={criterios.documento} onChange={handleChange}/>
+                                </form>
                             </div>
                         </div>
                         
                         {error && <p style={{color: 'red', textAlign: 'center', marginTop: '20px'}}>{error}</p>}
                         
                         {/* Botones de Acción */}
-                        <div className="font-serif" style={{display: 'flex', justifyContent: 'center', marginTop: '100px', gap: '80px', position: 'relative'}}>
-                            <button type="submit" disabled={loading} style={submitButtonStyle}>
+                        <div style={{display: 'flex', justifyContent: 'center', marginTop: '40px', gap: '80px', position: 'relative'}}>
+                            <button className="btn" type="submit" disabled={loading}>
                                 {loading ? 'Buscando...' : 'Buscar huésped'}
                             </button>
-                            <button type="button" onClick={handleCancelar} style={cancelButtonStyle}>
+                            <button className="btn" type="button" onClick={handleCancelar}>
                                 Cancelar
                             </button>
                         </div>
@@ -218,10 +226,10 @@ export default function BuscarHuespedPage() {
                 <table className="font-serif"style={{width: '100%', borderCollapse: 'collapse', border: '2px solid #b8975a'}}>
                     <thead>
                         <tr style={{backgroundColor: '#b8975a', color: '#000'}}>
-                            <th style={tableHeaderStyle}>Apellido</th>
-                            <th style={tableHeaderStyle}>Nombres</th>
-                            <th style={tableHeaderStyle}>Tipo de doc</th>
-                            <th style={tableHeaderStyle}>Documento</th>
+                            <th>Apellido</th>
+                            <th>Nombres</th>
+                            <th>Tipo de doc</th>
+                            <th>Documento</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -235,21 +243,20 @@ export default function BuscarHuespedPage() {
                                     color: selectedHuespedId === huesped.id ? '#000' : '#b8975a'
                                 }}
                             >
-                                <td style={tableCellStyle}>{huesped.apellido}</td>
-                                <td style={tableCellStyle}>{huesped.nombres}</td>
-                                <td style={tableCellStyle}>{huesped.tipoDocumento}</td>
-                                <td style={tableCellStyle}>{huesped.documentacion}</td>
+                                <td>{huesped.apellido}</td>
+                                <td>{huesped.nombres}</td>
+                                <td>{huesped.tipoDocumento}</td>
+                                <td>{huesped.documentacion}</td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
                 
-                {/* Botones de Acción (Window-1.jpg) */}
                 <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: '60px', gap: '30px'}}>
-                    <button type="button" onClick={handleSiguiente} style={submitButtonStyle}>
+                    <button type="button" onClick={handleSiguiente}>
                         Siguiente
                     </button>
-                    <button type="button" onClick={handleCancelar} style={cancelButtonStyle}>
+                    <button type="button" onClick={handleCancelar}>
                         Cancelar
                     </button>
                 </div>
@@ -259,7 +266,7 @@ export default function BuscarHuespedPage() {
 };
 
 // --- Estilos Internos para replicar el diseño ---
-
+/*
 const inputStyle: React.CSSProperties = {
     padding: '10px 15px',
     border: '1px solid #b8975a',
@@ -301,4 +308,4 @@ const tableCellStyle: React.CSSProperties = {
     padding: '10px',
     border: '1px solid #b8975a',
     color: 'inherit',
-};
+};*/
