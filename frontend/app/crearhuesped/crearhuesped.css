@@ -7,93 +7,24 @@
   background-position: center;
   background-repeat: no-repeat;
   padding-bottom: 60px;
-
   display: flex;
   justify-content: center;
 }
 
-/* Contenedor principal */
-.form-container {
-  width: 780px;
-  background: #000;
-  border: 3px solid #b8975a;
-  border-radius: 6px;
-  margin-top: 40px;
-  box-shadow: 0 0 25px rgba(185, 151, 90, 0.4);
-}
-
-/* Encabezado */
-.form-header {
-  background: #000;
-  padding: 40px 20px 25px 20px;
-  border-bottom: 2px solid #b8975a;
-  text-align: center;
-  position: relative;
-}
-
-.form-header::before,
-.form-header::after {
-  content: url('/img/Fon.png');
-  position: absolute;
-  top: 15px;
-  width: 110px;
-  opacity: 0.25;
-}
-
-.form-header::before {
-  left: 15px;
-}
-
-.form-header::after {
-  right: 15px;
-  transform: scaleX(-1);
-}
-
-.laurel-wreath {
-  width: 130px;
-  height: 130px;
-  margin: 0 auto;
-  background-image: url('/img/logoSF.png');
-  background-size: contain;
-  background-repeat: no-repeat;
-}
-
-.form-title {
-  font-size: 42px;
-  margin-top: 20px;
-  letter-spacing: 6px;
-  font-weight: bold;
-}
-
-.form-subtitle {
-  font-size: 24px;
-  font-style: italic;
-  margin-top: 5px;
-  color: #b8975a;
-}
-
-.form-divider {
-  width: 100%;
-  height: 2px;
-  background: #b8975a;
-}
 
 /* Formulario */
 form.formularioHuesped {
   padding: 50px;
   background: #000;
+  border: 2px solid #b8975a;
+  margin: 20px;
+  border-radius: 15px;
 }
 
 .form-row {
   display: flex;
   gap: 18px;
   margin-bottom: 22px;
-}
-
-.form-row.two-col > *,
-.form-row.three-col > *,
-.form-row.four-col > * {
-  flex: 1;
 }
 
 .form-group {
@@ -141,46 +72,67 @@ form.formularioHuesped {
   margin-top: 35px;
 }
 
+
 .popup {
-  position: fixed;          /* necesario para salir del flujo normal */
+  position: fixed;          
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.6); /* oscurecer fondo */
-  backdrop-filter: blur(2px);     /* opcional: efecto elegante */
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);    
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9998;            /* debajo del content, arriba del resto */
+  z-index: 9998;
+}
+
+.popup-encabezado { /*Texto e Icono*/
+  display: flex;
+  align-items: center;      
+  margin: 15px;                 
+  margin-bottom: 20px;
+}
+
+.popup-botonera{
+   display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+    width: 100%; 
 }
 
 .popup-boton {
   background-color: #545353;
   color: white;
   border: none;
-  padding: 12px 30px;
   font-size: 16px;
   font-family: "Georgia", serif;
   font-weight: bold;
   cursor: pointer;
-  border-radius: 6px;
+  min-width: 100px;
+  width: auto;
+  margin: 10px;
+  padding: 12px;
 }
+
 .popup-boton:hover {
   background-color: #6D6A6A;
   transform: translateY(-2px);
 }
 
 
-.popup-content {
+.popup-contenido {
   position: relative;
   z-index: 9999;
   background: #2C2C2C;
   border: 5px solid #545353;
   border-radius: 10px;
-  padding: 35px;
-  box-shadow: 0 0 30px rgba(185, 151, 90, 0.35);
- 
+  padding: 20px;
+  max-width: 900px; 
+  width: auto;
+  height: auto;
+  box-shadow: 0 0 30px rgba(185, 151, 90, 0.35); 
 }
 
 .popup-descripcion {
@@ -189,13 +141,23 @@ form.formularioHuesped {
   color: #ffffff;
   fontSize: '16px';
   lineHeight: '1.5';
-  padding: 20px;
- 
+  padding: 10px;
+  margin-left: 10px;
+  margin-right: 30px;
+  left:30px;
+}
+
+.popup-descripcion h2{
+  margin-bottom: 15px;
+  font-size: 22px;
+}
+
+.popup-descripcion p{
+  font-size: 18px;
 }
 
 .popup-icono{
-  position: absolute;
+  position: relative;;
   left: 12px;
-  color: #b8975a;
+  color: #F7FF07;
 }
-/*545353*/

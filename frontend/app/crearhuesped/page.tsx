@@ -126,7 +126,6 @@ export default function CrearHuesped() {
     const valorNumerico = value.replace(/\D/g, '');
     setFormulario(prev => ({ ...prev, [name]: valorNumerico }));
   };
-
   const enviarFormulario = async (forzar: boolean = false) => {
     let datos: Formulario;
 
@@ -560,69 +559,70 @@ export default function CrearHuesped() {
             </button>
           </div>
         </form>
-      </main>
+                
 
-      {PopupExitoso && (
-        <div className="popup" style={{ display: 'flex' }}>
-          <div className="popup-content">
+              </main>
 
-            <div className='popup-icono'>
-              <Image
-                src="/img/iconoExito.svg"
-                alt="icono"
-                width={40}
-                height={40}
-              />
-            </div>
-            <div className='popup-descripcion'>
+              {PopupExitoso && (
+                <div className="popup">
+                    <div className="popup-contenido">
+                      
+                      <div className='popup-encabezado'>
+                            <Image className='popup-icono' src="img/iconoExito.svg" alt="icono" width={100} height={30}/>
+                          <div className='popup-descripcion'>
+                            <h2>
+                              Huésped Cargado Exitosamente
+                            </h2>
+                            <p>
+                              ¿Desea cargar otro huésped?
+                            </p>
+                          </div>
+                      </div>
+                        
+                      
+                      <div className='popup-botonera'>
+                        <button className="popup-boton" onClick={() => {setPopupExitoso(false); resetForm();}}>
+                          Sí
+                        </button>
+                        <button className="popup-boton" onClick={() => router.push('/menu')}>
+                          No
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+              )}
 
-
-              <h2 style={{ marginBottom: '20px', fontSize: '24px' }}>
-                Huésped Cargado Exitosamente
-              </h2>
-              <p style={{ fontSize: '18px' }}>
-                ¿Desea cargar otro huésped?
-              </p>
-            </div>
-
-            <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
-              <button className="popup-boton" onClick={() => { setPopupExitoso(false); resetForm(); }} style={{ width: "100px", padding: "12px 0" }}>
-                Sí
-              </button>
-              <button className="popup-boton" onClick={() => router.push('/menu')} style={{ width: "100px", padding: "12px 0" }}>
-                No
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {DuplicadoPopup && (
-        <div className="popup" style={{ display: 'flex' }}>
-          <div className="popup-content" style={{ maxWidth: '2000px' }}>
-            <div className='popup-icono'>
-              <Image src="img/iconoAdvertencia.svg" alt="icono" width={100} height={30} />
-            </div>
-            <div style={{ color: 'white', display: 'flex', alignItems: 'center', gap: '30px', marginBottom: '30px' }}>
-              <h2 style={{ marginBottom: '15px', fontSize: '22px' }}>
-                Documento ya registrado
-              </h2>
-              <p>
-                {duplicateMessage}
-              </p>
-            </div>
-            <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
-              <button className="popup-boton" onClick={async () => { setDuplicadoPopup(false); await enviarFormulario(true); }}>
-                Aceptar Igualmente
-              </button>
-              <button className="popup-boton" onClick={() => { setDuplicadoPopup(false); document.getElementById('documento')?.focus(); }}>
-                Corregir
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
-  );
-
+              {DuplicadoPopup && (
+                  
+                <div className="popup" style={{ display: 'flex' }}>
+                  <div className="popup-contenido">
+                    <div className='popup-encabezado'>
+                      <div className='popup-icono'>
+                        <Image src="img/iconoAdvertencia.svg" alt="icono" width={100} height={30}/>
+                      </div>
+                      <div className='popup-descripcion'>
+                          <h2>
+                            Documento ya registrado
+                          </h2>
+                          <p>
+                            {duplicateMessage}
+                          </p>
+                      </div>
+                    </div>
+                      
+                    
+                    <div className='popup-botonera'>
+                      <button className="popup-boton" onClick={async () => {setDuplicadoPopup(false); await enviarFormulario(true);}}>
+                        Aceptar Igualmente
+                      </button>
+                      <button className="popup-boton" onClick={() => {setDuplicadoPopup(false); document.getElementById('documento')?.focus();}}>
+                        Corregir
+                      </button>
+                    </div>
+                  </div>
+                  
+                </div>
+              )}
+            </>
+          );
 }

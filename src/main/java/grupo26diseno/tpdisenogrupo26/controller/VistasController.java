@@ -2,7 +2,7 @@ package grupo26diseno.tpdisenogrupo26.controller;
 
 
 import org.springframework.stereotype.Controller;
-
+//Revisar de eliminar toda esta clase si al seguir usandola no hay problemas
 @Controller
 public class VistasController {
 /*

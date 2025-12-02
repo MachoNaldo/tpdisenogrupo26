@@ -214,20 +214,20 @@ public class HabitacionServiceImpl implements HabitacionService {
                     .findById(numeroHab)
                     .orElseThrow(() -> new RuntimeException("La habitación " + numeroHab + " no existe"));
 
-            // 3️⃣ Crear y guardar la estadía principal
+            // Creamos y guardamos la estadía principal
             Estadia estadia = new Estadia();
             estadia.setFechaCheckIn(fInicio);
             estadia.setFechaCheckOut(fFin);
             estadia.setHabitacion(habitacion);
 
-            // 4️⃣ Crear y asociar el huésped principal
+            // Buscamos el huesped y lo asignamos como el huésped principal
             Huesped huespedPrincipal = huespedService.buscarHuespedPorId(habOcupar.getHuespedPrincipal().getId())
                     .orElseThrow(() -> new RuntimeException("El huésped principal con ID "
                             + habOcupar.getHuespedPrincipal().getId() + " no existe"));
 
             estadia.setHuespedPrincipal(huespedPrincipal);
 
-            // 5️⃣ Asociar acompañantes (si existen)
+            // Asignamos los acompañantes si los hay
             if (habOcupar.getAcompanantes() != null && !habOcupar.getAcompanantes().isEmpty()) {
                 List<Huesped> acompanantes = habOcupar.getAcompanantes().stream()
                         .map(a -> huespedService.buscarHuespedPorId(a.getId())
@@ -236,11 +236,11 @@ public class HabitacionServiceImpl implements HabitacionService {
                 estadia.setAcompanantes(acompanantes);
             }
 
-            // 6️⃣ Guardar la estadía
+            // Guardamos la estadía
             estadiaRepository.save(estadia);
 
 
-            // 7️⃣ Crear periodo estado ocupado asociado
+            // Creamos periodo estado ocupado asociado
             periodoEstadoService.crearPeriodoEstadoOcupado(habitacion, fInicio, fFin);
 
             // Eliminamos las reservas si esta ocupacion las solapa (forzar=true)

@@ -33,11 +33,11 @@ public class HuespedServiceImpl implements HuespedService {
     @Transactional
     public Huesped agregarHuesped(HuespedDTO huesped, boolean forzar) throws DocumentoUsadoException {
         if (!forzar) { // Si no se fuerza la creación, verificamos si el documento ya está en uso para notificar al usuario
-            Huesped existente = huespedRepository.findByTipoDocumentoAndDocumentacion(
+            List<Huesped> existente = huespedRepository.findByTipoDocumentoAndDocumentacion(
                     TipoDoc.valueOf(huesped.getTipoDocumento()), huesped.getDocumentacion());
-            if (existente != null) {
-                throw new DocumentoUsadoException("El documento " + existente.getTipoDocumento() + " "
-                        + existente.getDocumentacion() + " ya se encuentra registrado para otro huésped.");
+            if (!existente.isEmpty()) {
+                throw new DocumentoUsadoException("El documento " + existente.get(0).getTipoDocumento() + " "
+                        + existente.get(0).getDocumentacion() + " ya se encuentra registrado para otro huésped.");
             }
         }
         DireccionDTO direccion = huesped.getDireccion();

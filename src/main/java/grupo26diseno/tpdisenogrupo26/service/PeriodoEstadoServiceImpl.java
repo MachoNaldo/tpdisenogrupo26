@@ -49,7 +49,7 @@ public class PeriodoEstadoServiceImpl implements PeriodoEstadoService {
                               // o estado que impide la reserva nueva
     }
 
-    @Override
+    @Override // Metodo para validar disponibilidad ignorando reservas, usado para ocupaciones con forzar=true
     public void validarDisponibilidadIgnorandoReservas(Long numeroHabitacion, LocalDate fechaInicio,
             LocalDate fechaFin) throws DisponibilidadException {
         List<PeriodoEstado> periodos = obtenerPeriodosEstadoEnRango(numeroHabitacion, fechaFin, fechaInicio);
