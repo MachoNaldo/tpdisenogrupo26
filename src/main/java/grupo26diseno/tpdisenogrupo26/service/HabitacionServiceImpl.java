@@ -39,10 +39,6 @@ public class HabitacionServiceImpl implements HabitacionService {
     private PeriodoEstadoService periodoEstadoService;
     @Autowired
     private HuespedService huespedService;
-    /*
-     * @Autowired
-     * private PeriodoRepository periodoRepository;
-     */
     @Autowired
     private EstadiaRepository estadiaRepository;
 
@@ -168,20 +164,20 @@ public class HabitacionServiceImpl implements HabitacionService {
 
         for (HabitacionReservaDTO habReserva : dto.getReservas()) {
 
-            Long numeroHab = habReserva.getNumeroHabitacion().longValue();
+            Long numeroHab = habReserva.getNumeroHabitacion();
             LocalDate fInicio = LocalDate.parse(habReserva.getFechaInicio(), FORMAT);
             LocalDate fFin = LocalDate.parse(habReserva.getFechaFin(), FORMAT);
 
-            // 1️⃣ Validar disponibilidad REAL
+            //  Valida la disponibilidad para evitar problemas de concurrencia
 
             this.validarDisponibilidad(numeroHab, fInicio, fFin);
 
-            // 2️⃣ Obtener habitación real desde la BD
+            // Buscamos la entidad habitacion real desde la BD
             Habitacion habitacion = habitacionRepository
                     .findById(numeroHab)
                     .orElseThrow(() -> new RuntimeException("La habitación " + numeroHab + " no existe"));
 
-            // 3️⃣ Crear y guardar la reserva principal
+            // Creamos y guardamos la reserva principal
             Reserva reserva = new Reserva();
             reserva.setFechaInicio(fInicio);
             reserva.setFechaFinal(fFin);
@@ -189,9 +185,9 @@ public class HabitacionServiceImpl implements HabitacionService {
             reserva.setApellidoReservador(dto.getCliente().getApellido());
             reserva.setTelefonoReservador(dto.getCliente().getTelefono());
             reserva.setHabitacion(habitacion);
-
+            // Guardamos la reserva en su entidad correspondiente en la BD
             reservaRepository.save(reserva);
-            // 4️⃣ Crear periodo reservado asociado
+            // Creamos un periodo reservado asociado correspondiente a la reserva
             periodoEstadoService.crearPeriodoEstadoReservado(habitacion, fInicio, fFin);
 
             reservaRepository.save(reserva);
@@ -206,13 +202,14 @@ public class HabitacionServiceImpl implements HabitacionService {
             LocalDate fInicio = LocalDate.parse(habOcupar.getFechaInicio(), FORMAT);
             LocalDate fFin = LocalDate.parse(habOcupar.getFechaFin(), FORMAT);
 
-            // 1️⃣ Validar disponibilidad REAL
+            // Valida la disponibilidad para evitar problemas de concurrencia, si el usuario pidió forzar, es decir eliminar reservas solapadas
+            // Entonces se valida ignorando las reservas
             if (!forzar) {
                 this.validarDisponibilidad(numeroHab, fInicio, fFin);
             } else {
                 periodoEstadoService.validarDisponibilidadIgnorandoReservas(numeroHab, fInicio, fFin);
             }
-            // 2️⃣ Obtener habitación real desde la BD
+            // Buscamos la entidad habitacion real desde la BD
             Habitacion habitacion = habitacionRepository
                     .findById(numeroHab)
                     .orElseThrow(() -> new RuntimeException("La habitación " + numeroHab + " no existe"));

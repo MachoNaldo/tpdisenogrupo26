@@ -13,8 +13,6 @@ public interface HuespedService {
 
     Huesped agregarHuesped(HuespedDTO huesped, boolean forzar) throws DocumentoUsadoException;
 
-    public List<HuespedDTO> listarHuespedes();
-
     public Optional<Huesped> buscarHuespedPorId(Long id);
 
     List<HuespedDTO> buscarHuespedesPorCriterios(String apellido, String nombres, TipoDoc tipoDocumento, String documentacion);

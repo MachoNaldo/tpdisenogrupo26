@@ -32,7 +32,7 @@ public class HuespedServiceImpl implements HuespedService {
     @Override
     @Transactional
     public Huesped agregarHuesped(HuespedDTO huesped, boolean forzar) throws DocumentoUsadoException {
-        if (!forzar) {
+        if (!forzar) { // Si no se fuerza la creación, verificamos si el documento ya está en uso para notificar al usuario
             Huesped existente = huespedRepository.findByTipoDocumentoAndDocumentacion(
                     TipoDoc.valueOf(huesped.getTipoDocumento()), huesped.getDocumentacion());
             if (existente != null) {
@@ -59,13 +59,6 @@ public class HuespedServiceImpl implements HuespedService {
         return huespedRepository.save(nuevoHuesped);
     }
 
-    @Override // Va a HuespedDTO, revisar creo que no estamos usando este metodo
-    public List<HuespedDTO> listarHuespedes() {
-        List<HuespedDTO> listaHuespedesDTO = huespedRepository.findAll().stream()
-                .map(huesped -> huespedMapper.crearDTO(huesped))
-                .toList();
-        return listaHuespedesDTO;
-    }
 
     @Override
     public List<HuespedDTO> buscarHuespedesPorCriterios(String apellido, String nombres, TipoDoc tipoDocumento,
