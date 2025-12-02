@@ -1,0 +1,117 @@
+@startuml 
+title Diagrama de Secuencia - Ocupar Habitacion  
+
+actor Conserje
+
+participant "Pantalla_Ocupar_Habitacion" as P
+participant "HabitacionController" as HC
+participant "PeriodoEstadoService" as PE
+participant "HabitacionService" as GH
+participant "Estadia" as ES
+participant "HuespedService" as GO
+participant "HabitacionRepository" as H
+participant "EstadiaRepository" as E
+
+
+Conserje -[#red]-> P : solicita ocupar habitacion
+activate P
+
+loop [se selecciona la opcion "Cargar otra habitacion"]   
+    P -[#red]-> HC : navega a CU5 ("Mostrar-Estados-Habitaciones")
+    activate HC
+    HC -[#red]-> P : devuelve estados habitaciones
+    deactivate HC
+
+    loop [se selecciona una habitacion que no esta "Disponible" ni "Reservada"] or [se selecciona "Ocupar igual"]   
+        P -[#red]-> Conserje : solicita seleccionar un periodo para iniciar la estadia    
+        Conserje -[#red]-> P : realiza la seleccion (no engloba ninguna habitacion "reservada")     
+
+        alt         
+            Conserje -> P : realiza la seleccion (engloba alguna habitacion "reservada")
+            P -> P : muestra el mensaje ("Habitacion reservada el dia ### a nombre de ###")
+            P -> Conserje : mostrarOpciones ["Ocupar igual" / "volver")
+            Conserje -> P : selecciona "Ocupar igual"
+            alt
+                Conserje -> P : selecciona "volver"
+            end
+        end
+    end
+
+    loop [se selecciona la opcion "Seguir cargando"]
+        P -[#red]-> GO : navega a CU2 ("Buscar-Huesped")
+        activate GO
+        GO -[#red]-> P : devuelve una lista de huespedes coincidentes
+        deactivate GO
+
+        P -[#red]-> Conserje : solicita seleccionar un ocupante
+        Conserje -[#red]-> P : selecciona un ocupante
+
+        P -[#red]-> Conserje : solicita seleccionar acompañantes
+        Conserje -[#red]-> P : selecciona acompañantes
+
+        P -[#red]-> Conserje : muestra servicios disponibles
+        Conserje -[#red]-> P : selecciona servicios
+
+        P -[#red]-> HC : agregarEstadia(estadia_DTO)
+        activate HC
+        HC -[#red]-> GH : crearEstadia(estadia_DTO)
+        activate GH
+        loop [ Por cada habitacion seleccionada para ocupar]
+          GH -> GH : buscarPorNumero(numeroHabitacion)
+          activate GH
+          GH -[#red]-> H : findByNumero(numeroHabitacion)
+          activate H
+          H -[#red]-> GH : habitacion
+          deactivate H
+          deactivate GH
+          GH -[#red]-> PE : validarDisponibilidadOcupar(numero, fechaInicio, fechaFin)
+          activate PE
+          alt [La habitacion no esta disponible]
+            PE -[#red]-> GH : Excepcion
+            GH -[#red]-> P : Mensaje de error
+            end
+          PE -[#red]-> GH : Confirma que las fechas estan disponibles  
+          deactivate PE
+          GH -[#red]-> ES : new Estadia() : estadia
+          activate ES
+          ES -[#red]-> GH : estadia
+          deactivate ES
+          GH -[#red]-> GO : buscarHuespedPorId(idOcupante)
+          GO -[#red]-> GH : huespedPrincipal
+          GH -> GH : setHuespedPrincipal(huespedPrincipal)
+          GH -> GH : setHabitacion(habitacion)
+          loop [ Por cada huesped seleccionado como acompañantes]
+            GH -[#red]-> GO : buscarHuespedPorId(idAcompanante)
+            GO -[#red]-> GH : huespedAcompanante
+            GH -> GH : acompanantes.add(huespedAcompanante)
+          end
+          GH -[#red]-> PE : crearPeriodoEstadoOcupado(habitacion, fechaInicio, fechaFin)
+          activate PE
+          PE -[#red]-> GH : periodo guardado en la bd
+          deactivate PE
+          GH -[#red]-> E : save(estadia)
+          activate E
+          E -[#red]-> GH
+          deactivate E
+          GH -[#red]-> HC
+          deactivate GH
+          HC -[#red]-> P
+          deactivate HC
+
+        P -[#red]-> P : mostrarMensaje("Operacion realizada con exito")
+        P -[#red]-> Conserje : opciones("Seguir cargando" / "Cargar otra habitacion" / "Salir")
+
+        alt
+            Conserje -[#red]-> P : selecciona "Seguir cargando"
+        end
+    end
+
+    alt
+        Conserje -[#red]-> P : selecciona "Cargar otra habitacion"
+    end
+end
+
+Conserje -[#red]-> P : selecciona "Salir"
+deactivate P
+
+@enduml

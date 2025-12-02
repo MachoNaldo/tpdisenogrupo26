@@ -13,6 +13,7 @@ import grupo26diseno.tpdisenogrupo26.model.TipoDoc;
 @Repository
 public interface HuespedRepository  extends JpaRepository<Huesped, Long> {
     Huesped findByTipoDocumentoAndDocumentacion(TipoDoc tipoDocumento, String documentacion);
+    
      @Query("SELECT h FROM Huesped h WHERE " +
            "(:apellido IS NULL OR h.apellido LIKE %:apellido%) AND " +
            "(:nombres IS NULL OR h.nombres LIKE %:nombres%) AND " +
@@ -23,4 +24,5 @@ public interface HuespedRepository  extends JpaRepository<Huesped, Long> {
             @Param("nombres") String nombres,
             @Param("tipoDocumento") TipoDoc tipoDocumento,
             @Param("documentacion") String documentacion);
+    Huesped findById(long id);
 }

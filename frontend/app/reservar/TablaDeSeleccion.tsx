@@ -37,10 +37,13 @@ export default function TablaDeInteraccion() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [lastSelected, setLastSelected] = useState<any>(null);
 
+  // Datos del cliente
+  const [clienteNombre, setClienteNombre] = useState("");
+  const [clienteApellido, setClienteApellido] = useState("");
+  const [clienteTelefono, setClienteTelefono] = useState("");
+
   const keyOf = (d: number, typeId: string, room: number) =>
     `${d}-${typeId}-${room}`;
-
-
 
   //BACKEND
   async function cargarDatos() {
@@ -106,10 +109,6 @@ export default function TablaDeInteraccion() {
       }
 
       setAvailability(avail);
-
-
-
-      setAvailability(avail);
     } catch (e) {
       console.error("Error cargando disponibilidad:", e);
     } finally {
@@ -120,8 +119,6 @@ export default function TablaDeInteraccion() {
   useEffect(() => {
     cargarDatos();
   }, [desdeParam, hastaParam]);
-
-
 
   function seleccionarCelda(
     d: number,
@@ -162,40 +159,82 @@ export default function TablaDeInteraccion() {
     setSelected(new Set());
   };
 
-
   const reservar = async () => {
     if (selected.size === 0) {
       setError("⚠ Debes seleccionar al menos una celda.");
       return;
     }
 
-    const reservasParaEnviar: any[] = [];
+    // Validar datos del cliente
+    if (!clienteNombre.trim()) {
+      setError("⚠ Debes ingresar el nombre del cliente.");
+      return;
+    }
+    if (!clienteApellido.trim()) {
+      setError("⚠ Debes ingresar el apellido del cliente.");
+      return;
+    }
+    if (!clienteTelefono.trim()) {
+      setError("⚠ Debes ingresar el teléfono del cliente.");
+      return;
+    }
+
+    // Agrupar selecciones por habitación
+    const porHabitacion: Record<number, number[]> = {};
 
     for (const k of selected) {
       const [dIndexStr, typeId, roomStr] = k.split("-");
-
       const dIndex = Number(dIndexStr);
       const roomNum = Number(roomStr);
 
-      if (isNaN(dIndex) || isNaN(roomNum)) {
-        console.error("❌ Key inválida:", k);
-        continue;
+      if (isNaN(dIndex) || isNaN(roomNum)) continue;
+
+      if (!porHabitacion[roomNum]) porHabitacion[roomNum] = [];
+      porHabitacion[roomNum].push(dIndex);
+    }
+
+    const reservasParaEnviar: any[] = [];
+
+    // Para cada habitación, agrupar fechas consecutivas
+    for (const [roomNum, indices] of Object.entries(porHabitacion)) {
+      // Ordenar índices
+      const sortedIndices = indices.sort((a, b) => a - b);
+
+      // Agrupar consecutivos
+      let inicio = sortedIndices[0];
+      let fin = sortedIndices[0];
+
+      for (let i = 1; i < sortedIndices.length; i++) {
+        if (sortedIndices[i] === fin + 1) {
+          // Consecutivo
+          fin = sortedIndices[i];
+        } else {
+          // Corte: guardar rango anterior
+          reservasParaEnviar.push({
+            numeroHabitacion: Number(roomNum),
+            fechaInicio: dates[inicio],
+            fechaFin: dates[fin],
+          });
+
+          // Nuevo rango
+          inicio = sortedIndices[i];
+          fin = sortedIndices[i];
+        }
       }
 
-      const fecha = dates[dIndex];
-
+      // Guardar último rango
       reservasParaEnviar.push({
-        numeroHabitacion: roomNum,
-        fechaInicio: fecha,
-        fechaFin: fecha,
+        numeroHabitacion: Number(roomNum),
+        fechaInicio: dates[inicio],
+        fechaFin: dates[fin],
       });
     }
 
     const payload = {
       cliente: {
-        nombre: "Reserva Web",
-        apellido: "Online",
-        telefono: "0000",
+        nombre: clienteNombre.trim(),
+        apellido: clienteApellido.trim(),
+        telefono: clienteTelefono.trim(),
       },
       reservas: reservasParaEnviar,
     };
@@ -217,13 +256,15 @@ export default function TablaDeInteraccion() {
 
       await cargarDatos();
       setSelected(new Set());
+      setClienteNombre("");
+      setClienteApellido("");
+      setClienteTelefono("");
       setError(null);
     } catch (e) {
       console.error("❌ ERROR en fetch:", e);
       setError("⚠ No se pudo conectar.");
     }
   };
-
 
   if (loading)
     return (
@@ -343,10 +384,58 @@ export default function TablaDeInteraccion() {
             >
               Quitar seleccionados
             </button>
-
           )}
         </div>
       </div>
+
+      {selected.size > 0 && (
+        <div className="mt-8 w-full max-w-2xl mx-auto bg-[#f5f5f5] border-4 border-[#a67c52] rounded-xl p-6 shadow-lg">
+          <h3 className="text-2xl font-bold text-[#a67c52] mb-4 text-center">
+            Datos del Cliente
+          </h3>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">
+                Nombre:
+              </label>
+              <input
+                type="text"
+                value={clienteNombre}
+                onChange={(e) => setClienteNombre(e.target.value)}
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-[#a67c52] focus:outline-none"
+                placeholder="Ingrese el nombre"
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">
+                Apellido:
+              </label>
+              <input
+                type="text"
+                value={clienteApellido}
+                onChange={(e) => setClienteApellido(e.target.value)}
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-[#a67c52] focus:outline-none"
+                placeholder="Ingrese el apellido"
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">
+                Teléfono:
+              </label>
+              <input
+                type="tel"
+                value={clienteTelefono}
+                onChange={(e) => setClienteTelefono(e.target.value)}
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-[#a67c52] focus:outline-none"
+                placeholder="Ingrese el teléfono"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

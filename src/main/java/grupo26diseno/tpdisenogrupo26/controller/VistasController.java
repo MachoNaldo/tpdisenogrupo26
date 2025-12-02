@@ -46,7 +46,7 @@ public class VistasController {
 
     @Autowired
     private HuespedService huespedService;
-
+   /* Metodo deprecado, se usa el de HuespedController
     @GetMapping("/huespedes")
     public String listarHuespedes(Model model, HttpSession session) {
         Boolean autenticado = (Boolean) session.getAttribute("autenticado");
@@ -57,5 +57,5 @@ public class VistasController {
         List<Huesped> huespedes = huespedService.listarHuespedes();
         model.addAttribute("huespedes", huespedes);
         return "huespedes";
-    }
+    } */
 }

@@ -1,0 +1,58 @@
+@startuml
+
+title Diagrama de Secuencia - Mostrar Estado Habitaciones
+
+actor Conserje
+participant "Pantalla_Mostrar_Estados_Habitacion" as P
+participant "HabitacionController" as HC
+participant "HabitacionService" as GH
+participant "HabitacionRepository" as H
+
+Conserje -[#red]-> P : solicita mostrar estados
+activate P
+loop [se selecciona "Reintentar"]
+   P -[#red]-> Conserje : muestra campos a completar
+   Conserje -[#red]-> P : completa los campos
+    alt 
+      P -> P : mostrarError("Fechas invalidas/faltantes")
+      P -> Conserje : mostrarOpciones [Reintentar Operacion / Cancelar]
+        Conserje -> P : selecciona "Reintentar Operacion"
+      alt
+        Conserje -> P : selecciona "Cancelar"
+        P -> Conserje : muestra mensaje "Operacion Cancelada"
+      end
+    end
+  end
+  
+
+  P -[#red]-> HC : consultarDisponibilidad(numeroHabitacion, fechaInicio, fechaFin)
+  activate HC
+  HC -[#red]-> GH : obtenerEstadosHabitacionEnPeriodo(numeroHabitacion, fechaInicio, fechaFin)
+  activate GH
+  GH -[#red]-> H : obtenerEstadosHabitacionEnPeriodo(numeroHabitacion, fechaFin, fechaInicio);
+  activate H
+
+  alt Error de base de datos 
+    H -> GH
+      GH -> P : mostrarError("Error al conectar con la Base de Datos")
+    P -> Conserje : mostrarOpciones [Reintentar Operacion / Cancelar]
+        Conserje -> P : selecciona "Reintentar Operacion"
+      alt
+        Conserje -> P : selecciona "Cancelar"
+        P -> Conserje : muestra mensaje "Operacion Cancelada"
+      end
+  end
+
+
+H -[#red]-> GH : Map<LocalDate, TipoEstadoHabitacion> estadosPorDia 
+deactivate H
+
+GH -[#red]-> HC : estadosPorDia 
+deactivate GH
+
+HC -[#red]-> P : estadosPorDia 
+deactivate HC
+
+
+
+@enduml

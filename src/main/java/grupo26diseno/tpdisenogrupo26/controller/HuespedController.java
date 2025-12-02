@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import grupo26diseno.tpdisenogrupo26.dtos.HuespedDTO;
 import grupo26diseno.tpdisenogrupo26.excepciones.DocumentoUsadoException;
 import grupo26diseno.tpdisenogrupo26.model.Huesped;
 import grupo26diseno.tpdisenogrupo26.model.TipoDoc;
@@ -28,23 +29,17 @@ public class HuespedController {
     private HuespedService huespedService;
 
     @PostMapping("/crearhuesped")
-    public ResponseEntity<?> agregarHuesped(@RequestBody Huesped huesped, @RequestParam(defaultValue = "false") boolean forzar) {
+    public ResponseEntity<?> agregarHuesped(@RequestBody HuespedDTO huesped, @RequestParam(defaultValue = "false") boolean forzar) {
         try {
-            LocalDate hoy = LocalDate.now();
-            LocalDate nacimiento = huesped.getFechaNacimiento().toInstant()
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDate();
-            int edad = Period.between(nacimiento, hoy).getYears();
-            huesped.setEdad(edad);
-            Huesped nuevoHuesped = huespedService.agregarHuesped(huesped, forzar);
-            return ResponseEntity.status(HttpStatus.CREATED).body(nuevoHuesped);
+            huespedService.agregarHuesped(huesped, forzar);
+            return ResponseEntity.status(HttpStatus.CREATED).body(huesped);
         } catch (DocumentoUsadoException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
     }
 
     @GetMapping("/buscar")
-    public List<Huesped> buscarHuespedes(
+    public List<HuespedDTO> buscarHuespedes(
             @RequestParam(required = false) String apellido,
             @RequestParam(required = false) String nombres,
             @RequestParam(required = false) TipoDoc tipoDocumento,

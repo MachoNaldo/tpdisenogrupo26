@@ -1,0 +1,39 @@
+@startuml
+
+title Diagrama de Secuencia - Buscar Huesped
+
+actor Conserje
+participant "Pantalla_Buscar_Habitacion" as P
+participant "HuespedController" as HC
+participant "HuespedService" as GH
+participant "HuespedRepository (Interface)" as H
+
+
+Conserje -[#red]-> P : solicita buscar huesped
+activate P
+P -[#red]-> Conserje : muestra los campos("Nombre"/"Apellido"/"Tipo de documento"/"num de documento")
+Conserje -[#red]-> P : completa ninguno, uno o varios campos
+P -[#red]-> HC : buscarHuespedesPorCriterios(String apellido, String nombres, TipoDoc tipoDocumento, String documentacion)
+activate HC
+HC -[#red]-> GH : buscarPorCriterios(apellido, nombres, tipoDocumento, documentacion)
+activate GH  
+GH -[#red]-> H : buscarPorCriterios(apellido, nombres, tipoDocumento, documentacion)
+activate H
+H -[#red]-> GH
+deactivate H
+GH -[#red]-> HC : listaHuespedes<huespedDTO>
+  alt [listaHuespedes esta vacia]
+    HC -> P : muestraMensaje("no se encontro coincidencia")
+    P -> HC : navega a CU9 ("DarAltaHuesped")
+  end
+HC -[#red]-> P
+P -[#red]-> Conserje : muestra el contenido de la "listaHuespedes"
+alt [no se selecciona ningun huesped]
+  P -> HC : navega a CU9 ("DarAltaHuesped")
+end
+Conserje -[#red]-> P : selecciona un huesped
+P -[#red]-> HC : navenga a CU10 ("ModificarHuesped")
+deactivate P
+deactivate GH
+
+@enduml

@@ -1,23 +1,10 @@
 package grupo26diseno.tpdisenogrupo26.config;
 
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import grupo26diseno.tpdisenogrupo26.model.Usuario;
-import grupo26diseno.tpdisenogrupo26.repository.UsuarioRepository;
-
-import grupo26diseno.tpdisenogrupo26.repository.HabitacionRepository;
-import grupo26diseno.tpdisenogrupo26.repository.PeriodoRepository;
-import grupo26diseno.tpdisenogrupo26.model.Habitacion;
-import grupo26diseno.tpdisenogrupo26.model.PeriodoEstado;
-import grupo26diseno.tpdisenogrupo26.model.TipoEstadoHabitacion;
-
-import java.time.LocalDate;
 
 @Configuration
 public class DataInitializer {
-
+/* 
     @Bean
     CommandLineRunner initDatabase(
             UsuarioRepository usuarioRepository,
@@ -62,5 +49,5 @@ public class DataInitializer {
 
             System.out.println(">>> Periodos iniciales de estado generados correctamente.");
         };
-    }
+    }*/
 }
