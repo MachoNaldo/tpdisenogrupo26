@@ -542,10 +542,8 @@ export default function TablaDeInteraccion() {
                   fontSize: '1rem',
                   fontWeight: 'bold',
                   cursor: 'pointer'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#c2410c'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ea580c'}
-              >
+                }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#c2410c'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ea580c'}>
                 Ocupar de Todas Formas
               </button>
             </div>

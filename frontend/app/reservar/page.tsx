@@ -1,6 +1,6 @@
 import Encabezado from "./Encabezado";
 import TablaDeInteraccion from "./TablaDeSeleccion";
-import BotonCancelar from "./BotonCancelar";
+import BotonCancelar from "../components/BotonCancelar";
 export default function TablaPage() {
 
   return (
