@@ -4,6 +4,7 @@ import { useState, useEffect, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import "./crearhuesped.css";
+import BotonCancelar from "../components/BotonCancelar";
 import "../styles/estilos.css";
 
 
@@ -434,6 +435,9 @@ export default function CrearHuesped() {
                         onChange={cambioInput}
                       />
                     </div>
+                  </div>
+
+                  <div className="form-row two-col">
                     <div className="form-group">
                       <label htmlFor="departamento">Dept</label>
                       <input 
@@ -444,9 +448,6 @@ export default function CrearHuesped() {
                         onChange={cambioInput}
                       />
                     </div>
-                  </div>
-
-                  <div className="form-row two-col">
                     <div className="form-group">
                       <label htmlFor="localidad">Localidad</label>
                       <input 
@@ -501,6 +502,7 @@ export default function CrearHuesped() {
                         />
                       </div>
                     </div>
+                    
                   </div>
 
                   <div className="form-row three-col">
@@ -538,29 +540,29 @@ export default function CrearHuesped() {
                       />
                     </div>
                   </div>
-
-                  <div className="form-row">
+                  <div className='grupo-row'>
                     <div className="form-group">
                       <label htmlFor="ocupacion">Ocupación</label>
-                      <input 
-                        type="text" 
-                        id="ocupacion" 
-                        name="ocupacion"  
-                        value={Formulario.ocupacion}
-                        onChange={cambioInput}
-                        required 
-                      />
+                      <input type="text" id="ocupacion" name="ocupacion" 
+                      value={Formulario.ocupacion} onChange={cambioInput} required/>
                     </div>
                   </div>
 
+                  
+
                   <div className="form-actions">
-                    <button type="submit" className="btn">Siguiente</button>
-                    <button type="button" className="btn" onClick={() => router.push('/menu')}>
-                      Cancelar
+                    <button type="submit" className="btn">
+                      Siguiente
                     </button>
+                    <div className="mt-6 w-full flex justify-end">
+                      <BotonCancelar/>
+                    </div>
                   </div>
+                  
                 </form>
-                
+
+
+
 
               </main>
 
@@ -626,5 +628,4 @@ export default function CrearHuesped() {
               )}
             </>
           );
-  
 }

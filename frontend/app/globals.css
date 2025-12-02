@@ -92,6 +92,7 @@ body {
 
 /*POPUP DE MENSAJES*/
 
+
 .popup {
   position: fixed;          
   top: 0;
@@ -108,7 +109,7 @@ body {
 
 .popup-encabezado { /*Texto e Icono*/
   display: flex;
-  align-items: center;       
+  align-items: center;      
   margin: 15px;                 
   margin-bottom: 20px;
 }
@@ -134,6 +135,7 @@ body {
   margin: 10px;
   padding: 12px;
 }
+
 .popup-boton:hover {
   background-color: #6D6A6A;
   transform: translateY(-2px);
@@ -147,11 +149,10 @@ body {
   border: 5px solid #545353;
   border-radius: 10px;
   padding: 20px;
-  
+  max-width: 900px; 
   width: auto;
   height: auto;
   box-shadow: 0 0 30px rgba(185, 151, 90, 0.35); 
- 
 }
 
 .popup-descripcion {
@@ -180,7 +181,6 @@ body {
   left: 12px;
   color: #F7FF07;
 }
-
 
 
 

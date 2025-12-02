@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+//import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,7 +29,9 @@ public class HabitacionController {
         LocalDate f2 = LocalDate.parse(hasta);
 
         return habitacionService.obtenerDisponibilidad(f1, f2);
-    }/*
+    }
+    
+    /*
     @PostMapping("/ocupar")
     public ResponseEntity<?> crearEstadia(@RequestBody EstadiaDTO estadiaDTO) {
         try {
