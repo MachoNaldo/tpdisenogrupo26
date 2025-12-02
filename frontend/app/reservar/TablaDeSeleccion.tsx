@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import EstructuraDeTabla, { Estados } from "./EstructuraDeTabla";
 
+
 interface DisponibilidadDTO {
   numeroHabitacion: number;
   tipoHabitacion: string;

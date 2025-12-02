@@ -36,8 +36,8 @@ public class HuespedServiceImpl implements HuespedService {
             Huesped existente = huespedRepository.findByTipoDocumentoAndDocumentacion(
                     TipoDoc.valueOf(huesped.getTipoDocumento()), huesped.getDocumentacion());
             if (existente != null) {
-                throw new DocumentoUsadoException("El documento" + existente.getTipoDocumento() + " "
-                        + existente.getDocumentacion() + "ya se encuentra registrado para otro huésped.");
+                throw new DocumentoUsadoException("El documento " + existente.getTipoDocumento() + " "
+                        + existente.getDocumentacion() + " ya se encuentra registrado para otro huésped.");
             }
         }
         DireccionDTO direccion = huesped.getDireccion();

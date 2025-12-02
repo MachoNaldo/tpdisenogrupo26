@@ -11,11 +11,7 @@ export default function BotonCancelar() {
   };
 
   return (
-    <button
-      onClick={volverASeleccion}
-      className="bg-[#a67c52] text-white px-8 py-2 rounded-2xl text-2xl shadow-md 
-                 hover:bg-[#c39a4f] transition font-[Georgia] font-bold"
-    >
+    <button onClick={volverASeleccion} className="btn">
       Cancelar
     </button>
   );

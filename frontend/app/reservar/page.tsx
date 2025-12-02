@@ -1,7 +1,6 @@
 import Encabezado from "./Encabezado";
 import TablaDeInteraccion from "./TablaDeSeleccion";
 import BotonCancelar from "./BotonCancelar";
-
 export default function TablaPage() {
 
   return (
@@ -23,9 +22,8 @@ export default function TablaPage() {
 
         <div className="mt-6 flex flex-col">
           <TablaDeInteraccion />
-          {/* Botón Cancelar */}
           <div className="mt-6 w-full flex justify-end">
-            <BotonCancelar />
+            <BotonCancelar/>
           </div>
         </div>
 
