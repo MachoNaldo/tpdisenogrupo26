@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import EstructuraDeTabla, { Estados } from "./EstructuraDeTabla";
+import ResumenReserva from "./ResumenReserva";
 
 
 interface DisponibilidadDTO {
@@ -45,6 +46,10 @@ export default function TablaDeInteraccion() {
 
   const keyOf = (d: number, typeId: string, room: number) =>
     `${d}-${typeId}-${room}`;
+
+  const [confirmando, setConfirmando] = useState(false);
+  const [resumen, setResumen] = useState<any[]>([]);
+
 
   //BACKEND
   async function cargarDatos() {
@@ -161,111 +166,73 @@ export default function TablaDeInteraccion() {
   };
 
   const reservar = async () => {
-    if (selected.size === 0) {
-      setError("⚠ Debes seleccionar al menos una celda.");
-      return;
-    }
+  if (selected.size === 0) {
+    setError("⚠ Debes seleccionar al menos una celda.");
+    return;
+  }
 
-    // Validar datos del cliente
-    if (!clienteNombre.trim()) {
-      setError("⚠ Debes ingresar el nombre del cliente.");
-      return;
-    }
-    if (!clienteApellido.trim()) {
-      setError("⚠ Debes ingresar el apellido del cliente.");
-      return;
-    }
-    if (!clienteTelefono.trim()) {
-      setError("⚠ Debes ingresar el teléfono del cliente.");
-      return;
-    }
+  if (!clienteNombre.trim() || !clienteApellido.trim() || !clienteTelefono.trim()) {
+    setError("⚠ Debes completar todos los datos del cliente.");
+    return;
+  }
 
-    // Agrupar selecciones por habitación
-    const porHabitacion: Record<number, number[]> = {};
+  // Agrupar selecciones por habitación
+  const porHabitacion: Record<number, number[]> = {};
 
-    for (const k of selected) {
-      const [dIndexStr, typeId, roomStr] = k.split("-");
-      const dIndex = Number(dIndexStr);
-      const roomNum = Number(roomStr);
+  for (const k of selected) {
+    const [dIndexStr, typeId, roomStr] = k.split("-");
+    const dIndex = Number(dIndexStr);
+    const roomNum = Number(roomStr);
 
-      if (isNaN(dIndex) || isNaN(roomNum)) continue;
+    if (!porHabitacion[roomNum]) porHabitacion[roomNum] = [];
+    porHabitacion[roomNum].push(dIndex);
+  }
 
-      if (!porHabitacion[roomNum]) porHabitacion[roomNum] = [];
-      porHabitacion[roomNum].push(dIndex);
-    }
+  const reservasRango: any[] = [];
 
-    const reservasParaEnviar: any[] = [];
+  // Agrupar consecutivos
+  for (const [roomNumStr, indices] of Object.entries(porHabitacion)) {
+    const roomNum = Number(roomNumStr);
+    const sorted = indices.sort((a, b) => a - b);
 
-    // Para cada habitación, agrupar fechas consecutivas
-    for (const [roomNum, indices] of Object.entries(porHabitacion)) {
-      // Ordenar índices
-      const sortedIndices = indices.sort((a, b) => a - b);
+    let inicio = sorted[0];
+    let fin = sorted[0];
 
-      // Agrupar consecutivos
-      let inicio = sortedIndices[0];
-      let fin = sortedIndices[0];
-
-      for (let i = 1; i < sortedIndices.length; i++) {
-        if (sortedIndices[i] === fin + 1) {
-          // Consecutivo
-          fin = sortedIndices[i];
-        } else {
-          // Corte: guardar rango anterior
-          reservasParaEnviar.push({
-            numeroHabitacion: Number(roomNum),
-            fechaInicio: dates[inicio],
-            fechaFin: dates[fin],
-          });
-
-          // Nuevo rango
-          inicio = sortedIndices[i];
-          fin = sortedIndices[i];
-        }
+    for (let i = 1; i < sorted.length; i++) {
+      if (sorted[i] === fin + 1) {
+        fin = sorted[i];
+      } else {
+        reservasRango.push({
+          numeroHabitacion: roomNum,
+          fechaInicio: dates[inicio],
+          fechaFin: dates[fin],
+        });
+        inicio = fin = sorted[i];
       }
-
-      // Guardar último rango
-      reservasParaEnviar.push({
-        numeroHabitacion: Number(roomNum),
-        fechaInicio: dates[inicio],
-        fechaFin: dates[fin],
-      });
     }
 
-    const payload = {
-      cliente: {
-        nombre: clienteNombre.trim(),
-        apellido: clienteApellido.trim(),
-        telefono: clienteTelefono.trim(),
-      },
-      reservas: reservasParaEnviar,
+    reservasRango.push({
+      numeroHabitacion: roomNum,
+      fechaInicio: dates[inicio],
+      fechaFin: dates[fin],
+    });
+  }
+
+  // Agregar tipoHabitacion a cada rango
+  const resumenCompleto = reservasRango.map((r) => {
+    const tipoHab = Object.entries(availability).find(([tipo, rooms]) =>
+      rooms[r.numeroHabitacion]
+    )?.[0] ?? "Desconocido";
+
+    return {
+      ...r,
+      tipoHabitacion: tipoHab,
     };
+  });
 
-    console.log("👉 JSON enviado al backend:");
-    console.log(JSON.stringify(payload, null, 2));
-
-    try {
-      const resp = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reservas`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!resp.ok) {
-        setError("⚠ Error al reservar.");
-        return;
-      }
-
-      await cargarDatos();
-      setSelected(new Set());
-      setClienteNombre("");
-      setClienteApellido("");
-      setClienteTelefono("");
-      setError(null);
-    } catch (e) {
-      console.error("❌ ERROR en fetch:", e);
-      setError("⚠ No se pudo conectar.");
-    }
-  };
+  setResumen(resumenCompleto);
+  setConfirmando(true);
+};
 
   if (loading)
     return (
@@ -273,6 +240,47 @@ export default function TablaDeInteraccion() {
         Cargando disponibilidad...
       </p>
     );
+    if (confirmando) {
+  return (
+    <ResumenReserva
+      reservas={resumen}
+      cliente={{
+        nombre: clienteNombre,
+        apellido: clienteApellido,
+        telefono: clienteTelefono,
+      }}
+      onAceptar={async () => {
+        // acá sí llamás al backend
+        const payload = {
+          cliente: {
+            nombre: clienteNombre,
+            apellido: clienteApellido,
+            telefono: clienteTelefono,
+          },
+          reservas: resumen.map(r => ({
+            numeroHabitacion: r.numeroHabitacion,
+            fechaInicio: r.fechaInicio,
+            fechaFin: r.fechaFin
+          }))
+        };
+
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reservas`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        setConfirmando(false);
+        setSelected(new Set());
+        setClienteNombre("");
+        setClienteApellido("");
+        setClienteTelefono("");
+        cargarDatos();
+      }}
+      onRechazar={() => setConfirmando(false)}
+    />
+  );
+}
 
   return (
     <div className="w-full mt-4 flex flex-col items-center">
@@ -367,11 +375,10 @@ export default function TablaDeInteraccion() {
           <button
             disabled={selected.size === 0}
             onClick={reservar}
-            className={`px-8 py-3 rounded-2xl text-xl font-bold shadow ${
-              selected.size === 0
+            className={`px-8 py-3 rounded-2xl text-xl font-bold shadow ${selected.size === 0
                 ? "bg-gray-400 cursor-not-allowed opacity-60"
                 : "bg-[#a67c52] hover:bg-[#c39a4f] text-white"
-            }`}
+              }`}
           >
             Reservar
           </button>
