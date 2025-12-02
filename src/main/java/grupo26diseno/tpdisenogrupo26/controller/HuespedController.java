@@ -1,8 +1,8 @@
 package grupo26diseno.tpdisenogrupo26.controller;
 
-//import java.time.LocalDate;
-//import java.time.Period;
-//import java.time.ZoneId;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import grupo26diseno.tpdisenogrupo26.dtos.HuespedDTO;
 import grupo26diseno.tpdisenogrupo26.excepciones.DocumentoUsadoException;
-//import grupo26diseno.tpdisenogrupo26.model.Huesped;
+import grupo26diseno.tpdisenogrupo26.model.Huesped;
 import grupo26diseno.tpdisenogrupo26.model.TipoDoc;
 import grupo26diseno.tpdisenogrupo26.service.HuespedService;
 
@@ -37,6 +37,7 @@ public class HuespedController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
     }
+
 
     @GetMapping("/buscar")
     public List<HuespedDTO> buscarHuespedes(

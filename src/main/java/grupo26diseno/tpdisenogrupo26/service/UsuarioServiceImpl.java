@@ -15,10 +15,6 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     public boolean autenticarUsuario(String unNombre, String unaContra) {
         Usuario usuario = usuarioRepository.findByNombreAndContra(unNombre, unaContra);
-        if (usuario != null) {
-            return true;
-        } else {
-            return false;
-        }
+        return usuario != null;
     }
 }

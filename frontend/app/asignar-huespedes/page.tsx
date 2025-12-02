@@ -17,6 +17,7 @@ interface Huesped {
   nombres: string;
   tipoDocumento: string;
   documentacion: string;
+  edad: number;
 }
 
 interface AsignacionHuesped {
@@ -141,7 +142,10 @@ export default function AsignarHuespedesPage() {
 
   const seleccionarHuesped = (huesped: Huesped) => {
     if (tipoBusqueda === 'principal') {
-
+      if(huesped.edad < 18){
+        alert('El huésped principal debe ser mayor de edad.');
+      }
+      else{
       // Asigna el huesped principal a habitación actual
       setAsignaciones(prev => ({
         ...prev,
@@ -149,7 +153,7 @@ export default function AsignarHuespedesPage() {
           ...prev[habitacionActual.numeroHabitacion],
           huespedPrincipal: huesped
         }
-      }));
+      }))};
     } else {
       // Agrega un acompañante
       const asignacionActual = asignaciones[habitacionActual.numeroHabitacion];
