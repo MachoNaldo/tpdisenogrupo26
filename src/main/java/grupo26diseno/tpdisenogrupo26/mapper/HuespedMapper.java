@@ -44,7 +44,7 @@ public class HuespedMapper {
     }
     public HuespedDTO crearDTO(Huesped h) {
     HuespedDTO dto = new HuespedDTO();
-
+    dto.setId(h.getId());
     dto.setApellido(h.getApellido());
     dto.setConsumidorFinal(h.getConsumidorFinal().name());
     dto.setCuit(h.getCuit());

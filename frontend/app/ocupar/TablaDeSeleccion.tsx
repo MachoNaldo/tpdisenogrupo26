@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import EstructuraDeTabla, { Estados } from "./EstructuraDeTabla";
 
 interface DisponibilidadDTO {
@@ -15,8 +15,16 @@ type RoomType = {
   habitaciones: number[];
 };
 
+interface HabitacionSeleccionada {
+  numeroHabitacion: number;
+  tipoHabitacion: string;
+  fechaInicio: string;
+  fechaFin: string;
+}
+
 export default function TablaDeInteraccion() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const desdeParam = searchParams.get("desde");
   const hastaParam = searchParams.get("hasta");
 
@@ -36,11 +44,6 @@ export default function TablaDeInteraccion() {
   // Seleccion
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [lastSelected, setLastSelected] = useState<any>(null);
-
-  // Datos del cliente
-  const [clienteNombre, setClienteNombre] = useState("");
-  const [clienteApellido, setClienteApellido] = useState("");
-  const [clienteTelefono, setClienteTelefono] = useState("");
 
   // Modal de reservas
   const [modalReservas, setModalReservas] = useState<
@@ -67,7 +70,7 @@ export default function TablaDeInteraccion() {
         `${process.env.NEXT_PUBLIC_API_URL}/api/habitaciones/disponibilidad?desde=${desdeParam}&hasta=${hastaParam}`
       );
 
-      const data: DisponibilidadDTO[] = await res.json();
+      const datos: DisponibilidadDTO[] = await res.json();
 
       // Fechas del rango
       const desde = new Date(desdeParam);
@@ -86,7 +89,7 @@ export default function TablaDeInteraccion() {
       // Agrupo tipos
       const tiposMap: Record<string, number[]> = {};
 
-      for (const h of data) {
+      for (const h of datos) {
         if (!tiposMap[h.tipoHabitacion]) tiposMap[h.tipoHabitacion] = [];
         tiposMap[h.tipoHabitacion].push(h.numeroHabitacion);
       }
@@ -107,7 +110,7 @@ export default function TablaDeInteraccion() {
 
       const avail: Record<string, Record<number, Estados[]>> = {};
 
-      for (const hab of data) {
+      for (const hab of datos) {
         if (!avail[hab.tipoHabitacion]) avail[hab.tipoHabitacion] = {};
 
         const estadoMap: Record<string, Estados | string> =
@@ -134,22 +137,22 @@ export default function TablaDeInteraccion() {
   function seleccionarCelda(
     d: number,
     typeId: string,
-    roomNumber: number,
+    numeroHabitacion: number,
     e: React.MouseEvent
   ) {
-    const k = keyOf(d, typeId, roomNumber);
+    const k = keyOf(d, typeId, numeroHabitacion);
 
     if (e.shiftKey && lastSelected) {
       if (
         lastSelected.typeId === typeId &&
-        lastSelected.roomNumber === roomNumber
+        lastSelected.numeroHabitacion === numeroHabitacion
       ) {
         const i1 = Math.min(lastSelected.dateIndex, d);
         const i2 = Math.max(lastSelected.dateIndex, d);
 
         setSelected((prev) => {
           const next = new Set(prev);
-          for (let i = i1; i <= i2; i++) next.add(keyOf(i, typeId, roomNumber));
+          for (let i = i1; i <= i2; i++) next.add(keyOf(i, typeId, numeroHabitacion));
           return next;
         });
 
@@ -163,7 +166,7 @@ export default function TablaDeInteraccion() {
       return next;
     });
 
-    setLastSelected({ dateIndex: d, typeId, roomNumber });
+    setLastSelected({ dateIndex: d, typeId, numeroHabitacion });
   }
 
   const quitarSeleccionados = () => {
@@ -177,7 +180,6 @@ export default function TablaDeInteraccion() {
       typeId: string;
     }>
   ) => {
-    // Agrupamos por habitación
     const porHabitacion: Record<
       number,
       { fechas: string[]; typeId: string }
@@ -193,7 +195,6 @@ export default function TablaDeInteraccion() {
       porHabitacion[h.numeroHabitacion].fechas.push(h.fecha);
     }
 
-    //  Informacion a conseguir de las reservas
     const reservasInfo: Array<{
       numeroHabitacion: number;
       fechaInicio: string;
@@ -202,14 +203,14 @@ export default function TablaDeInteraccion() {
       clienteApellido: string;
     }> = [];
 
-    for (const [roomNum, data] of Object.entries(porHabitacion)) {
-      const fechasOrdenadas = data.fechas.sort();
+    for (const [numeroHabitacion, datos] of Object.entries(porHabitacion)) {
+      const fechasOrdenadas = datos.fechas.sort();
       const fechaInicio = fechasOrdenadas[0];
       const fechaFin = fechasOrdenadas[fechasOrdenadas.length - 1];
 
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/reservas?numeroHabitacion=${roomNum}&fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`
+          `${process.env.NEXT_PUBLIC_API_URL}/api/reservas?numeroHabitacion=${numeroHabitacion}&fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`
         );
 
         if (res.ok) {
@@ -219,7 +220,7 @@ export default function TablaDeInteraccion() {
             const r = array[0];
 
             reservasInfo.push({
-              numeroHabitacion: Number(roomNum),
+              numeroHabitacion: Number(numeroHabitacion),
               fechaInicio,
               fechaFin,
               clienteNombre: r.cliente?.nombre ?? "",
@@ -232,7 +233,6 @@ export default function TablaDeInteraccion() {
       }
     }
 
-    // Mostrar alerta personalizada
     setModalReservas(reservasInfo);
   };
 
@@ -240,141 +240,72 @@ export default function TablaDeInteraccion() {
     setModalReservas([]);
   };
 
-  const ocupar = async () => {
+  const forzarOcupacion = () => {
+    // Cerrar modal y guardar que se debe forzar
+    setModalReservas([]);
+    sessionStorage.setItem('forzarOcupacion', 'true');
+    // Continuar con el flujo normal
+    continuarConHuespedes();
+  };
+
+  const continuarConHuespedes = () => {
     if (selected.size === 0) {
       setError("⚠ Debes seleccionar al menos una celda.");
       return;
     }
 
-    // Validar datos del cliente
-    if (!clienteNombre.trim()) {
-      setError("⚠ Debes ingresar el nombre del cliente.");
-      return;
-    }
-    if (!clienteApellido.trim()) {
-      setError("⚠ Debes ingresar el apellido del cliente.");
-      return;
-    }
-    if (!clienteTelefono.trim()) {
-      setError("⚠ Debes ingresar el teléfono del cliente.");
-      return;
-    }
-
-    // Validamos si hay habitaciones reservadas en la selección
-    const habitacionesReservadas: Array<{
-      numeroHabitacion: number;
-      fecha: string;
-      typeId: string;
-    }> = [];
-
-    for (const k of selected) {
-      const [dIndexStr, typeId, roomStr] = k.split("-");
-      const dIndex = Number(dIndexStr);
-      const roomNum = Number(roomStr);
-
-      if (isNaN(dIndex) || isNaN(roomNum)) continue;
-
-      const estado = availability[typeId]?.[roomNum]?.[dIndex];
-      if (estado === "RESERVADO") {
-        habitacionesReservadas.push({
-          numeroHabitacion: roomNum,
-          fecha: dates[dIndex],
-          typeId,
-        });
-      }
-    }
-
-    // Si hay reservadas, llamamos al modal que se encarga de mostrarlas y consultar si quiere forzar la ocupacion
-    if (habitacionesReservadas.length > 0) {
-      await mostrarAlertaReservas(habitacionesReservadas);
-      return;
-    }
-
     // Agrupar selecciones por habitación
-    const porHabitacion: Record<number, number[]> = {};
+    const porHabitacion: Record<number, { indices: number[]; tipo: string }> = {};
 
     for (const k of selected) {
-      const [dIndexStr, typeId, roomStr] = k.split("-");
+      const [dIndexStr, typeId, habitacionString] = k.split("-");
       const dIndex = Number(dIndexStr);
-      const roomNum = Number(roomStr);
+      const numeroHabitacion = Number(habitacionString);
 
-      if (isNaN(dIndex) || isNaN(roomNum)) continue;
+      if (isNaN(dIndex) || isNaN(numeroHabitacion)) continue;
 
-      if (!porHabitacion[roomNum]) porHabitacion[roomNum] = [];
-      porHabitacion[roomNum].push(dIndex);
+      if (!porHabitacion[numeroHabitacion]) {
+        porHabitacion[numeroHabitacion] = { indices: [], tipo: typeId };
+      }
+      porHabitacion[numeroHabitacion].indices.push(dIndex);
     }
 
-    const estadiasParaEnviar: any[] = [];
+    // Crear array de habitaciones seleccionadas
+    const habitacionesSeleccionadas: HabitacionSeleccionada[] = [];
 
-    // Para cada habitación, agrupar fechas consecutivas
-    for (const [roomNum, indices] of Object.entries(porHabitacion)) {
-      // Ordenar índices
-      const sortedIndices = indices.sort((a, b) => a - b);
-
-      // Agrupar consecutivos
+    for (const [numeroHabitacion, datos] of Object.entries(porHabitacion)) {
+      const sortedIndices = datos.indices.sort((a, b) => a - b);
+      
+      // Agrupar fechas consecutivas
       let inicio = sortedIndices[0];
       let fin = sortedIndices[0];
 
       for (let i = 1; i < sortedIndices.length; i++) {
         if (sortedIndices[i] === fin + 1) {
-          // Consecutivo
           fin = sortedIndices[i];
         } else {
-          // Corte: guardar rango anterior
-          estadiasParaEnviar.push({
-            numeroHabitacion: Number(roomNum),
+          habitacionesSeleccionadas.push({
+            numeroHabitacion: Number(numeroHabitacion),
+            tipoHabitacion: datos.tipo,
             fechaInicio: dates[inicio],
             fechaFin: dates[fin],
           });
-
-          // Nuevo rango
           inicio = sortedIndices[i];
           fin = sortedIndices[i];
         }
       }
 
-      // Guardar último rango
-      estadiasParaEnviar.push({
-        numeroHabitacion: Number(roomNum),
+      habitacionesSeleccionadas.push({
+        numeroHabitacion: Number(numeroHabitacion),
+        tipoHabitacion: datos.tipo,
         fechaInicio: dates[inicio],
         fechaFin: dates[fin],
       });
     }
 
-    const payload = {
-      cliente: {
-        nombre: clienteNombre.trim(),
-        apellido: clienteApellido.trim(),
-        telefono: clienteTelefono.trim(),
-      },
-      estadias: estadiasParaEnviar,
-    };
-
-    console.log("👉 JSON enviado al backend:");
-    console.log(JSON.stringify(payload, null, 2));
-
-    try {
-      const resp = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/estadias/ocupar`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!resp.ok) {
-        setError("⚠ Error al ocupar.");
-        return;
-      }
-
-      await cargarDatos();
-      setSelected(new Set());
-      setClienteNombre("");
-      setClienteApellido("");
-      setClienteTelefono("");
-      setError(null);
-    } catch (e) {
-      console.error("❌ ERROR en fetch:", e);
-      setError("⚠ No se pudo conectar.");
-    }
+    // Guardar en sessionStorage y redirigir
+    sessionStorage.setItem('habitacionesSeleccionadas', JSON.stringify(habitacionesSeleccionadas));
+    router.push('/asignar-huespedes');
   };
 
   if (loading)
@@ -476,13 +407,52 @@ export default function TablaDeInteraccion() {
         <div className="flex-1 flex justify-center">
           <button
             disabled={selected.size === 0}
-            onClick={ocupar}
-            className={`px-8 py-3 rounded-2xl text-xl font-bold shadow ${selected.size === 0
+            onClick={async () => {
+              if (selected.size === 0) {
+                setError("⚠ Debes seleccionar al menos una celda.");
+                return;
+              }
+
+              // Validar si hay habitaciones reservadas
+              const habitacionesReservadas: Array<{
+                numeroHabitacion: number;
+                fecha: string;
+                typeId: string;
+              }> = [];
+
+              for (const k of selected) {
+                const [dIndexStr, typeId, habitacionString] = k.split("-");
+                const dIndex = Number(dIndexStr);
+                const numeroHabitacion = Number(habitacionString);
+
+                if (isNaN(dIndex) || isNaN(numeroHabitacion)) continue;
+
+                const estado = availability[typeId]?.[numeroHabitacion]?.[dIndex];
+                if (estado === "RESERVADO") {
+                  habitacionesReservadas.push({
+                    numeroHabitacion: numeroHabitacion,
+                    fecha: dates[dIndex],
+                    typeId,
+                  });
+                }
+              }
+
+              // Si hay reservadas, mostrar modal
+              if (habitacionesReservadas.length > 0) {
+                await mostrarAlertaReservas(habitacionesReservadas);
+                return;
+              }
+
+              // Si no hay reservadas, continuar directamente
+              continuarConHuespedes();
+            }}
+            className={`px-8 py-3 rounded-2xl text-xl font-bold shadow ${
+              selected.size === 0
                 ? "bg-gray-400 cursor-not-allowed opacity-60"
                 : "bg-[#a67c52] hover:bg-[#c39a4f] text-white"
-              }`}
+            }`}
           >
-            Ocupar
+            Continuar con huéspedes
           </button>
         </div>
 
@@ -497,55 +467,6 @@ export default function TablaDeInteraccion() {
           )}
         </div>
       </div>
-
-      {selected.size > 0 && (
-        <div className="mt-8 w-full max-w-2xl mx-auto bg-[#f5f5f5] border-4 border-[#a67c52] rounded-xl p-6 shadow-lg">
-          <h3 className="text-2xl font-bold text-[#a67c52] mb-4 text-center">
-            Datos del Cliente
-          </h3>
-
-          <div className="space-y-4">
-            <div>
-              <label className="block text-gray-700 font-semibold mb-2">
-                Nombre:
-              </label>
-              <input
-                type="text"
-                value={clienteNombre}
-                onChange={(e) => setClienteNombre(e.target.value)}
-                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-[#a67c52] focus:outline-none"
-                placeholder="Ingrese el nombre"
-              />
-            </div>
-
-            <div>
-              <label className="block text-gray-700 font-semibold mb-2">
-                Apellido:
-              </label>
-              <input
-                type="text"
-                value={clienteApellido}
-                onChange={(e) => setClienteApellido(e.target.value)}
-                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-[#a67c52] focus:outline-none"
-                placeholder="Ingrese el apellido"
-              />
-            </div>
-
-            <div>
-              <label className="block text-gray-700 font-semibold mb-2">
-                Teléfono:
-              </label>
-              <input
-                type="tel"
-                value={clienteTelefono}
-                onChange={(e) => setClienteTelefono(e.target.value)}
-                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-[#a67c52] focus:outline-none"
-                placeholder="Ingrese el teléfono"
-              />
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Modal de alertas para reservas */}
       {modalReservas.length > 0 && (
@@ -577,13 +498,13 @@ export default function TablaDeInteraccion() {
                 <tbody>
                   {modalReservas.map((reserva, idx) => (
                     <tr key={idx} className="hover:bg-gray-100">
-                      <td className="border-2 border-gray-300 p-3 text-center font-semibold">
+                      <td className="border-2 border-gray-300 p-3 text-center font-semibold text-black">
                         {reserva.numeroHabitacion}
                       </td>
-                      <td className="border-2 border-gray-300 p-3">
+                      <td className="border-2 border-gray-300 p-3 text-black">
                         {reserva.fechaInicio} → {reserva.fechaFin}
                       </td>
-                      <td className="border-2 border-gray-300 p-3">
+                      <td className="border-2 border-gray-300 p-3 text-black">
                         {reserva.clienteNombre} {reserva.clienteApellido}
                       </td>
                     </tr>
@@ -592,12 +513,40 @@ export default function TablaDeInteraccion() {
               </table>
             </div>
 
-            <div className="mt-6 flex justify-center">
+            <div className="mt-6 flex justify-center gap-4">
               <button
                 onClick={cerrarModal}
-                className="px-8 py-3 bg-[#a67c52] hover:bg-[#c39a4f] text-white font-bold rounded-lg shadow-lg transition"
+                style={{
+                  padding: '12px 32px',
+                  backgroundColor: '#6b7280',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '1rem',
+                  fontWeight: 'bold',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#4b5563'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#6b7280'}
               >
-                Entendido
+                Cancelar
+              </button>
+              <button
+                onClick={forzarOcupacion}
+                style={{
+                  padding: '12px 32px',
+                  backgroundColor: '#ea580c',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '1rem',
+                  fontWeight: 'bold',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#c2410c'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ea580c'}
+              >
+                Ocupar de Todas Formas
               </button>
             </div>
           </div>
