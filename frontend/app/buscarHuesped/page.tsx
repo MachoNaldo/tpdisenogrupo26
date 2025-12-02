@@ -134,8 +134,18 @@ export default function BuscarHuespedPage() {
     };
     
     const handleCancelar = () => {
+    // Si estamos en la Vista 2 (Resultados)
+    if (isListing) {
+        // Volver a la Vista 1, manteniendo los criterios.
+        setIsListing(false); 
+        setResultados([]); // Limpiar la lista para evitar confusiones
+        setSelectedHuespedId(null);
+    } 
+    // Si estamos en la Vista 1 (Criterios) 
+    else {
         router.push('/menu'); 
-    };
+    }
+};
     
     const renderHeader = () => (
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 40px', backgroundColor: '#000', borderBottom: '2px solid #b8975a'}}>
