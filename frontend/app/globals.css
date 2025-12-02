@@ -27,20 +27,24 @@ body {
 
 .btn {
   padding: 14px 32px;
-  background-color: #b8975a;
+  background-color: #93783C;
   border: none;
   border-radius: 8px;
-  font-size: 18px;
+  font-size: 22px;
   cursor: pointer;
   margin-top: 10px;
   width: auto;       
   display: block;   
   align-items: center; 
+  color: #E2D7D7;
+  font-family: serif;
+  font-weight: bold;
+
 }
 
 
 .btn:hover {
-  background-color: #d4b06a;
+  background-color: #b8975a;
   transform: translateY(-2px);
 }
 
@@ -57,6 +61,19 @@ body {
   outline: none;
 }
 
+.form select {
+  width: 320px;
+  padding: 12px 16px;
+  font-size: 23px;
+  border-radius: 6px;
+  border: 2px solid #b8975a;
+  background: rgba(0, 0, 0, 0.4);
+  background-color: #000000;
+  color: #ffffff;
+  margin-bottom: 20px;
+  outline: none;
+}
+
 .form input::placeholder {
   color: #b8975a;
   opacity: 0.7;
@@ -68,6 +85,8 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  font-family: serif;
+
 }
 
 /*ERRORES*/

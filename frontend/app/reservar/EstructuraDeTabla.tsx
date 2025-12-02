@@ -38,8 +38,6 @@ export default function EstructuraDeTabla({ value, isSelected, onClick }: Props)
   const finalBg = isSelected ? "bg-blue-500 text-black" : stateBg;
 
   return (
-    <td onClick={onClick} className={`${base} ${finalBg}`}>
-      {formatear(value)}
-    </td>
+    <td onClick={onClick} className={`${base} ${finalBg}`}>{formatear(value)}</td>
   );
 }

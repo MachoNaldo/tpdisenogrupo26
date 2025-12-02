@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Huesped, CriteriosBusqueda, TiposDocumentoArray } from '../lib/tipos'; 
 import { useEffect } from "react";
-import "./buscarHuesped.css"; 
+import "../styles/estilos.css"; 
 
 
 // URL base del backend, asumimos que está en el .env.local
@@ -118,10 +118,8 @@ export default function BuscarHuespedPage() {
         }
     };
     
-    // 4. Manejo del Botón Siguiente (Paso 5 & 6)
     const handleSiguiente = () => {
         if (!selectedHuespedId) {
-            // Flujo Alternativo 5.A: Presionar SIGUIENTE sin seleccionar
             const shouldGoToAlta = window.confirm(
                 "No ha seleccionado un huésped. ¿Desea ejecutar 'Dar Alta de Huésped'?"
             );
@@ -135,12 +133,10 @@ export default function BuscarHuespedPage() {
         router.push(`/gestionreserva/${selectedHuespedId}`); 
     };
     
-    // 5. Manejo del Botón Cancelar
     const handleCancelar = () => {
         router.push('/menu'); 
     };
     
-    // Helper para el encabezado (replicando el diseño)
     const renderHeader = () => (
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 40px', backgroundColor: '#000', borderBottom: '2px solid #b8975a' }}>
             <h1 className="font-serif" style={{ fontFamily: 'Georgia, serif', fontSize: '42px', fontStyle: 'italic'}}>
@@ -152,36 +148,40 @@ export default function BuscarHuespedPage() {
         </header>
     );
 
-
-    // --- VISTA 1: CRITERIOS DE BÚSQUEDA (Window.jpg) ---
     if (!isListing) {
         return (
-            <div className="huespedes-bg">
+            <div className="estilo1">
                 {renderHeader()}
                 <main style={{ maxWidth: '500px', margin: '50px auto' }}>
                     
                     <form onSubmit={handleBuscar}>
                         
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '25px', marginTop: '15px' }}>
-                            {/* Fila Apellido */}
+                            
                             <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr', gap: '20px', alignItems: 'center' }}>
-                                <label className="font-serif" style={{textAlign: 'right', fontStyle: 'italic'}}>Apellido</label>
+                                <label className="font-serif" style={{textAlign: 'right', fontStyle: 'italic', fontSize: "20px", marginBottom: "10px"}}>
+                                    Apellido
+                                </label>
                                 <form className="form">
                                 <input type="text" name="apellido" placeholder="Ej: Ojeda" value={criterios.apellido} onChange={handleChange} />
                                 </form>
                             </div>
-                            {/* Fila Nombres */}
+
                             <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr', gap: '20px', alignItems: 'center' }}>
-                                <label className="font-serif" style={{textAlign: 'right', fontStyle: 'italic'}}>Nombres</label>
+                                <label className="font-serif" style={{textAlign: 'right', fontStyle: 'italic', fontSize: "20px", marginBottom: "10px"}}>
+                                    Nombres
+                                </label>
                                 <form className="form">
                                 <input type="text" name="nombres" placeholder="Ej: Eduardo Nicolás" value={criterios.nombres} onChange={handleChange}/>
                                 </form>
                             </div>
-                            {/* Fila Tipo de documento */}
-                            <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr', gap: '20px', alignItems: 'center' }}>
-                                <label className="font-serif" style={{textAlign: 'right', fontStyle: 'italic'}}>Tipo de documento</label>
+
+                            <div style={{display: 'grid', gridTemplateColumns: '160px 1fr', gap: '20px', alignItems: 'center' }}>
+                                <label className="font-serif" style={{textAlign: 'right', fontStyle: 'italic', fontSize: "18px", marginBottom: "10px"}}>
+                                    Tipo de documento
+                                </label>
                                 <form className="form">
-                                    <select name="tipoDocumento" value={criterios.tipoDocumento} onChange={handleChange} style={{maxWidth: '200px', cursor: 'pointer' }}>
+                                    <select name="tipoDocumento" value={criterios.tipoDocumento} onChange={handleChange} style={{marginRight:"300px", maxWidth: '200px', cursor: 'pointer' }}>
                                         <option value="">---</option>
                                         {TiposDocumentoArray.map(tipo => (
                                             <option key={tipo} value={tipo}>{tipo}</option>
@@ -189,9 +189,11 @@ export default function BuscarHuespedPage() {
                                     </select>
                                 </form>
                             </div>
-                            {/* Fila Documento */}
-                            <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr', gap: '20px', alignItems: 'center' }}>
-                                <label className="font-serif" style={{textAlign: 'right', fontStyle: 'italic'}}>Documento</label>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr', gap: '25px', alignItems: 'center' }}>
+                                <label className="font-serif" style={{textAlign: 'right', fontStyle: 'italic', fontSize: "20px", marginBottom: "10px"}}>
+                                    Documento
+                                </label>
                                 <form className="form">
                                 <input type="text" name="documento" value={criterios.documento} onChange={handleChange}/>
                                 </form>
@@ -200,7 +202,7 @@ export default function BuscarHuespedPage() {
                         
                         {error && <p style={{color: 'red', textAlign: 'center', marginTop: '20px'}}>{error}</p>}
                         
-                        {/* Botones de Acción */}
+                        
                         <div style={{display: 'flex', justifyContent: 'center', marginTop: '40px', gap: '80px', position: 'relative'}}>
                             <button className="btn" type="submit" disabled={loading}>
                                 {loading ? 'Buscando...' : 'Buscar huésped'}
@@ -217,46 +219,43 @@ export default function BuscarHuespedPage() {
     
     // --- VISTA 2: RESULTADOS (Window-1.jpg) ---
     return (
-        <div className='huespedes-bg'>
+        <div className='estilo1'>
             {renderHeader()}
             
-            <main style={{ maxWidth: '900px', margin: '50px auto' }}>
+            <main  style={{ maxWidth: '900px', margin: '50px auto' }}>
                 
                 {/* Tabla de Resultados replicando Window-1.jpg */}
-                <table className="font-serif"style={{width: '100%', borderCollapse: 'collapse', border: '2px solid #b8975a'}}>
+                <table className="w-full border-[5px] border-[#a67c52]
+                table-fixed border-collapse">
                     <thead>
-                        <tr style={{backgroundColor: '#b8975a', color: '#000'}}>
+                        <tr style={{backgroundColor: '#C1C1C1', color: '#000' }}>
                             <th>Apellido</th>
                             <th>Nombres</th>
                             <th>Tipo de doc</th>
                             <th>Documento</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody >
                         {resultados.map((huesped) => (
-                            <tr 
-                                key={huesped.documentacion} 
+                            <tr className='border' key={huesped.documentacion} 
                                 onClick={() => setSelectedHuespedId(huesped.id || null)}
                                 style={{
-                                    cursor: 'pointer',
-                                    backgroundColor: selectedHuespedId === huesped.id ? 'rgba(184, 151, 90, 0.4)' : 'transparent',
-                                    color: selectedHuespedId === huesped.id ? '#000' : '#b8975a'
-                                }}
-                            >
-                                <td>{huesped.apellido}</td>
-                                <td>{huesped.nombres}</td>
-                                <td>{huesped.tipoDocumento}</td>
-                                <td>{huesped.documentacion}</td>
+                                    cursor: 'pointer', backgroundColor: selectedHuespedId === huesped.id ? '#5B5EF3' : 'white',
+                                    color: "black", textAlign:'center'}}>
+                                <td className='border'>{huesped.apellido}</td>
+                                <td className='border'>{huesped.nombres}</td>
+                                <td className='border'>{huesped.tipoDocumento}</td>
+                                <td className='border'>{huesped.documentacion}</td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
                 
                 <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: '60px', gap: '30px'}}>
-                    <button type="button" onClick={handleSiguiente}>
+                    <button className= "btn" type="button" onClick={handleSiguiente}>
                         Siguiente
                     </button>
-                    <button type="button" onClick={handleCancelar}>
+                    <button className= "btn" type="button" onClick={handleCancelar}>
                         Cancelar
                     </button>
                 </div>
@@ -264,48 +263,3 @@ export default function BuscarHuespedPage() {
         </div>
     );
 };
-
-// --- Estilos Internos para replicar el diseño ---
-/*
-const inputStyle: React.CSSProperties = {
-    padding: '10px 15px',
-    border: '1px solid #b8975a',
-    backgroundColor: 'transparent',
-    color: '#b8975a',
-    borderRadius: '4px',
-    fontSize: '1rem',
-};
-
-const submitButtonStyle: React.CSSProperties = {
-    padding: '12px 40px',
-    backgroundColor: '#b8975a',
-    color: '#000',
-    border: 'none',
-    borderRadius: '4px',
-    fontSize: '1.1rem',
-    fontWeight: 'bold',
-    cursor: 'pointer',
-};
-
-const cancelButtonStyle: React.CSSProperties = {
-    padding: '12px 40px',
-    backgroundColor: '#b8975a',
-    color: '#000',
-    border: 'none',
-    borderRadius: '4px',
-    fontSize: '1.1rem',
-    fontWeight: 'bold',
-    cursor: 'pointer',
-};
-
-const tableHeaderStyle: React.CSSProperties = {
-    padding: '12px',
-    border: '1px solid #000',
-    textAlign: 'left',
-};
-
-const tableCellStyle: React.CSSProperties = {
-    padding: '10px',
-    border: '1px solid #b8975a',
-    color: 'inherit',
-};*/

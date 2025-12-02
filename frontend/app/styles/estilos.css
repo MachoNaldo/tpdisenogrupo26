@@ -1,0 +1,12 @@
+.estilo1{
+  background-color: black;
+  min-height: 100vh;
+  color: #b8975a;
+  font-family: "Georgia", serif;
+  background-image: url('/img/Fondo1.png'); 
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  padding-bottom: 60px;
+}

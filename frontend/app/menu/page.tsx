@@ -99,8 +99,11 @@ export default function Menu() {
 
         </div>
 
-        <button className="btn" style={{display: "flex", flexDirection: "column", gap: "25px", marginTop: "20px"}}onClick={desloguearse}>
-          Cerrar Sesión </button>
+        <button className="btn" style={{display: "flex", flexDirection: "column", 
+          gap: "25px", margin: "auto", marginTop: "45px"}}
+          onClick={desloguearse}>
+          Cerrar Sesión 
+        </button>
 
       </div>
     </div>
