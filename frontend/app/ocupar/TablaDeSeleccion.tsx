@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import EstructuraDeTabla, { Estados } from "./EstructuraDeTabla";
 
+export const dynamic = 'force-dynamic';
+
 interface DisponibilidadDTO {
   numeroHabitacion: number;
   tipoHabitacion: string;

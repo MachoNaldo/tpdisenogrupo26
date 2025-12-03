@@ -103,7 +103,7 @@ export default function Login() {
              onChange={manejarCambio} required autoComplete="current-password" className={tieneError ? "input-error" : ""}/>
 
             <span className="eye-icon cursor-pointer" onClick={() => setMostrarContra(!mostrarContra)}>
-               <Image src="img/iconoOjo.svg" alt="icono" width={40} height={40} />
+               <Image src="/img/iconoOjo.svg" alt="icono" width={40} height={40} />
             </span>
           </div>
 
