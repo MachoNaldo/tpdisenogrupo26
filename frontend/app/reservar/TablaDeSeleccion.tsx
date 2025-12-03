@@ -364,7 +364,7 @@ return (
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
               });
-
+              setPopupExitoso(true);
               setConfirmando(false);
               setSelected(new Set());
               setClienteNombre("");
@@ -550,57 +550,72 @@ return (
               Quitar seleccionados
             </button>
           )}
+          {/* Popup de Éxito */}
+            {PopupExitoso && (
+              <div className="popup">
+                <div className="popup-contenido">
+      
+                  <div className='popup-encabezado'>
+                    <Image className='popup-icono' src="img/iconoExito.svg" alt="icono" width={100} height={30} />
+                    <div className='popup-descripcion'>
+                      <h2>
+                        Reserva registada correctamente.
+                      </h2>
+                      <p>
+                        ¿Desea cargar otra habitación?
+                      </p>
+                    </div>
+                  </div>
+      
+      
+                  <div className='popup-botonera'>
+                    <button className="popup-boton" onClick={() => {
+                      setPopupExitoso(false);    
+                      // Obtiene las fechas de la URL
+                      const desde = desdeParam;
+                      const hasta = hastaParam;
+                      router.push(`/reservar?desde=${desde}&hasta=${hasta}`);
+                    }}>
+                      Sí
+                    </button>
+                    <button className="popup-boton" onClick={() => router.push('/menu')}>
+                      No
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+            {/* Popup de Error de Disponibilidad */}
+            {popupErrorDisponibilidad && (
+              <div className="popup">
+                <div className="popup-contenido">
+                  <div className='popup-encabezado'>
+                    <Image className='popup-icono' src="/img/iconoError.svg" alt="icono" width={100} height={30} />
+                    <div className='popup-descripcion'>
+                      <h2>
+                        Error de Disponibilidad
+                      </h2>
+                      <p>
+                        {mensajeErrorDisponibilidad}
+                      </p>
+                    </div>
+                  </div>
+                  <div className='popup-botonera'>
+                    <button className="popup-boton" onClick={() => {
+                      setPopupErrorDisponibilidad(false);
+                      setMensajeErrorDisponibilidad('');
+                    }}>
+                      Entendido
+                    </button>
+                    <button className="popup-boton" onClick={() => router.push('/menu')}>
+                      Volver al Menú
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
         </div>
       </div>
-
-      {selected.size > 0 && (
-        <div className=" bg-black mt-8 w-full max-w-2xl mx-auto bg-[#000000 border-4 border-[#a67c52] rounded-xl p-6 shadow-lg">
-          <h3 className="text-2xl font-bold text-[#a67c52] mb-4 text-center">
-            Datos del Cliente
-          </h3>
-
-          <div className="space-y-4">
-            <div>
-              <label className="block text-[#a67c52] font-semibold mb-2">
-                Nombre:
-              </label>
-              <input
-                type="text"
-                value={clienteNombre}
-                onChange={(e) => setClienteNombre(e.target.value)}
-                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-[#a67c52] focus:outline-none"
-                placeholder="Ingrese el nombre"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[#a67c52] font-semibold mb-2">
-                Apellido:
-              </label>
-              <input
-                type="text"
-                value={clienteApellido}
-                onChange={(e) => setClienteApellido(e.target.value)}
-                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-[#a67c52] focus:outline-none"
-                placeholder="Ingrese el apellido"
-              />
-            </div>
-
-            <div>
-              <label className="block text-gray-700 font-semibold mb-2">
-                Teléfono:
-              </label>
-              <input
-                type="tel"
-                value={clienteTelefono}
-                onChange={(e) => setClienteTelefono(e.target.value)}
-                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-[#a67c52] focus:outline-none"
-                placeholder="Ingrese el teléfono"
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
     </div>
   </>
