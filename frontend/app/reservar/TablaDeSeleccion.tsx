@@ -2,8 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useRouter } from 'next/navigation';
 import EstructuraDeTabla, { Estados } from "./EstructuraDeTabla";
 import ResumenReserva from "./ResumenReserva";
+import '../globals.css';
+import Image from 'next/image';
 
 
 interface DisponibilidadDTO {
@@ -11,6 +14,7 @@ interface DisponibilidadDTO {
   tipoHabitacion: string;
   estadoPorFecha: Record<string, Estados>;
 }
+
 
 type RoomType = {
   tipo: string;
@@ -21,7 +25,7 @@ export default function TablaDeInteraccion() {
   const searchParams = useSearchParams();
   const desdeParam = searchParams.get("desde");
   const hastaParam = searchParams.get("hasta");
-
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -49,6 +53,9 @@ export default function TablaDeInteraccion() {
 
   const [confirmando, setConfirmando] = useState(false);
   const [resumen, setResumen] = useState<any[]>([]);
+  const [PopupExitoso, setPopupExitoso] = useState(false);
+  const [popupErrorDisponibilidad, setPopupErrorDisponibilidad] = useState(false);
+  const [mensajeErrorDisponibilidad, setMensajeErrorDisponibilidad] = useState('');
 
 
   //BACKEND
@@ -176,13 +183,39 @@ export default function TablaDeInteraccion() {
     return;
   }
 
+  // Validar que no haya celdas RESERVADO, OCUPADO o FUERA_DE_SERVICIO seleccionadas
+  const estadosNoPermitidos: Estados[] = ["RESERVADO", "OCUPADO", "FUERA_SERVICIO"];
+  let hayEstadoNoPermitido = false;
+  let estadoEncontrado = "";
+
+  for (const k of selected) {
+    const [dIndexStr, typeId, habitacionesStr] = k.split("-");
+    const dIndex = Number(dIndexStr);
+    const roomNum = Number(habitacionesStr);
+    
+    const estado = availability[typeId]?.[roomNum]?.[dIndex];
+    if (estadosNoPermitidos.includes(estado)) {
+      hayEstadoNoPermitido = true;
+      estadoEncontrado = estado;
+      break;
+    }
+  }
+
+  if (hayEstadoNoPermitido) {
+    setError(`⚠ No puedes reservar habitaciones que están en estado: ${estadoEncontrado}`);
+    return;
+  }
+
+  // Limpiar error si todo está correcto
+  setError(null);
+
   // Agrupar selecciones por habitación
   const porHabitacion: Record<number, number[]> = {};
 
   for (const k of selected) {
-    const [dIndexStr, typeId, roomStr] = k.split("-");
+    const [dIndexStr, typeId, habitacionesStr] = k.split("-");
     const dIndex = Number(dIndexStr);
-    const roomNum = Number(roomStr);
+    const roomNum = Number(habitacionesStr);
 
     if (!porHabitacion[roomNum]) porHabitacion[roomNum] = [];
     porHabitacion[roomNum].push(dIndex);
@@ -220,8 +253,8 @@ export default function TablaDeInteraccion() {
 
   // Agregar tipoHabitacion a cada rango
   const resumenCompleto = reservasRango.map((r) => {
-    const tipoHab = Object.entries(availability).find(([tipo, rooms]) =>
-      rooms[r.numeroHabitacion]
+    const tipoHab = Object.entries(availability).find(([tipo, habitaciones]) =>
+      habitaciones[r.numeroHabitacion]
     )?.[0] ?? "Desconocido";
 
     return {
@@ -263,13 +296,20 @@ export default function TablaDeInteraccion() {
             fechaFin: r.fechaFin
           }))
         };
-
-        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reservas`, {
+        try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reservas`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
-
+        if (!response.ok) {
+        throw new Error('Error al registrar estadías');
+        }
+        } catch (err) {
+      console.error('Error:', err);
+      setError('Error al registrar las estadías');
+    }
+        setPopupExitoso(true);
         setConfirmando(false);
         setSelected(new Set());
         setClienteNombre("");
@@ -444,6 +484,70 @@ export default function TablaDeInteraccion() {
           </div>
         </div>
       )}
+       {/* Popup de Éxito */}
+            {PopupExitoso && (
+              <div className="popup">
+                <div className="popup-contenido">
+      
+                  <div className='popup-encabezado'>
+                    <Image className='popup-icono' src="img/iconoExito.svg" alt="icono" width={100} height={30} />
+                    <div className='popup-descripcion'>
+                      <h2>
+                        Reserva registada correctamente.
+                      </h2>
+                      <p>
+                        ¿Desea cargar otra habitación?
+                      </p>
+                    </div>
+                  </div>
+      
+      
+                  <div className='popup-botonera'>
+                    <button className="popup-boton" onClick={() => {
+                      setPopupExitoso(false);    
+                      // Obtiene las fechas de la URL
+                      const desde = desdeParam;
+                      const hasta = hastaParam;
+                      router.push(`/reservar?desde=${desde}&hasta=${hasta}`);
+                    }}>
+                      Sí
+                    </button>
+                    <button className="popup-boton" onClick={() => router.push('/menu')}>
+                      No
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+            {/* Popup de Error de Disponibilidad */}
+            {popupErrorDisponibilidad && (
+              <div className="popup">
+                <div className="popup-contenido">
+                  <div className='popup-encabezado'>
+                    <Image className='popup-icono' src="/img/iconoError.svg" alt="icono" width={100} height={30} />
+                    <div className='popup-descripcion'>
+                      <h2>
+                        Error de Disponibilidad
+                      </h2>
+                      <p>
+                        {mensajeErrorDisponibilidad}
+                      </p>
+                    </div>
+                  </div>
+                  <div className='popup-botonera'>
+                    <button className="popup-boton" onClick={() => {
+                      setPopupErrorDisponibilidad(false);
+                      setMensajeErrorDisponibilidad('');
+                    }}>
+                      Entendido
+                    </button>
+                    <button className="popup-boton" onClick={() => router.push('/menu')}>
+                      Volver al Menú
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
     </div>
   );
 }

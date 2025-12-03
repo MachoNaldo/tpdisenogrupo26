@@ -1,6 +1,6 @@
 "use client";
 
-export type Estados = "LIBRE" | "RESERVADO" | "OCUPADO" | "FUERA DE SERVICIO";
+export type Estados = "LIBRE" | "RESERVADO" | "OCUPADO" | "FUERA_SERVICIO";
 
 function formatear(txt: string): string {
   // Convertimos a minúsculas excepto la primera letra
@@ -27,7 +27,7 @@ export default function EstructuraDeTabla({ value, isSelected, onClick }: Props)
     "text-center border-3 py-2 font-bold cursor-pointer transition italic";
 
   const stateBg =
-    value === "FUERA DE SERVICIO"
+    value === "FUERA_SERVICIO"
       ? "bg-[#F7FF07] text-black"
       : value === "RESERVADO"
       ? "bg-[#DE6767] text-black"

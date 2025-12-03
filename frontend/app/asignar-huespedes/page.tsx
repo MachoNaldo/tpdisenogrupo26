@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import '../globals.css';
 
 interface HabitacionSeleccionada {
   numeroHabitacion: number;
@@ -29,12 +30,43 @@ interface AsignacionHuesped {
 const SPRING_BOOT_API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export default function AsignarHuespedesPage() {
+
   const router = useRouter();
+  const [usuario, setUsuario] = useState<string | null>(null);
+   useEffect(() => {
+      const verificarSesion = async () => {
+        try {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/revisar-sesion`, {
+            credentials: 'include',
+          });
+  
+          if (!res.ok) {
+            router.push('/login');
+            return;
+          }
+  
+          const data = await res.json();
+  
+          if (!data.autenticado) {
+            router.push('/login');
+          }
+  
+          setUsuario(data.usuario.nombre);
+        } catch (err) {
+          router.push('/login');
+        }
+      };
+  
+      verificarSesion();
+    }, []);
   const [habitaciones, setHabitaciones] = useState<HabitacionSeleccionada[]>([]);
   const [asignaciones, setAsignaciones] = useState<Record<number, AsignacionHuesped>>({});
   const [habitacionActualMostrandose, sethabitacionActualMostrandose] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  
+  const [PopupExitoso, setPopupExitoso] = useState(false);
+  const [popupErrorDisponibilidad, setPopupErrorDisponibilidad] = useState(false);
+  const [mensajeErrorDisponibilidad, setMensajeErrorDisponibilidad] = useState('');
+
   // Estados para las busqueda de huespedes
   const [mostrarBusqueda, setMostrarBusqueda] = useState(false);
   const [tipoBusqueda, setTipoBusqueda] = useState<'principal' | 'acompaniante'>('principal');
@@ -73,7 +105,7 @@ export default function AsignarHuespedesPage() {
 
   // Verifica si un huésped ya fue asignado como acompañante en alguna habitación
   const estaAsignadoComoAcompaniante = (huespedId: number): boolean => {
-    return Object.values(asignaciones).some(asignacion => 
+    return Object.values(asignaciones).some(asignacion =>
       asignacion.acompaniantes?.some(a => a.id === huespedId)
     );
   };
@@ -123,6 +155,7 @@ export default function AsignarHuespedesPage() {
 
       const data: Huesped[] = await response.json();
       setResultadosBusqueda(data);
+      
 
       if (data.length === 0) {
         const shouldCreate = window.confirm(
@@ -132,32 +165,40 @@ export default function AsignarHuespedesPage() {
           router.push('/crearhuesped');
         }
       }
-    } catch (err) {
-      console.error('Error al buscar:', err);
-      setError('Error al buscar huéspedes');
-    } finally {
+    } catch (err: any) {
+      console.error('Error:', err);
+
+  // Si es error 409 (CONFLICT), mostrar popup de disponibilidad
+  if (err.response?.status === 409) {
+    setMensajeErrorDisponibilidad(err.response.data || 'Error de disponibilidad');
+    setPopupErrorDisponibilidad(true);
+  } else {
+    setError('Error al registrar las estadías');
+  }
+}finally {
       setBuscando(false);
     }
   };
 
   const seleccionarHuesped = (huesped: Huesped) => {
     if (tipoBusqueda === 'principal') {
-      if(huesped.edad < 18){
+      if (huesped.edad < 18) {
         alert('El huésped principal debe ser mayor de edad.');
       }
-      else{
-      // Asigna el huesped principal a habitación actual
-      setAsignaciones(prev => ({
-        ...prev,
-        [habitacionActual.numeroHabitacion]: {
-          ...prev[habitacionActual.numeroHabitacion],
-          huespedPrincipal: huesped
-        }
-      }))};
+      else {
+        // Asigna el huesped principal a habitación actual
+        setAsignaciones(prev => ({
+          ...prev,
+          [habitacionActual.numeroHabitacion]: {
+            ...prev[habitacionActual.numeroHabitacion],
+            huespedPrincipal: huesped
+          }
+        }))
+      };
     } else {
       // Agrega un acompañante
       const asignacionActual = asignaciones[habitacionActual.numeroHabitacion];
-      
+
       // No puede ser el mismo que el principal
       if (esPrincipalEnHabitacionActual(huesped.id)) {
         alert('El huésped principal no puede ser acompañante en la misma habitación.');
@@ -239,7 +280,7 @@ export default function AsignarHuespedesPage() {
     const estadiasParaEnviar = habitaciones.map((hab) => {
       const asignacion = asignaciones[hab.numeroHabitacion];
       const principal = asignacion.huespedPrincipal!;
-      
+
       return {
         numeroHabitacion: hab.numeroHabitacion,
         fechaInicio: hab.fechaInicio,
@@ -284,9 +325,7 @@ export default function AsignarHuespedesPage() {
       // Limpiar sessionStorage
       sessionStorage.removeItem('habitacionesSeleccionadas');
       sessionStorage.removeItem('forzarOcupacion');
-      
-      alert('✅ Estadías registradas exitosamente');
-      router.push('/menu');
+      setPopupExitoso(true);
     } catch (err) {
       console.error('Error:', err);
       setError('Error al registrar las estadías');
@@ -294,23 +333,23 @@ export default function AsignarHuespedesPage() {
   };
 
   const renderHeader = () => (
-    <header style={{ 
-      display: 'flex', 
-      justifyContent: 'space-between', 
-      alignItems: 'center', 
-      padding: '20px 40px', 
-      backgroundColor: '#000', 
-      borderBottom: '2px solid #b8975a' 
+    <header style={{
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: '20px 40px',
+      backgroundColor: '#000',
+      borderBottom: '2px solid #b8975a'
     }}>
-      <h1 className="font-serif" style={{ 
-        fontFamily: 'Georgia, serif', 
-        fontSize: '42px', 
-        fontStyle: 'italic', 
-        color: '#b8975a' 
+      <h1 className="font-serif" style={{
+        fontFamily: 'Georgia, serif',
+        fontSize: '42px',
+        fontStyle: 'italic',
+        color: '#b8975a'
       }}>
         Asignar Huéspedes
       </h1>
-      <Image src="/img/Logotipo3.png" alt="Logo" width={80} height={80} className="opacity-45"/>
+      <Image src="/img/Logotipo3.png" alt="Logo" width={80} height={80} className="opacity-45" />
     </header>
   );
 
@@ -334,17 +373,17 @@ export default function AsignarHuespedesPage() {
         )}
 
         {/* Indicador de progreso */}
-        <div style={{ 
-          textAlign: 'center', 
+        <div style={{
+          textAlign: 'center',
           marginBottom: '30px',
           color: '#b8975a'
         }}>
           <h2 style={{ fontSize: '1.5rem', marginBottom: '10px' }}>
             Habitación {habitacionActualMostrandose + 1} de {habitaciones.length}
           </h2>
-          <div style={{ 
-            display: 'flex', 
-            gap: '10px', 
+          <div style={{
+            display: 'flex',
+            gap: '10px',
             justifyContent: 'center',
             marginTop: '15px'
           }}>
@@ -390,9 +429,9 @@ export default function AsignarHuespedesPage() {
 
           {/* Huésped Principal */}
           <div style={{ marginBottom: '25px' }}>
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
               alignItems: 'center',
               marginBottom: '15px'
             }}>
@@ -415,7 +454,7 @@ export default function AsignarHuespedesPage() {
                 {principal ? 'Cambiar Principal' : 'Buscar Principal'}
               </button>
             </div>
-            
+
             {principal ? (
               <div style={{
                 padding: '15px',
@@ -439,9 +478,9 @@ export default function AsignarHuespedesPage() {
 
           {/* Acompañantes */}
           <div>
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
               alignItems: 'center',
               marginBottom: '15px'
             }}>
@@ -509,8 +548,8 @@ export default function AsignarHuespedesPage() {
         </div>
 
         {/* Botones de navegación */}
-        <div style={{ 
-          display: 'flex', 
+        <div style={{
+          display: 'flex',
           justifyContent: 'space-between',
           gap: '20px'
         }}>
@@ -565,6 +604,7 @@ export default function AsignarHuespedesPage() {
           </button>
         </div>
       </main>
+
 
       {/* Modal de búsqueda */}
       {mostrarBusqueda && (
@@ -672,6 +712,7 @@ export default function AsignarHuespedesPage() {
               </div>
             </form>
 
+
             {/* Resultados */}
             {resultadosBusqueda.length > 0 && (
               <div>
@@ -701,6 +742,7 @@ export default function AsignarHuespedesPage() {
                         {huesped.tipoDocumento}: {huesped.documentacion}
                       </p>
                     </div>
+
                   ))}
                 </div>
               </div>
@@ -708,6 +750,70 @@ export default function AsignarHuespedesPage() {
           </div>
         </div>
       )}
+      {/* Popup de Éxito */}
+      {PopupExitoso && (
+        <div className="popup">
+          <div className="popup-contenido">
+
+            <div className='popup-encabezado'>
+              <Image className='popup-icono' src="img/iconoExito.svg" alt="icono" width={100} height={30} />
+              <div className='popup-descripcion'>
+                <h2>
+                  Estadía registada correctamente.
+                </h2>
+                <p>
+                  ¿Desea cargar otra habitación?
+                </p>
+              </div>
+            </div>
+
+
+            <div className='popup-botonera'>
+              <button className="popup-boton" onClick={() => {
+                setPopupExitoso(false);    // Obtiene las fechas de la primera habitación ya que todas tienen el mismo rango
+                const desde = habitaciones[0].fechaInicio;
+                const hasta = habitaciones[0].fechaFin;
+                router.push(`/ocupar?desde=${desde}&hasta=${hasta}`);
+              }}>
+                Sí
+              </button>
+              <button className="popup-boton" onClick={() => router.push('/menu')}>
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Popup de Error de Disponibilidad */}
+      {popupErrorDisponibilidad && (
+        <div className="popup">
+          <div className="popup-contenido">
+            <div className='popup-encabezado'>
+              <Image className='popup-icono' src="/img/iconoError.svg" alt="icono" width={100} height={30} />
+              <div className='popup-descripcion'>
+                <h2>
+                  Error de Disponibilidad
+                </h2>
+                <p>
+                  {mensajeErrorDisponibilidad}
+                </p>
+              </div>
+            </div>
+            <div className='popup-botonera'>
+              <button className="popup-boton" onClick={() => {
+                setPopupErrorDisponibilidad(false);
+                setMensajeErrorDisponibilidad('');
+              }}>
+                Entendido
+              </button>
+              <button className="popup-boton" onClick={() => router.push('/menu')}>
+                Volver al Menú
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+

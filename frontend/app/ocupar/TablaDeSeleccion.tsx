@@ -275,7 +275,7 @@ export default function TablaDeInteraccion() {
 
     for (const [numeroHabitacion, datos] of Object.entries(porHabitacion)) {
       const sortedIndices = datos.indices.sort((a, b) => a - b);
-      
+
       // Agrupar fechas consecutivas
       let inicio = sortedIndices[0];
       let fin = sortedIndices[0];
@@ -413,7 +413,36 @@ export default function TablaDeInteraccion() {
                 return;
               }
 
-              // Validar si hay habitaciones reservadas
+              // Validamos estados no permitidos (OCUPADO y FUERA DE SERVICIO)
+              const estadosNoPermitidos: Estados[] = ["OCUPADO", "FUERA_SERVICIO"];
+              let hayEstadoNoPermitido = false;
+              let estadoEncontrado = "";
+
+              for (const k of selected) {
+                const [dIndexStr, typeId, habitacionString] = k.split("-");
+                const dIndex = Number(dIndexStr);
+                const numeroHabitacion = Number(habitacionString);
+
+                if (isNaN(dIndex) || isNaN(numeroHabitacion)) continue;
+
+                const estado = availability[typeId]?.[numeroHabitacion]?.[dIndex];
+                if (estadosNoPermitidos.includes(estado)) {
+                  hayEstadoNoPermitido = true;
+                  estadoEncontrado = estado;
+                  break;
+                }
+              }
+
+              // Si hay estado no permitido, mostrar error y detener
+              if (hayEstadoNoPermitido) {
+                setError(`⚠ No puedes seleccionar habitaciones en estado: ${estadoEncontrado}`);
+                return;
+              }
+
+              // Limpiar error si pasó la validación
+              setError(null);
+
+              // Validamos si hay habitaciones RESERVADAS
               const habitacionesReservadas: Array<{
                 numeroHabitacion: number;
                 fecha: string;
@@ -443,14 +472,13 @@ export default function TablaDeInteraccion() {
                 return;
               }
 
-              // Si no hay reservadas, continuar directamente
+              // Si no hay reservadas ni estados no permitidos, continuar directamente
               continuarConHuespedes();
             }}
-            className={`px-8 py-3 rounded-2xl text-xl font-bold shadow ${
-              selected.size === 0
+            className={`px-8 py-3 rounded-2xl text-xl font-bold shadow ${selected.size === 0
                 ? "bg-gray-400 cursor-not-allowed opacity-60"
                 : "bg-[#a67c52] hover:bg-[#c39a4f] text-white"
-            }`}
+              }`}
           >
             Continuar con huéspedes
           </button>
