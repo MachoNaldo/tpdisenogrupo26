@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-
 import "./globals.css";
 
 const geistSans = Geist({
@@ -16,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Hotel Premier S.F.",
   description: "Tu hogar lejos de casa",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({

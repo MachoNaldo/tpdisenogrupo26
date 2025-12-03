@@ -22,6 +22,11 @@ interface HabitacionSeleccionada {
   fechaFin: string;
 }
 
+function formatoDeFecha(fecha: string) {
+  const [anio, mes, dia] = fecha.split("-");
+  return `${dia}/${mes}/${anio}`;
+}
+
 export default function TablaDeInteraccion() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -346,7 +351,7 @@ export default function TablaDeInteraccion() {
               {roomTypes.map((t) => (
                 <th key={t.tipo} className="border-2 p-2 text-center">
                   <select
-                    className="w-1/2 bg-white border-2 rounded"
+                    className="w-1/2 bg-white border-2 rounded text-center"
                     value={selectedRoomByType[t.tipo]}
                     onChange={(e) =>
                       setSelectedRoomByType((p) => ({
@@ -374,8 +379,8 @@ export default function TablaDeInteraccion() {
             <tbody>
               {dates.map((date, dIndex) => (
                 <tr key={date}>
-                  <td className="border-2 bg-gray-200 text-center font-semibold">
-                    {date}
+                  <td  className="border-2 bg-[#C3C3C3] text-black text-center font-bold">
+                    {formatoDeFecha(date)}
                   </td>
 
                   {roomTypes.map((t) => {

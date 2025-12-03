@@ -47,9 +47,7 @@ public class HabitacionServiceImpl implements HabitacionService {
     @Override
     public List<DisponibilidadDTO> obtenerDisponibilidad(LocalDate desde, LocalDate hasta) {
 
-        // ============================================
-        // LOG PARA DETECTAR EL ERROR 500
-        // ============================================
+        
         List<Habitacion> habitaciones = habitacionRepository.findAllConPeriodos();
 
         System.out.println("=== DEBUG DISPONIBILIDAD ===");
@@ -83,10 +81,6 @@ public class HabitacionServiceImpl implements HabitacionService {
 
         System.out.println("=== FIN DEBUG ===");
 
-        // ============================================
-        // LÓGICA ORIGINAL (sin cambios)
-        // ============================================
-
         List<DisponibilidadDTO> resultado = new ArrayList<>();
 
         for (Habitacion h : habitaciones) {
@@ -96,8 +90,15 @@ public class HabitacionServiceImpl implements HabitacionService {
             LocalDate actual = desde;
             while (!actual.isAfter(hasta)) {
 
+                TipoEstadoHabitacion estadoFinal;
                 // Estado por defecto
-                TipoEstadoHabitacion estadoFinal = TipoEstadoHabitacion.LIBRE;
+                if(h.getNumero()==402 || h.getNumero()==502){ //ESTO ES PARA TENER ALGUNAS FUERA DE SERVICIO
+                    estadoFinal = TipoEstadoHabitacion.FUERA_SERVICIO;
+                }
+                else{
+                    estadoFinal = TipoEstadoHabitacion.LIBRE;
+                }
+                
 
                 if (h.getPeriodos() != null) {
                     for (PeriodoEstado p : h.getPeriodos()) {

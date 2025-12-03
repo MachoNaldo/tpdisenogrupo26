@@ -399,17 +399,16 @@ export default function AsignarHuespedesPage() {
               <h4 style={{ color: '#b8975a', margin: 0, fontSize: '1.3rem' }}>
                 Huésped Principal:
               </h4>
-              <button
+              <button className='btn'
                 onClick={abrirBusquedaPrincipal}
                 style={{
                   padding: '10px 20px',
-                  backgroundColor: '#b8975a',
-                  color: '#000',
                   border: 'none',
                   borderRadius: '6px',
                   cursor: 'pointer',
                   fontSize: '1rem',
-                  fontWeight: 'bold'
+                  fontWeight: 'bold',
+                  width: '210px',
                 }}
               >
                 {principal ? 'Cambiar Principal' : 'Buscar Principal'}
@@ -448,20 +447,19 @@ export default function AsignarHuespedesPage() {
               <h4 style={{ color: '#b8975a', margin: 0, fontSize: '1.3rem' }}>
                 Acompañantes:
               </h4>
-              <button
+              <button className='btn'
                 onClick={abrirBusquedaAcompaniante}
                 style={{
                   padding: '10px 20px',
-                  backgroundColor: '#5a8fb8',
                   color: '#fff',
+                  backgroundColor: '#5a8fb8',
                   border: 'none',
                   borderRadius: '6px',
                   cursor: 'pointer',
                   fontSize: '1rem',
                   fontWeight: 'bold'
-                }}
-              >
-                + Agregar Acompañante
+                }}>
+                <span className='mr-1' style={{fontSize: '20px'}}>+</span> Agregar Acompañante
               </button>
             </div>
 
@@ -514,7 +512,7 @@ export default function AsignarHuespedesPage() {
           justifyContent: 'space-between',
           gap: '20px'
         }}>
-          <button
+          <button className='btn'
             onClick={volverHabitacionAnterior}
             disabled={habitacionActualMostrandose === 0}
             style={{
@@ -532,23 +530,21 @@ export default function AsignarHuespedesPage() {
             ← Anterior
           </button>
 
-          <button
+          <button className='btn'
             onClick={() => router.back()}
             style={{
               padding: '15px 30px',
-              backgroundColor: '#f44336',
               color: '#fff',
               border: 'none',
               borderRadius: '8px',
               fontSize: '1.1rem',
               fontWeight: 'bold',
               cursor: 'pointer'
-            }}
-          >
-            Cancelar Todo
+            }}>
+            Modificar habitaciones
           </button>
 
-          <button
+          <button className='btn'
             onClick={continuarSiguienteHabitacion}
             style={{
               padding: '15px 30px',

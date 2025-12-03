@@ -15,7 +15,7 @@ export default function TablaPage() {
       <div className="absolute inset-0 bg-black/60 pointer-events-none" />
 
       {/* Contenedor principal */}
-      <div className="relative w-full max-w-6xl bg-black/60 mt-12 p-8 
+      <div className="relative  max-w-6x1 bg-black/60 mt-12 p-8 
                       rounded-xl border border-[#d6a85b]/40 shadow-2xl">
 
         <Encabezado />

@@ -4,7 +4,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class DataInitializer {
-/* 
+/* SE PUEDE BORRAR ESTO
     @Bean
     CommandLineRunner initDatabase(
             UsuarioRepository usuarioRepository,
