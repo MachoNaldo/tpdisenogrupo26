@@ -227,14 +227,13 @@ export default function BuscarHuespedPage() {
         );
     }
     
-    // --- VISTA 2: RESULTADOS (Window-1.jpg) ---
     return (
         <div className='estilo1'>
             {renderHeader()}
             
-            <main  style={{ maxWidth: '900px', margin: '50px auto' }}>
+            <main style={{ maxWidth: '900px', margin: '50px auto' }}>
                 
-                {/* Tabla de Resultados replicando Window-1.jpg */}
+
                 <table className="w-full border-[5px] border-[#a67c52]
                 table-fixed border-collapse">
                     <thead>
