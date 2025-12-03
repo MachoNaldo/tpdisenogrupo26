@@ -97,6 +97,7 @@ export default function Menu() {
             <p className="menu-label font-serif">Ocupar Habitación</p>
           </Link>
 
+
         </div>
 
         <button className="btn" style={{display: "flex", flexDirection: "column", 

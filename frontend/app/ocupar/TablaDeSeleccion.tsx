@@ -24,6 +24,11 @@ interface HabitacionSeleccionada {
   fechaFin: string;
 }
 
+function formatoDeFecha(fecha: string) {
+  const [anio, mes, dia] = fecha.split("-");
+  return `${dia}/${mes}/${anio}`;
+}
+
 export default function TablaDeInteraccion() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -348,7 +353,7 @@ export default function TablaDeInteraccion() {
               {roomTypes.map((t) => (
                 <th key={t.tipo} className="border-2 p-2 text-center">
                   <select
-                    className="w-1/2 bg-white border-2 rounded"
+                    className="w-1/2 bg-white border-2 rounded text-center"
                     value={selectedRoomByType[t.tipo]}
                     onChange={(e) =>
                       setSelectedRoomByType((p) => ({
@@ -376,8 +381,8 @@ export default function TablaDeInteraccion() {
             <tbody>
               {dates.map((date, dIndex) => (
                 <tr key={date}>
-                  <td className="border-2 bg-gray-200 text-center font-semibold">
-                    {date}
+                  <td  className="border-2 bg-[#C3C3C3] text-black text-center font-bold">
+                    {formatoDeFecha(date)}
                   </td>
 
                   {roomTypes.map((t) => {
@@ -501,40 +506,40 @@ export default function TablaDeInteraccion() {
       {/* Modal de alertas para reservas */}
       {modalReservas.length > 0 && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-2xl p-8 max-w-3xl w-full mx-4">
+          <div className="bg-[#282828] rounded-xl shadow-2xl p-8 max-w-3xl w-full mx-4">
             <h2 className="text-3xl font-bold text-red-600 mb-4 text-center">
               ⚠️ Habitaciones Reservadas
             </h2>
 
-            <p className="text-gray-700 text-lg mb-6 text-center">
+            <p className="text-white text-lg mb-6 text-center">
               Algunas habitaciones de la selección se encuentran reservadas:
             </p>
 
             <div className="overflow-x-auto">
-              <table className="w-full border-collapse border-2 border-gray-300">
+              <table className="w-full border-collapse border-2 ">
                 <thead>
                   <tr className="bg-[#a67c52] text-white">
-                    <th className="border-2 border-gray-300 p-3 text-left">
+                    <th className="border-2  p-3 text-left">
                       N° Habitación
                     </th>
-                    <th className="border-2 border-gray-300 p-3 text-left">
+                    <th className="border-2  p-3 text-left">
                       Periodo de Reserva
                     </th>
-                    <th className="border-2 border-gray-300 p-3 text-left">
+                    <th className="border-2  p-3 text-left">
                       Titular de la Reserva
                     </th>
                   </tr>
                 </thead>
                 <tbody>
                   {modalReservas.map((reserva, idx) => (
-                    <tr key={idx} className="hover:bg-gray-100">
-                      <td className="border-2 border-gray-300 p-3 text-center font-semibold text-black">
+                    <tr key={idx} >
+                      <td className="border-2  p-3 text-center font-semibold text-white">
                         {reserva.numeroHabitacion}
                       </td>
-                      <td className="border-2 border-gray-300 p-3 text-black">
+                      <td className="border-2  p-3 text-white">
                         {reserva.fechaInicio} → {reserva.fechaFin}
                       </td>
-                      <td className="border-2 border-gray-300 p-3 text-black">
+                      <td className="border-2  p-3 text-white">
                         {reserva.clienteNombre} {reserva.clienteApellido}
                       </td>
                     </tr>
@@ -544,7 +549,7 @@ export default function TablaDeInteraccion() {
             </div>
 
             <div className="mt-6 flex justify-center gap-4">
-              <button
+              <button className="btn"
                 onClick={cerrarModal}
                 style={{
                   padding: '12px 32px',
@@ -561,7 +566,7 @@ export default function TablaDeInteraccion() {
               >
                 Cancelar
               </button>
-              <button
+              <button className="btn"
                 onClick={forzarOcupacion}
                 style={{
                   padding: '12px 32px',

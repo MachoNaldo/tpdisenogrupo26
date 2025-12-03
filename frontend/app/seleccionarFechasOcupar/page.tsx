@@ -33,12 +33,12 @@ export default function ReservarHabitacion() {
     <main className="min-h-screen flex items-center justify-center relative text-white bg-black">
 
 
-      {/* Imagen decorativa central */}
+      {/* Imagen de fondo */}
       <div className="absolute inset-0 bg-[url('/img/Fondo4.png')] 
                       bg-center bg-contain bg-no-repeat opacity-40 pointer-events-none" />
 
       {/* Fondo oscuro encima */}
-      <div className="absolute inset-0 bg-black/80" />
+      <div className="absolute inset-0 bg-black/65" />
 
       {/* Marco principal */}
       <div className="relative bg-black/60 border border-[#d6a85b] rounded-xl 
@@ -99,17 +99,11 @@ export default function ReservarHabitacion() {
         {/* Botones */}
         <div className="flex justify-center gap-25 mt-6">
 
-            <button
-              onClick={continuar}
-              className="bg-[#a67c52] hover:bg-[#c39a4f] text-white px-12 py-3 rounded-xl 
-                        font-[Georgia] text-xl shadow-md transition">
+            <button className="btn" onClick={continuar}>
               Buscar
             </button>
 
-            <button
-              onClick={cancelar}
-              className="bg-[#a67c52] hover:bg-[#c39a4f] text-white px-10 py-3 rounded-xl 
-                        font-[Georgia] text-xl shadow-md transition">
+            <button className="btn" onClick={cancelar}>
               Cancelar
             </button>
 
