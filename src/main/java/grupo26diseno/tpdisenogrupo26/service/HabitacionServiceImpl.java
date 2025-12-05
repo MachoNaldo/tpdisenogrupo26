@@ -190,8 +190,6 @@ public class HabitacionServiceImpl implements HabitacionService {
             reservaRepository.save(reserva);
             // Creamos un periodo reservado asociado correspondiente a la reserva
             periodoEstadoService.crearPeriodoEstadoReservado(habitacion, fInicio, fFin);
-
-            reservaRepository.save(reserva);
         }
     }
 
