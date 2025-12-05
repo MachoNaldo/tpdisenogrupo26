@@ -57,12 +57,20 @@
 }
 
 
+.menu-grid .menu-card:last-child:nth-child(odd){
+  grid-column: span 2;
+  width: 50%;
+  margin: 0 auto;
+}
+
+
+
 .menu-card {
   border: 3px solid #b8975a;
   padding: 25px;
   border-radius: 16px;
   text-align: center;
-
+ 
   background: rgba(0, 0, 0, 0.6);
   cursor: pointer;
 

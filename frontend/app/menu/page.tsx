@@ -99,7 +99,15 @@ export default function Menu() {
             </div>
             <p className="menu-label font-serif">Ocupar Habitación</p>
           </Link>
+        
 
+          {/* Facturar */}
+          <Link href="/facturar" className="menu-card">
+            <div className="icon-wrapper">
+              <Image src="/img/Facturar.png" alt="Facturar" width={100} height={80} className="menu-icon opacity-90" />
+            </div>
+            <p className="menu-label font-serif">Facturar</p>
+          </Link>
         </div>
 
         <button className="logout-btn font-serif" onClick={desloguearse}>Cerrar Sesión</button>
