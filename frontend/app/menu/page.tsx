@@ -81,6 +81,8 @@ export default function Menu() {
             <p className="menu-label font-serif">Agregar Huésped</p>
           </Link>
 
+          
+
           {/* Reservar habitacion */}
           <Link href="/seleccionarFechas" className="menu-card">
             <div className="icon-wrapper">

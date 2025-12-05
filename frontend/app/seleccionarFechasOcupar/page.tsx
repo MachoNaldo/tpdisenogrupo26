@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function ReservarHabitacion() {
   const router = useRouter();
@@ -12,12 +13,12 @@ export default function ReservarHabitacion() {
 
   const continuar = () => {
     if (!desde || !hasta) {
-      setError("⚠️ Debes seleccionar ambas fechas.");
+      setError("Debes seleccionar ambas fechas.");
       return;
     }
 
     if (new Date(desde) > new Date(hasta)) {
-      setError("⚠️ La fecha 'Desde' no puede ser mayor que 'Hasta'.");
+      setError("La fecha 'Desde' no puede ser mayor que 'Hasta'.");
       return;
     }
 
@@ -57,8 +58,13 @@ export default function ReservarHabitacion() {
 
         {/* Error */}
         {error && (
-          <div className="text-red-400 mb-5 text-sm border border-red-400 px-3 py-2 rounded">
-            {error}
+            <div className="error-box">
+                  <div className="error-icon">
+                    <Image src="img/iconoError.svg" alt="icono" width={40} height={40} />
+                  </div>
+                <p className="error-text">
+              {error}
+            </p>
           </div>
         )}
 

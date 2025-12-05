@@ -8,7 +8,7 @@ export default function Inicio() {
       <div className="social-icons">
         
         <a
-          href="https://www.instagram.com/lucas_curbela/"
+          href="https://www.instagram.com/utnsantafe/"
           target="_blank"
           rel="noopener noreferrer"
           className="social-icon"
@@ -19,7 +19,7 @@ export default function Inicio() {
 
 
         <a
-          href="https://x.com/isnardo_gabriel"
+          href="https://x.com/UTNSantaFe"
           target="_blank"
           rel="noopener noreferrer"
           className="social-icon"
