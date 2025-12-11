@@ -55,13 +55,5 @@ public class HuespedController {
     }
 
 
-    @GetMapping("/buscar-salida")
-    public List<HuespedDTO> buscarPorSalida(
-    @RequestParam Long numero,
-    @RequestParam String fecha 
-    ) {
-    LocalDate fechaSalida = LocalDate.parse(fecha);
     
-    return huespedService.obtenerHuespedesDeSalida(numero, fechaSalida);
-}
 }

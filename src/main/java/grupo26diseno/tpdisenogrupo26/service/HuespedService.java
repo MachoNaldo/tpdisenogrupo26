@@ -17,7 +17,7 @@ public interface HuespedService {
 
     List<Huesped> buscarHuespedesPorCriterios(String apellido, String nombres, TipoDoc tipoDocumento, String documentacion);
     
-    List<HuespedDTO> obtenerHuespedesDeSalida(Long numeroHabitacion, LocalDate fecha);
+   
     
 }
 

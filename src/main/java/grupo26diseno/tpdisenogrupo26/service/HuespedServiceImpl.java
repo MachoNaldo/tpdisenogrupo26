@@ -64,27 +64,7 @@ public class HuespedServiceImpl implements HuespedService {
         return huespedRepository.buscarPorCriterios(apellido, nombres, tipoDocumento, documentacion);
     }
     
-    @Override
-    public List<HuespedDTO> obtenerHuespedesDeSalida(Long numero, LocalDate fecha) {
-        
-        
-        List<Huesped> entidades = huespedRepository.buscarPorSalida(numero, fecha);
-        List<HuespedDTO> dtos = new ArrayList<>();
-        
-        
-        for (Huesped h : entidades) {
-            
-            HuespedDTO dto = new HuespedDTO();
-            
-           
-            dto.setNombres(h.getNombres());
-            dto.setApellido(h.getApellido());
-            dto.setDocumentacion(h.getDocumentacion());        
-            dtos.add(dto);
-        }
-
-        return dtos; 
-    }
+    
 }
 
 

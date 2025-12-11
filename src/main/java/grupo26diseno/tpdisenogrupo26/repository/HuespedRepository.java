@@ -26,11 +26,4 @@ public interface HuespedRepository  extends JpaRepository<Huesped, Long> {
             @Param("documentacion") String documentacion);
 
 
-    @Query("SELECT r.cliente FROM Reserva r " + 
-           "WHERE r.habitacion.numero = :numero " +
-           "AND r.fechaFin = :fechaSalida")
-    List<Huesped> buscarPorSalida(
-            @Param("numero") Long numero, 
-            @Param("fechaSalida") LocalDate fechaSalida
-    );
 }
