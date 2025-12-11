@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import DTOs.HuespedDTO;
 import grupo26diseno.tpdisenogrupo26.excepciones.DocumentoUsadoException;
 import grupo26diseno.tpdisenogrupo26.model.Huesped;
 import grupo26diseno.tpdisenogrupo26.model.TipoDoc;
@@ -52,4 +53,15 @@ public class HuespedController {
 
         return huespedService.buscarHuespedesPorCriterios(apellido, nombres, tipoDocumento, documentacion);
     }
+
+
+    @GetMapping("/buscar-salida")
+    public List<HuespedDTO> buscarPorSalida(
+    @RequestParam Long numero,
+    @RequestParam String fecha 
+    ) {
+    LocalDate fechaSalida = LocalDate.parse(fecha);
+    
+    return huespedService.obtenerHuespedesDeSalida(numero, fechaSalida);
+}
 }

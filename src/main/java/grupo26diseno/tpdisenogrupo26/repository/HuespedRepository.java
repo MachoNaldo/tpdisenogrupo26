@@ -1,5 +1,6 @@
 package grupo26diseno.tpdisenogrupo26.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,4 +24,13 @@ public interface HuespedRepository  extends JpaRepository<Huesped, Long> {
             @Param("nombres") String nombres,
             @Param("tipoDocumento") TipoDoc tipoDocumento,
             @Param("documentacion") String documentacion);
+
+
+    @Query("SELECT r.cliente FROM Reserva r " + 
+           "WHERE r.habitacion.numero = :numero " +
+           "AND r.fechaFin = :fechaSalida")
+    List<Huesped> buscarPorSalida(
+            @Param("numero") Long numero, 
+            @Param("fechaSalida") LocalDate fechaSalida
+    );
 }

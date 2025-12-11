@@ -45,7 +45,7 @@ export default function ReservarHabitacion() {
 
         {/* Título */}
         <h1 className="text-5xl font-[Georgia] text-[#d6a85b] mb-4 italic">
-          Elegir responsable de pago
+          Generar Factura
         </h1>
 
         {/* Subtítulo */}

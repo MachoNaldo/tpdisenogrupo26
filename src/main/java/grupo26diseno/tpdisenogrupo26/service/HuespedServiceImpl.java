@@ -1,11 +1,14 @@
 package grupo26diseno.tpdisenogrupo26.service;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import DTOs.HuespedDTO;
 import grupo26diseno.tpdisenogrupo26.excepciones.DocumentoUsadoException;
 import grupo26diseno.tpdisenogrupo26.model.Direccion;
 import grupo26diseno.tpdisenogrupo26.model.Huesped;
@@ -61,5 +64,27 @@ public class HuespedServiceImpl implements HuespedService {
         return huespedRepository.buscarPorCriterios(apellido, nombres, tipoDocumento, documentacion);
     }
     
+    @Override
+    public List<HuespedDTO> obtenerHuespedesDeSalida(Long numero, LocalDate fecha) {
+        
+        
+        List<Huesped> entidades = huespedRepository.buscarPorSalida(numero, fecha);
+        List<HuespedDTO> dtos = new ArrayList<>();
+        
+        
+        for (Huesped h : entidades) {
+            
+            HuespedDTO dto = new HuespedDTO();
+            
+           
+            dto.setNombres(h.getNombres());
+            dto.setApellido(h.getApellido());
+            dto.setDocumentacion(h.getDocumentacion());        
+            dtos.add(dto);
+        }
 
+        return dtos; 
+    }
 }
+
+
