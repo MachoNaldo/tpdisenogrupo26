@@ -7,17 +7,21 @@ export default function ReservarHabitacion() {
   const router = useRouter();
 
   const [habitacion, setHabitacion] = useState("");
-  const [hasta, setHasta] = useState("");
+  const [fecha, setFecha] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const continuar = () => {
-    if (!habitacion || !hasta) {
-      setError("⚠️ Debes seleccionar ambas fechas.");
+    if (!habitacion || !fecha) {
+      setError("⚠️ Debes completar ambos campos.");
+      return;
+    }
+    
+    if (habitacion < "1"){
+      setError("⚠️ Habitación inexistente.");
       return;
     }
 
-    router.push(`/reservar?desde=${habitacion}&hasta=${hasta}`);//CAMBIAR PARA QUE LLEVE A LA SIGUIENTE COSA DE FACTURAR(LA TABLA)
-
+    //router.push(`/reservar?desde=${habitacion}&hasta=${fecha}`);//CAMBIAR PARA QUE LLEVE A LA SIGUIENTE COSA DE FACTURAR(LA TABLA)
   };
 
   const cancelar = () => {
@@ -46,7 +50,7 @@ export default function ReservarHabitacion() {
 
         {/* Subtítulo */}
         <p className="text-lg font-[Georgia] mb-10 text-[#d6a85b] italic opacity-90">
-          Ingresa una numero de habitación y la fecha de salida para<br />
+          Ingresa un numero de habitación y la fecha de salida para<br />
           filtrar a los ocupantes de la habitación.
         </p>
 
@@ -68,6 +72,7 @@ export default function ReservarHabitacion() {
             </label>
             <input
               type="number"
+              min="1"
               className="bg-transparent border border-[#d6a85b] text-white 
                          px-4 py-3 rounded-xl text-center w-[200px] 
                          font-[Georgia] focus:outline-none"
@@ -76,7 +81,7 @@ export default function ReservarHabitacion() {
             />
           </div>
 
-          {/* Fecha hasta */}
+          {/* Fecha de salida*/}
           <div className="flex flex-col">
             <label className="text-[#d6a85b] font-[Georgia] mb-1 italic">
               Fecha de salida
@@ -86,8 +91,8 @@ export default function ReservarHabitacion() {
               className="bg-transparent border border-[#d6a85b] text-white 
                          px-4 py-3 rounded-xl text-center w-[200px] 
                          font-[Georgia] focus:outline-none"
-              value={hasta}
-              onChange={(e) => setHasta(e.target.value)}
+              value={fecha}
+              onChange={(e) => setFecha(e.target.value)}
             />
           </div>
         </div>

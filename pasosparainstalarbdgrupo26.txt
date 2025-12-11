@@ -1,4 +1,4 @@
-cd ”C:\ProgramFiles\PostgreSQL\17\bin" o donde tengan el postgresql instalado
+cd ”C:\ProgramFiles\PostgreSQL\18\bin" o donde tengan el postgresql instalado
 
 psql -U postgres
 
