@@ -1,5 +1,7 @@
 package grupo26diseno.tpdisenogrupo26.service;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +16,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public boolean autenticarUsuario(String unNombre, String unaContra) {
-        Usuario usuario = usuarioRepository.findByNombreAndContra(unNombre, unaContra);
-        return usuario != null;
+        Optional<Usuario> usuario = usuarioRepository.findByNombreAndContra(unNombre, unaContra);
+        return usuario.isPresent();
     }
 }
