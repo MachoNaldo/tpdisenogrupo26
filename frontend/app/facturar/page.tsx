@@ -60,13 +60,11 @@ export default function ReservarHabitacion() {
 
           {/* Numero de Habitación */}
           <div className="flex flex-col items-center">
-            <label className="text-[#d6a85b] font-[Georgia] mb-1 italic">
-              Numero de Habitación
-
-            </label>
+            
             <input
               type="number"
               min="1"
+              placeholder="Numero de Habitación"
               className="bg-transparent border border-[#d6a85b] text-white 
                          px-4 py-3 rounded-xl text-center w-[250px] 
                          font-[Georgia] focus:outline-none"
@@ -77,11 +75,10 @@ export default function ReservarHabitacion() {
 
           {/* Fecha de salida*/}
           <div className="flex flex-col items-center">
-            <label className="text-[#d6a85b] font-[Georgia] mb-1 italic">
-              Fecha de salida
-            </label>
+           
             <input
               type="date"
+              placeholder="Fecha de salida"
               className="bg-transparent border border-[#d6a85b] text-white 
                          px-4 py-3 rounded-xl text-center w-[250px] 
                          font-[Georgia] focus:outline-none"
