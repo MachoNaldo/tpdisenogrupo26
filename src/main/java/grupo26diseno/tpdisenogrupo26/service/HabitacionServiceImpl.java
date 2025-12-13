@@ -28,6 +28,8 @@ import grupo26diseno.tpdisenogrupo26.repository.EstadiaRepository;
 import grupo26diseno.tpdisenogrupo26.repository.HabitacionRepository;
 import grupo26diseno.tpdisenogrupo26.repository.PeriodoRepository;
 import grupo26diseno.tpdisenogrupo26.repository.ReservaRepository;
+import grupo26diseno.tpdisenogrupo26.service.handler.EstadoHabitacionChainFactory;
+import grupo26diseno.tpdisenogrupo26.service.handler.EstadoHabitacionHandler;
 
 @Service
 public class HabitacionServiceImpl implements HabitacionService {
@@ -44,118 +46,37 @@ public class HabitacionServiceImpl implements HabitacionService {
     private HuespedService huespedService;
     @Autowired
     private EstadiaRepository estadiaRepository;
+    @Autowired
+    private EstadoHabitacionChainFactory chainFactory;
 
     private static final DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    @Override
+   @Override
     public List<DisponibilidadDTO> obtenerDisponibilidad(LocalDate desde, LocalDate hasta) {
-
+        
         List<Habitacion> habitaciones = habitacionRepository.findAll();
-
         List<DisponibilidadDTO> resultado = new ArrayList<>();
+        
+        // Creamos la cadena de responsabilidad
+        EstadoHabitacionHandler cadena = chainFactory.crearCadena();
 
         for (Habitacion h : habitaciones) {
-
+            
             Map<String, String> mapa = new LinkedHashMap<>();
-            Long numhab = h.getNumero();
-            List<PeriodoEstado> listaPeriodo = periodoRepository
-                    .findByHabitacionNumeroAndFechaInicioLessThanEqualAndFechaFinGreaterThanEqual(numhab, hasta,
-                            desde);
-            if (listaPeriodo != null) {
-                for (PeriodoEstado p : listaPeriodo) {
-
-                    LocalDate fechaInicio = p.getFechaInicio();
-                    LocalDate fechaFinal = p.getFechaFin();
-                    TipoEstadoHabitacion estadoFinal = p.getTipoEstado();
-
-                    // Iteramos todas las fechas entre inicio y fin
-                    LocalDate fecha = fechaInicio;
-                    while (!fecha.isAfter(fechaFinal)) {
-                        mapa.put(fecha.toString(), estadoFinal.name());
-                        fecha = fecha.plusDays(1);
-                    }
-                }
-            }
-            // Ahora revisamos todas las reservas
-            List<Reserva> listaReservas = reservaRepository
-                    .findByHabitacionNumeroAndFechaInicioLessThanEqualAndFechaFinalGreaterThanEqual(numhab,
-                            hasta, desde);
-            if (listaReservas != null) {
-                for (Reserva r : listaReservas) {
-
-                    LocalDate fechaInicio = r.getFechaInicio();
-                    LocalDate fechaFinal = r.getFechaFinal();
-                    TipoEstadoHabitacion estadoFinal = TipoEstadoHabitacion.RESERVADO;
-
-                    // Iteramos todas las fechas entre inicio y fin
-                    LocalDate fecha = fechaInicio;
-                    while (!fecha.isAfter(fechaFinal)) {
-                        mapa.put(fecha.toString(), estadoFinal.name());
-                        fecha = fecha.plusDays(1);
-                    }
-                }
-            }
-            // Ahora todas las ocupaciones
-            List<Estadia> listaEstadias = estadiaRepository
-                    .findByHabitacionNumeroAndFechaCheckInLessThanEqualAndFechaCheckOutGreaterThanEqual(numhab, hasta,
-                            desde);
-            if (listaEstadias != null) {
-                for (Estadia e : listaEstadias) {
-
-                    LocalDate fechaInicio = e.getFechaCheckIn();
-                    LocalDate fechaFinal = e.getFechaCheckOut();
-                    TipoEstadoHabitacion estadoFinal = TipoEstadoHabitacion.OCUPADO;
-
-                    // Iteramos todas las fechas entre inicio y fin
-                    LocalDate fecha = fechaInicio;
-                    while (!fecha.isAfter(fechaFinal)) {
-                        mapa.put(fecha.toString(), estadoFinal.name());
-                        fecha = fecha.plusDays(1);
-                    }
-                }
-            }
+            Long numeroHab = h.getNumero();
+            
+            // Procesamos todos los estados usando la cadena
+            // La cadena se encarga de periodos -> reservas -> estadías
+            cadena.procesar(numeroHab, desde, hasta, mapa);
+            
             resultado.add(
-                    new DisponibilidadDTO(
-                            numhab,
-                            (h.getTipo() == null ? "SIN_TIPO" : h.getTipo().name()),
-                            mapa));
-
+                new DisponibilidadDTO(
+                    numeroHab,
+                    (h.getTipo() == null ? "SIN_TIPO" : h.getTipo().name()),
+                    mapa));
         }
-    return resultado;
-        /*
-         * LocalDate actual = desde;
-         * while (!actual.isAfter(hasta)) {
-         * 
-         * TipoEstadoHabitacion estadoFinal;
-         * 
-         * List<PeriodoEstado> periodos = periodoRepository.
-         * findByHabitacionNumeroAndFechaInicioLessThanEqualAndFechaFinGreaterThanEqual(
-         * h.getTipo, desde, hasta)
-         * if (h.getPeriodos() != null) {
-         * for (PeriodoEstado p : h.getPeriodos()) {
-         * if (!actual.isBefore(p.getFechaInicio()) &&
-         * !actual.isAfter(p.getFechaFin())) {
-         * estadoFinal = p.getTipoEstado();
-         * break;
-         * }
-         * }
-         * }
-         * 
-         * // Guardamos el estado como STRING
-         * mapa.put(actual.toString(), estadoFinal.name());
-         * 
-         * actual = actual.plusDays(1);
-         * }
-         * 
-         * resultado.add(
-         * new DisponibilidadDTO(
-         * h.getNumero(),
-         * (h.getTipo() == null ? "SIN_TIPO" : h.getTipo().name()),
-         * mapa));
-         * }
-         * 
-         * return resultado;
-         */
+        
+        return resultado;
     }
 
     @Override
