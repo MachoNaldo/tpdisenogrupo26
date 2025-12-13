@@ -91,6 +91,22 @@ export default function Menu() {
             <p className="menu-label font-serif">Reservar Habitación</p>
           </Link>
 
+          {/* Facturar */}
+          <Link href="/seleccionarFechas" className="menu-card">
+            <div className="icon-wrapper">
+              <Image src="/img/Dinero.png" alt="Reservar" width={80} height={80} className="menu-icon opacity-75" />
+            </div>
+            <p className="menu-label font-serif">Facturar</p>
+          </Link>
+
+          {/* Cancelar Reserva */}
+          <Link href="/cancelarReserva" className="menu-card">
+            <div className="icon-wrapper">
+              <Image src="/img/CancelarReserva.png" alt="Reservar" width={80} height={80} className="menu-icon opacity-90" />
+            </div>
+            <p className="menu-label font-serif">Cancelar Reserva</p>
+          </Link>
+
           {/* Ocupar habitacion */}
           <Link href="/seleccionarFechasOcupar" className="menu-card">
             <div className="icon-wrapper">

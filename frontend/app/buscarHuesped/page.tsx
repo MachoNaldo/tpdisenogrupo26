@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Huesped, CriteriosBusqueda, TiposDocumentoArray } from '../lib/tipos'; 
+import { Huesped, CriteriosBusquedaHuesped, TiposDocumentoArray } from '../lib/tipos'; 
 import { useEffect } from "react";
 import "../styles/estilos.css"; 
 
@@ -11,7 +11,7 @@ import "../styles/estilos.css";
 // URL base del backend, asumimos que está en el .env.local
 const SPRING_BOOT_API_URL = process.env.NEXT_PUBLIC_API_URL; 
 
-const INITIAL_CRITERIA: CriteriosBusqueda = {
+const INITIAL_CRITERIA: CriteriosBusquedaHuesped = {
     apellido: '',
     nombres: '',
     tipoDocumento: '',
@@ -19,7 +19,7 @@ const INITIAL_CRITERIA: CriteriosBusqueda = {
 };
 
 export default function BuscarHuespedPage() {
-    const [criterios, setCriterios] = useState<CriteriosBusqueda>(INITIAL_CRITERIA);
+    const [criterios, setCriterios] = useState<CriteriosBusquedaHuesped>(INITIAL_CRITERIA);
     const [resultados, setResultados] = useState<Huesped[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);

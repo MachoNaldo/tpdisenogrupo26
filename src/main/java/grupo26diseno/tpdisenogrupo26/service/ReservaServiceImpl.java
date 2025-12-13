@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import grupo26diseno.tpdisenogrupo26.dtos.ReservaDTO;
 import grupo26diseno.tpdisenogrupo26.model.Reserva;
 import grupo26diseno.tpdisenogrupo26.repository.ReservaRepository;
+import grupo26diseno.tpdisenogrupo26.mapper.ReservaMapper;
 
 @Service
 public class ReservaServiceImpl implements ReservaService {
@@ -16,6 +17,8 @@ public class ReservaServiceImpl implements ReservaService {
     @Autowired
     private ReservaRepository reservaRepository;
 
+    @Autowired
+    private ReservaMapper reservaMapper;
 
     @Override
     public List<ReservaDTO> obtenerReservasPorHabitacionYFecha(long numeroHabitacion, LocalDate fechaInicio, LocalDate fechaFin) {
@@ -40,6 +43,13 @@ public class ReservaServiceImpl implements ReservaService {
             return dto;
         }).toList();
         return reservasSolapadas;
+    }
+
+    @Override
+    public List<ReservaDTO> buscarReservaPorCriterios(String apellido, String nombres) {
+            List<ReservaDTO> listaReservaDTOs = reservaRepository.buscarPorCriterios(apellido, nombres).stream()
+            .map(reserva -> reservaMapper.crearDTO(reserva)).toList();
+            return listaReservaDTOs;
     }
 
 }

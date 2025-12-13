@@ -1,16 +1,16 @@
 package grupo26diseno.tpdisenogrupo26.controller;
 
-import java.util.List;
+//import java.util.List;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
+//import org.springframework.stereotype.Controller;
+//import org.springframework.ui.Model;
+//import org.springframework.web.bind.annotation.GetMapping;
 
-import grupo26diseno.tpdisenogrupo26.model.Huesped;
-import grupo26diseno.tpdisenogrupo26.service.HuespedService;
-import jakarta.servlet.http.HttpSession;
+//import grupo26diseno.tpdisenogrupo26.model.Huesped;
+//import grupo26diseno.tpdisenogrupo26.service.HuespedService;
+//import jakarta.servlet.http.HttpSession;
 
-@Controller
+//@Controller
 public class VistasController {
 /*
     @GetMapping("/login")
@@ -57,4 +57,5 @@ public class VistasController {
         model.addAttribute("huespedes", huespedes);
         return "huespedes";
     } */
+   
 }
