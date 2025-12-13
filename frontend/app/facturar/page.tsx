@@ -84,6 +84,7 @@ const handleBuscar = async (e: React.FormEvent) => {
         if (!primerInputConError) primerInputConError = fechaRef.current;
     }
     else {
+        //Verifica si la fecha ingresada es mayor a la fecha actual
         const fechaIngresada = new Date(fecha + "T00:00:00");
         const hoy = new Date();
         
@@ -100,10 +101,7 @@ const handleBuscar = async (e: React.FormEvent) => {
         erroresDetectados.push("número de habitación faltante");
         if (!primerInputConError) primerInputConError = numeroRef.current;
     } 
-    else if (isNaN(Number(numero))) { //Chequea si es un formato inválido
-         erroresDetectados.push("número de habitación incorrecto");
-         if (!primerInputConError) primerInputConError = numeroRef.current;
-    } else{
+     else{
 
         try {
         // Preguntamos a la base de datos si existe la habitación
@@ -132,6 +130,8 @@ const handleBuscar = async (e: React.FormEvent) => {
         setError("No se pudo conectar con el servidor para verificar la habitación.");
         return;
     }
+        
+
 
     }
 
@@ -159,15 +159,16 @@ const handleBuscar = async (e: React.FormEvent) => {
     const params = new URLSearchParams();
     
     params.append('fecha', fecha); 
-    params.append('numero', numero);
+    params.append('habitacion', numero);
 
     //Carga de datos para pedir a la api la lista de huespedes
 
-    const url = `${SPRING_BOOT_API_URL}/api/ ... ${params.toString()}`;
+    const url = `${SPRING_BOOT_API_URL}/api/estadias/facturar/buscar?${params}`;
     
     try {
 
         const response = await fetch(url, { credentials: 'include' });
+        
         if (!response.ok) {
                 if (response.status === 401) {
                     router.push('/login');
@@ -175,13 +176,28 @@ const handleBuscar = async (e: React.FormEvent) => {
                 }
                 throw new Error(`Error HTTP: ${response.status}`);
             }
-             const data: Huesped[] = await response.json();
-             setResultados(data);
-             setIsListing(true);
+
+        const dataEstadia = await response.json();
+        const listaUnificada = [];
+
+        // Agregamos al Titular 
+        if (dataEstadia.huespedPrincipal) {
+            listaUnificada.push(dataEstadia.huespedPrincipal);
+        }
+
+        // Recorremos la lista y agregamos a los acompañantes 
+        if (dataEstadia.acompanantes && Array.isArray(dataEstadia.acompanantes)) {
+            listaUnificada.push(...dataEstadia.acompanantes);
+        }
+
+        // Guardamos la lista
+        console.log("Huespedes encontrados:", listaUnificada);
+        setResultados(listaUnificada);
+        setIsListing(true);
 
     } catch (err) {
        console.error('Error al buscar huéspedes:', err);
-            setError('Error al comunicarse con el servidor de búsqueda. Asegúrese que el endpoint /app/.../buscar esté activo.');
+            setError('Error al comunicarse con el servidor de búsqueda. Asegúrese que el endpoint /app/estadias/facturar/buscar esté activo.');
     } finally {
         setLoading(false);
     }
@@ -268,6 +284,8 @@ const handleBuscar = async (e: React.FormEvent) => {
           </div>
         </div>
 
+    
+
         {/* Botones */}
         <div className="flex justify-center gap-25 mt-6">
 
@@ -275,7 +293,7 @@ const handleBuscar = async (e: React.FormEvent) => {
               onClick={handleBuscar}
               className="bg-[#a67c52] hover:bg-[#c39a4f] text-white px-12 py-3 rounded-xl 
                         font-[Georgia] text-xl shadow-md transition">
-              Buscar
+              {loading ? 'Buscando...' : 'Buscar'}
             </button>
 
             <button
