@@ -4,14 +4,16 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import grupo26diseno.tpdisenogrupo26.dtos.DisponibilidadDTO;
 import grupo26diseno.tpdisenogrupo26.service.HabitacionService;
 
 @RestController
 @RequestMapping("/api/habitaciones")
-@CrossOrigin(origins = "*")
 public class HabitacionController {
 
     @Autowired
@@ -26,8 +28,22 @@ public class HabitacionController {
         LocalDate f2 = LocalDate.parse(hasta);
 
         return habitacionService.obtenerDisponibilidad(f1, f2);
-    }
-
+    }/*
+    @PostMapping("/ocupar")
+    public ResponseEntity<?> crearEstadia(@RequestBody EstadiaDTO estadiaDTO) {
+        try {
+            habitacionService.agregarEstadia(estadiaDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(estadiaDTO);
+        } catch (DisponibilidadException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al crear la ocupación: " + e.getMessage());
+        }
+    } */
+    /* 
     @PostMapping("/reservar")
     public String reservar(
             @RequestParam Long numero,
@@ -40,7 +56,7 @@ public class HabitacionController {
         habitacionService.reservarHabitacion(numero, f1, f2);
         
         return "OK";
-    }
+    }*/
 
 }
 

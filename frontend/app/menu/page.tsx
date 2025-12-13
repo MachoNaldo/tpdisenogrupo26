@@ -51,9 +51,6 @@ export default function Menu() {
 
   return (
     <div className="menu-bg">
-      <button className="menu-back" onClick={() => router.push('/inicio')}>
-        ←
-      </button>
 
       <Image 
         src="/img/Logotipo3.png"
@@ -69,7 +66,7 @@ export default function Menu() {
         <div className="menu-grid">
 
           {/* Buscar huesped */}
-          <Link href="/huespedes" className="menu-card">
+          <Link href="/buscarHuesped" className="menu-card">
             <div className="icon-wrapper">
               <Image src="/img/LupaBus.png" alt="Buscar" width={80} height={80} className="menu-icon opacity-80" />
             </div>
@@ -84,6 +81,8 @@ export default function Menu() {
             <p className="menu-label font-serif">Agregar Huésped</p>
           </Link>
 
+          
+
           {/* Reservar habitacion */}
           <Link href="/seleccionarFechas" className="menu-card">
             <div className="icon-wrapper">
@@ -93,7 +92,7 @@ export default function Menu() {
           </Link>
 
           {/* Ocupar habitacion */}
-          <Link href="/ocupar" className="menu-card">
+          <Link href="/seleccionarFechasOcupar" className="menu-card">
             <div className="icon-wrapper">
               <Image src="/img/LlaveOcup.png" alt="Ocupar" width={90} height={80} className="menu-icon opacity-80" />
             </div>
@@ -111,9 +110,16 @@ export default function Menu() {
 
 
 
+
+
         </div>
 
-        <button className="logout-btn font-serif" onClick={desloguearse}>Cerrar Sesión</button>
+        <button className="btn" style={{display: "flex", flexDirection: "column", 
+          gap: "25px", margin: "auto", marginTop: "45px"}}
+          onClick={desloguearse}>
+          Cerrar Sesión 
+        </button>
+
       </div>
     </div>
   );

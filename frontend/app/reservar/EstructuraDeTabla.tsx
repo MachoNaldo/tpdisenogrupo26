@@ -1,6 +1,6 @@
 "use client";
 
-export type Estados = "LIBRE" | "RESERVADO" | "OCUPADO" | "FUERA DE SERVICIO";
+export type Estados = "LIBRE" | "RESERVADO" | "OCUPADO" | "FUERA_SERVICIO";
 
 function formatear(txt: string): string {
   // Convertimos a minúsculas excepto la primera letra
@@ -27,19 +27,19 @@ export default function EstructuraDeTabla({ value, isSelected, onClick }: Props)
     "text-center border-3 py-2 font-bold cursor-pointer transition italic";
 
   const stateBg =
-    value === "FUERA DE SERVICIO"
+    value === "FUERA_SERVICIO"
       ? "bg-[#F7FF07] text-black"
+    : value === "LIBRE"
+      ? "bg-[#37CE53] text-black"
       : value === "RESERVADO"
       ? "bg-[#DE6767] text-black"
       : value === "OCUPADO"
       ? "bg-[#d32f2f] text-black"
-      : "bg-[#37CE53] text-black";
+      : "bg-[#F7FF07] text-black";
 
   const finalBg = isSelected ? "bg-blue-500 text-black" : stateBg;
 
   return (
-    <td onClick={onClick} className={`${base} ${finalBg}`}>
-      {formatear(value)}
-    </td>
+    <td onClick={onClick} className={`${base} ${finalBg}`}>{formatear(value)}</td>
   );
 }

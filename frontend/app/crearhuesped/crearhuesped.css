@@ -7,93 +7,25 @@
   background-position: center;
   background-repeat: no-repeat;
   padding-bottom: 60px;
-
   display: flex;
   justify-content: center;
 }
 
-/* Contenedor principal */
-.form-container {
-  width: 780px;
-  background: #000;
-  border: 3px solid #b8975a;
-  border-radius: 6px;
-  margin-top: 40px;
-  box-shadow: 0 0 25px rgba(185, 151, 90, 0.4);
-}
-
-/* Encabezado */
-.form-header {
-  background: #000;
-  padding: 40px 20px 25px 20px;
-  border-bottom: 2px solid #b8975a;
-  text-align: center;
-  position: relative;
-}
-
-.form-header::before,
-.form-header::after {
-  content: url('/img/Fon.png');
-  position: absolute;
-  top: 15px;
-  width: 110px;
-  opacity: 0.25;
-}
-
-.form-header::before {
-  left: 15px;
-}
-
-.form-header::after {
-  right: 15px;
-  transform: scaleX(-1);
-}
-
-.laurel-wreath {
-  width: 130px;
-  height: 130px;
-  margin: 0 auto;
-  background-image: url('/img/logoSF.png');
-  background-size: contain;
-  background-repeat: no-repeat;
-}
-
-.form-title {
-  font-size: 42px;
-  margin-top: 20px;
-  letter-spacing: 6px;
-  font-weight: bold;
-}
-
-.form-subtitle {
-  font-size: 24px;
-  font-style: italic;
-  margin-top: 5px;
-  color: #b8975a;
-}
-
-.form-divider {
-  width: 100%;
-  height: 2px;
-  background: #b8975a;
-}
 
 /* Formulario */
 form.formularioHuesped {
   padding: 50px;
   background: #000;
+  border: 2px solid #b8975a;
+  max-height: 1200px;
+  margin: 20px;
+  border-radius: 15px;
 }
 
 .form-row {
   display: flex;
   gap: 18px;
   margin-bottom: 22px;
-}
-
-.form-row.two-col > *,
-.form-row.three-col > *,
-.form-row.four-col > * {
-  flex: 1;
 }
 
 .form-group {
@@ -128,7 +60,6 @@ form.formularioHuesped {
   box-shadow: 0 0 10px rgba(185, 151, 90, 0.4);
 }
 
-
 .date-group {
   display: flex;
   gap: 10px;
@@ -139,45 +70,4 @@ form.formularioHuesped {
   justify-content: center;
   gap: 15px;
   margin-top: 35px;
-}
-
-.btn-submit {
-  background: #b8975a;
-  color: #000;
-  border: none;
-  padding: 14px 45px;
-  font-size: 20px;
-  font-family: "Georgia", serif;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.btn-cancel {
-  background: transparent;
-  color: #b8975a;
-  border: 2px solid #b8975a;
-  padding: 14px 45px;
-  font-size: 20px;
-  font-family: "Georgia", serif;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.btn-submit:hover {
-  background: #d4b06a;
-}
-
-.btn-cancel:hover {
-  background: rgba(185, 151, 90, 0.15);
-}
-
-
-.popup-content {
-  background: #000;
-  border: 3px solid #b8975a;
-  border-radius: 10px;
-  padding: 35px;
-  box-shadow: 0 0 30px rgba(185, 151, 90, 0.35);
 }

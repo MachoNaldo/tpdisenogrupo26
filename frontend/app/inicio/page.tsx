@@ -5,21 +5,42 @@ export default function Inicio() {
   return (
     <div className="inicio-background">
 
-        
-      {/* Redes sociales */}
       <div className="social-icons">
-        <a href="#" className="social-icon" aria-label="Instagram">
+        
+        <a
+          href="https://www.instagram.com/utnsantafe/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="social-icon"
+          aria-label="Instagram"
+        >
           <i className="fab fa-instagram"></i>
         </a>
-        <a href="#" className="social-icon" aria-label="Twitter">
+
+
+        <a
+          href="https://x.com/UTNSantaFe"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="social-icon"
+          aria-label="Twitter"
+        >
           <i className="fab fa-twitter"></i>
         </a>
-        <a href="#" className="social-icon" aria-label="Facebook">
+
+        <a
+          href="https://www.facebook.com/UTNSantaFe?locale=es_LA"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="social-icon"
+          aria-label="Facebook"
+        >
           <i className="fab fa-facebook-f"></i>
         </a>
+
       </div>
 
-      {/* Contenido */}
+
       <div className="container">
 
         <div className="left-section">
@@ -28,6 +49,7 @@ export default function Inicio() {
           <Link href="/login">
             <button className="btn-ingresar">Ingresar</button>
           </Link>
+
         </div>
 
       </div>

@@ -1,18 +1,17 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 export default function BotonCancelar() {
+
+  const router = useRouter();
+
+  const volverASeleccion = () => {
+    router.push("/menu");
+  };
+
   return (
-    <button
-      onClick={() => console.log("Cancelar")}
-      className="
-        bg-[#a67c52] text-white 
-        px-10 py-3 
-        rounded-full text-xl 
-        shadow-md 
-        hover:bg-[#8f6844] 
-        transition
-      "
-    >
+    <button onClick={volverASeleccion} className="btn">
       Cancelar
     </button>
   );

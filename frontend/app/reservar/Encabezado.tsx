@@ -1,3 +1,5 @@
+"use client";
+
 export default function Encabezado() {
   return (
     <div className="text-center">

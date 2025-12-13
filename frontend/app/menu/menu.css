@@ -26,6 +26,7 @@
   cursor: pointer;
   transition: 0.2s ease-in-out;
 }
+
 .menu-back:hover {
   transform: scale(1.2);
 }
@@ -97,22 +98,7 @@
   transform: scale(1.15);
 }
 
-.logout-btn {
-  margin-top: 50px;
-  background: #b8975a;
-  color: black;
-  border: none;
-  padding: 14px 32px;
-  font-size: 18px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: 0.3s ease-in-out;
-}
 
-.logout-btn:hover {
-  background: #d4b06a;
-  transform: translateY(-2px);
-}
 
 @media (max-width: 650px) {
   .menu-grid {
