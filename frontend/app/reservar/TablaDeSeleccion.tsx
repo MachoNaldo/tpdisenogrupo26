@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useRouter } from 'next/navigation';
 import EstructuraDeTabla, { Estados } from "./EstructuraDeTabla";
+import ResumenReserva from "./ResumenReserva";
+import Image from 'next/image';
+
 
 interface DisponibilidadDTO {
   numeroHabitacion: number;
@@ -10,16 +14,22 @@ interface DisponibilidadDTO {
   estadoPorFecha: Record<string, Estados>;
 }
 
+
 type RoomType = {
   tipo: string;
   habitaciones: number[];
 };
 
+function formatoDeFecha(fecha: string) {
+  const [anio, mes, dia] = fecha.split("-");
+  return `${dia}/${mes}/${anio}`;
+}
+
 export default function TablaDeInteraccion() {
   const searchParams = useSearchParams();
   const desdeParam = searchParams.get("desde");
   const hastaParam = searchParams.get("hasta");
-
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,9 +47,19 @@ export default function TablaDeInteraccion() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [lastSelected, setLastSelected] = useState<any>(null);
 
+  // Datos del cliente
+  const [clienteNombre, setClienteNombre] = useState("");
+  const [clienteApellido, setClienteApellido] = useState("");
+  const [clienteTelefono, setClienteTelefono] = useState("");
+
   const keyOf = (d: number, typeId: string, room: number) =>
     `${d}-${typeId}-${room}`;
 
+  const [confirmando, setConfirmando] = useState(false);
+  const [resumen, setResumen] = useState<any[]>([]);
+  const [PopupExitoso, setPopupExitoso] = useState(false);
+  const [popupErrorDisponibilidad, setPopupErrorDisponibilidad] = useState(false);
+  const [mensajeErrorDisponibilidad, setMensajeErrorDisponibilidad] = useState('');
 
 
   //BACKEND
@@ -66,6 +86,7 @@ export default function TablaDeInteraccion() {
         dts.push(act.toISOString().split("T")[0]);
         act.setDate(act.getDate() + 1);
       }
+
 
       setDates(dts);
 
@@ -106,10 +127,6 @@ export default function TablaDeInteraccion() {
       }
 
       setAvailability(avail);
-
-
-
-      setAvailability(avail);
     } catch (e) {
       console.error("Error cargando disponibilidad:", e);
     } finally {
@@ -120,8 +137,6 @@ export default function TablaDeInteraccion() {
   useEffect(() => {
     cargarDatos();
   }, [desdeParam, hastaParam]);
-
-
 
   function seleccionarCelda(
     d: number,
@@ -162,179 +177,370 @@ export default function TablaDeInteraccion() {
     setSelected(new Set());
   };
 
-
   const reservar = async () => {
-    if (selected.size === 0) {
-      setError("⚠ Debes seleccionar al menos una celda.");
-      return;
+  if (selected.size === 0) {
+    setError("Debes seleccionar al menos una celda.");
+    return;
+  }
+
+  if (!clienteNombre.trim() || !clienteApellido.trim() || !clienteTelefono.trim()) {
+    setError("Debes completar todos los datos del cliente.");
+    return;
+  }
+
+  // Validar que no haya celdas RESERVADO, OCUPADO o FUERA_DE_SERVICIO seleccionadas
+  const estadosNoPermitidos: Estados[] = ["RESERVADO", "OCUPADO", "FUERA_SERVICIO"];
+  let hayEstadoNoPermitido = false;
+  let estadoEncontrado = "";
+
+  for (const k of selected) {
+    const [dIndexStr, typeId, habitacionesStr] = k.split("-");
+    const dIndex = Number(dIndexStr);
+    const roomNum = Number(habitacionesStr);
+    
+    const estado = availability[typeId]?.[roomNum]?.[dIndex];
+    if (estadosNoPermitidos.includes(estado)) {
+      hayEstadoNoPermitido = true;
+      estadoEncontrado = estado;
+      break;
     }
+  }
 
-    const reservasParaEnviar: any[] = [];
+  if (hayEstadoNoPermitido) {
+    setError(`⚠ No puedes reservar habitaciones que están en estado: ${estadoEncontrado}`);
+    return;
+  }
 
-    for (const k of selected) {
-      const [dIndexStr, typeId, roomStr] = k.split("-");
+  // Limpiar error si todo está correcto
+  setError(null);
 
-      const dIndex = Number(dIndexStr);
-      const roomNum = Number(roomStr);
+  // Agrupar selecciones por habitación
+  const porHabitacion: Record<number, number[]> = {};
 
-      if (isNaN(dIndex) || isNaN(roomNum)) {
-        console.error("❌ Key inválida:", k);
-        continue;
+  for (const k of selected) {
+    const [dIndexStr, typeId, habitacionesStr] = k.split("-");
+    const dIndex = Number(dIndexStr);
+    const roomNum = Number(habitacionesStr);
+
+    if (!porHabitacion[roomNum]) porHabitacion[roomNum] = [];
+    porHabitacion[roomNum].push(dIndex);
+  }
+
+  const reservasRango: any[] = [];
+
+  // Agrupar consecutivos
+  for (const [roomNumStr, indices] of Object.entries(porHabitacion)) {
+    const roomNum = Number(roomNumStr);
+    const sorted = indices.sort((a, b) => a - b);
+
+    let inicio = sorted[0];
+    let fin = sorted[0];
+
+    for (let i = 1; i < sorted.length; i++) {
+      if (sorted[i] === fin + 1) {
+        fin = sorted[i];
+      } else {
+        reservasRango.push({
+          numeroHabitacion: roomNum,
+          fechaInicio: dates[inicio],
+          fechaFin: dates[fin],
+        });
+        inicio = fin = sorted[i];
       }
-
-      const fecha = dates[dIndex];
-
-      reservasParaEnviar.push({
-        numeroHabitacion: roomNum,
-        fechaInicio: fecha,
-        fechaFin: fecha,
-      });
     }
 
-    const payload = {
-      cliente: {
-        nombre: "Reserva Web",
-        apellido: "Online",
-        telefono: "0000",
-      },
-      reservas: reservasParaEnviar,
+    reservasRango.push({
+      numeroHabitacion: roomNum,
+      fechaInicio: dates[inicio],
+      fechaFin: dates[fin],
+    });
+  }
+
+  // Agregar tipoHabitacion a cada rango
+  const resumenCompleto = reservasRango.map((r) => {
+    const tipoHab = Object.entries(availability).find(([tipo, habitaciones]) =>
+      habitaciones[r.numeroHabitacion]
+    )?.[0] ?? "Desconocido";
+
+    return {
+      ...r,
+      tipoHabitacion: tipoHab,
     };
+  });
 
-    console.log("👉 JSON enviado al backend:");
-    console.log(JSON.stringify(payload, null, 2));
-
-    try {
-      const resp = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reservas`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!resp.ok) {
-        setError("⚠ Error al reservar.");
-        return;
-      }
-
-      await cargarDatos();
-      setSelected(new Set());
-      setError(null);
-    } catch (e) {
-      console.error("❌ ERROR en fetch:", e);
-      setError("⚠ No se pudo conectar.");
-    }
-  };
+  setResumen(resumenCompleto);
+  setConfirmando(true);
+};
 
 
-  if (loading)
-    return (
-      <p className="text-[#d6a85b] text-2xl font-serif mt-10">
-        Cargando disponibilidad...
-      </p>
-    );
-
+ if (loading) {
   return (
-    <div className="w-full mt-4 flex flex-col items-center">
-      {error && (
-        <div className="text-white bg-red-700 px-4 py-2 rounded mb-3 italic">
-          {error}
-        </div>
-      )}
+    <p className="text-[#d6a85b] text-2xl font-serif mt-10">
+      Cargando disponibilidad...
+    </p>
+  );
+}
+{/*
+if (confirmando) {
+  return (
+    <ResumenReserva
+      reservas={resumen}
+      cliente={{
+        nombre: clienteNombre,
+        apellido: clienteApellido,
+        telefono: clienteTelefono,
+      }}
+      onAceptar={async () => {
+        const payload = {
+          cliente: {
+            nombre: clienteNombre,
+            apellido: clienteApellido,
+            telefono: clienteTelefono,
+          },
+          reservas: resumen.map(r => ({
+            numeroHabitacion: r.numeroHabitacion,
+            fechaInicio: r.fechaInicio,
+            fechaFin: r.fechaFin
+          }))
+        };
+        try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reservas`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (!response.ok) {
+        throw new Error('Error al registrar estadías');
+        }
+        } catch (err) {
+      console.error('Error:', err);
+      setError('Error al registrar las estadías');
+    }
+        setPopupExitoso(true);
+        setConfirmando(false);
+        setSelected(new Set());
+        setClienteNombre("");
+        setClienteApellido("");
+        setClienteTelefono("");
+        cargarDatos();
+      }}
+      onRechazar={() => setConfirmando(false)}/>
+  );
+}*/}
 
-      <div className="w-full border-[6px] border-[#a67c52] rounded-xl overflow-hidden shadow-xl">
-        <table className="w-full table-fixed border-collapse">
-          <thead className="text-black font-bold">
-            <tr className="bg-[#f5f5f5]">
-              <th className="bg-[#b18b45] border-2 p-2 w-[140px]">
-                Periodo / Tipo
-              </th>
 
-              {roomTypes.map((t) => (
-                <th key={t.tipo} className="border-2 p-2 w-[140px]">
-                  {t.tipo}
-                </th>
-              ))}
 
-              <th className="w-[17px] bg-[#555353]"></th>
-            </tr>
+return (
+  <>
+    {/* MODAL SUPERPUESTO */}
+    {confirmando && (
+      <div className="fixed inset-0 flex justify-center items-center z-100">
+        <div className="bg-black/60 absolute inset-0"></div>
 
-            <tr className="bg-[#848282]">
-              <th className="border-2 p-2 text-center">N° Habitación</th>
+        <div className="relative z-200">
+          <ResumenReserva
+            reservas={resumen}
+            cliente={{
+              nombre: clienteNombre,
+              apellido: clienteApellido,
+              telefono: clienteTelefono,
+            }}
+            onAceptar={async () => {
+              const payload = {
+                cliente: {
+                  nombre: clienteNombre,
+                  apellido: clienteApellido,
+                  telefono: clienteTelefono,
+                },
+                reservas: resumen.map(r => ({
+                  numeroHabitacion: r.numeroHabitacion,
+                  fechaInicio: r.fechaInicio,
+                  fechaFin: r.fechaFin
+                }))
+              };
 
-              {roomTypes.map((t) => (
-                <th key={t.tipo} className="border-2 p-2 text-center">
-                  <select
-                    className="w-1/2 bg-white border-2 rounded"
-                    value={selectedRoomByType[t.tipo]}
-                    onChange={(e) =>
-                      setSelectedRoomByType((p) => ({
-                        ...p,
-                        [t.tipo]: Number(e.target.value),
-                      }))
-                    }
-                  >
-                    {t.habitaciones.map((n) => (
-                      <option key={n} value={n}>
-                        {n}
-                      </option>
-                    ))}
-                  </select>
-                </th>
-              ))}
-
-              <th className="bg-[#555353]"></th>
-            </tr>
-          </thead>
-        </table>
-
-        <div className="max-h-[260px] overflow-y-auto">
-          <table className="w-full table-fixed border-collapse">
-            <tbody>
-              {dates.map((date, dIndex) => (
-                <tr key={date}>
-                  <td className="border-2 bg-gray-200 text-center font-semibold">
-                    {date}
-                  </td>
-
-                  {roomTypes.map((t) => {
-                    const hab = selectedRoomByType[t.tipo];
-                    const estado =
-                      availability[t.tipo]?.[hab]?.[dIndex] || "LIBRE";
-
-                    return (
-                      <EstructuraDeTabla
-                        key={`${t.tipo}-${hab}-${dIndex}`}
-                        value={estado}
-                        isSelected={selected.has(
-                          keyOf(dIndex, t.tipo, hab)
-                        )}
-                        onClick={(e) =>
-                          seleccionarCelda(dIndex, t.tipo, hab, e)
-                        }
-                      />
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+              await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reservas`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+              });
+              setPopupExitoso(true);
+              setConfirmando(false);
+              setSelected(new Set());
+              setClienteNombre("");
+              setClienteApellido("");
+              setClienteTelefono("");
+              cargarDatos();
+            }}
+            onRechazar={() => setConfirmando(false)}
+          />
         </div>
       </div>
+    )}
 
-      <div className="mt-6 w-full flex items-center">
-        <div className="flex-1 flex justify-center">
-          <button
-            disabled={selected.size === 0}
-            onClick={reservar}
-            className={`px-8 py-3 rounded-2xl text-xl font-bold shadow ${
-              selected.size === 0
-                ? "bg-gray-400 cursor-not-allowed opacity-60"
-                : "bg-[#a67c52] hover:bg-[#c39a4f] text-white"
-            }`}
-          >
-            Reservar
-          </button>
+    {/* CONTENIDO PRINCIPAL (FONDO) */}
+    <div
+      className={`w-full m-4 flex gap-6 justify-center items-start transition-all duration-300 ${
+        confirmando ? "blur-sm brightness-75 pointer-events-none" : ""
+      }`}
+    >
+      {/* Aca empieza el formulario del cliente */}
+      <div className="formularioCliente bg-black p-4 border-4 border-[#a67c52] rounded-xl shadow-lg w-[320px]">
+        <h3 className="mb-5 font-serif italic text-2xl font-bold text-[#a67c52] text-center">
+          Datos del Cliente
+        </h3>
+
+        <form className="form italic space-y-2">
+          <div>
+            <label className="block text-[#a67c52] font-semibold mb-2">
+              Nombre
+            </label>
+            <input
+              type="text"
+              value={clienteNombre}
+              onChange={(e) => setClienteNombre(e.target.value)}
+              className="w-full px-3 py-2 rounded border border-gray-300"
+              placeholder="Ingrese el nombre"
+            />
+          </div>
+
+          <div>
+            <label className="block text-[#a67c52] font-semibold mb-2">
+              Apellido
+            </label>
+            <input
+              type="text"
+              value={clienteApellido}
+              onChange={(e) => setClienteApellido(e.target.value)}
+              className="w-full px-3 py-2 rounded border border-gray-300"
+              placeholder="Ingrese el apellido"
+            />
+          </div>
+
+          <div>
+            <label className="block text-[#a67c52] font-semibold mb-2">
+              Teléfono
+            </label>
+            <input
+              type="tel"
+              value={clienteTelefono}
+              onChange={(e) => setClienteTelefono(e.target.value)}
+              className="w-full px-3 py-2 rounded border border-gray-300"
+              placeholder="Ingrese el teléfono"
+            />
+          </div>
+        </form>
+      </div>
+
+      <div className="flex flex-col items-center flex-1">
+        {/* Aca empieza la tabla */}
+        <div className=" w-280 border-[6px] border-[#a67c52] rounded-xl overflow-hidden shadow-xl">
+          <table className="w-full table-fixed">
+            <thead className="text-black font-bold">
+              <tr className="bg-[#f5f5f5]">
+                <th className="bg-[#b18b45] border-2 p-2 w-[140px]">
+                  Periodo / Tipo
+                </th>
+
+                {roomTypes.map((t) => (
+                  <th key={t.tipo} className="border-2 p-2 w-[140px]">
+                    {t.tipo}
+                  </th>
+                ))}
+
+                <th className="w-[17px] bg-[#555353]"></th>
+              </tr>
+
+              <tr className="bg-[#848282]">
+                <th className="border-2 p-2 text-center">N° Habitación</th>
+
+                {roomTypes.map((t) => (
+                  <th key={t.tipo} className="border-2 p-2 text-center">
+                    <select
+                      className="w-1/2 bg-white border-2 rounded text-center"
+                      value={selectedRoomByType[t.tipo]}
+                      onChange={(e) =>
+                        setSelectedRoomByType((p) => ({
+                          ...p,
+                          [t.tipo]: Number(e.target.value),
+                        }))
+                      }
+                    >
+                      {t.habitaciones.map((n) => (
+                        <option key={n} value={n}>
+                          {n}
+                        </option>
+                      ))}
+                    </select>
+                  </th>
+                ))}
+
+                <th className="bg-[#555353]"></th>
+              </tr>
+            </thead>
+          </table>
+
+          <div className="max-h-[345px] overflow-y-auto">
+            <table className="w-full table-fixed border-collapse">
+              <tbody>
+                {dates.map((date, dIndex) => (
+                  <tr key={date}>
+                    <td className="border-2 bg-[#C3C3C3] text-black text-center font-bold">
+                      {formatoDeFecha(date)}
+                    </td>
+
+                    {roomTypes.map((t) => {
+                      const hab = selectedRoomByType[t.tipo];
+                      const estado =
+                        availability[t.tipo]?.[hab]?.[dIndex] || "LIBRE";
+
+                      return (
+                        <EstructuraDeTabla
+                          key={`${t.tipo}-${hab}-${dIndex}`}
+                          value={estado}
+                          isSelected={selected.has(
+                            `${dIndex}-${t.tipo}-${hab}`
+                          )}
+                          onClick={(e) =>
+                            seleccionarCelda(dIndex, t.tipo, hab, e)
+                          }
+                        />
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
+        <div className="mt-6 w-full flex items-center">
+          <div className="flex-1 flex justify-center">
+            <button
+              disabled={selected.size === 0}
+              onClick={reservar}
+              className={`px-8 py-3 rounded-2xl text-xl font-bold shadow ${
+                selected.size === 0
+                  ? "bg-gray-400 cursor-not-allowed opacity-60"
+                  : "bg-[#a67c52] hover:bg-[#c39a4f] text-white"
+              }`}
+            >
+              Reservar
+            </button>
+          </div>
+          {error && (
+            <div className="error-box">
+              <div className="error-icon">
+                <Image
+                  src="img/iconoError.svg"
+                  alt="icono"
+                  width={40}
+                  height={40}
+                />
+              </div>
+              <p className="error-text">{error}</p>
+            </div>
+          )}
         <div className="flex-1 flex justify-end">
           {selected.size > 0 && (
             <button
@@ -343,10 +549,79 @@ export default function TablaDeInteraccion() {
             >
               Quitar seleccionados
             </button>
-
           )}
+          {/* Popup de Éxito */}
+            {PopupExitoso && (
+              <div className="popup">
+                <div className="popup-contenido">
+      
+                  <div className='popup-encabezado'>
+                    <Image className='popup-icono' src="img/iconoExito.svg" alt="icono" width={100} height={30} />
+                    <div className='popup-descripcion'>
+                      <h2>
+                        Reserva registada correctamente.
+                      </h2>
+                      <p>
+                        ¿Desea cargar otra habitación?
+                      </p>
+                    </div>
+                  </div>
+      
+      
+                  <div className='popup-botonera'>
+                    <button className="popup-boton" onClick={() => {
+                      setPopupExitoso(false);    
+                      // Obtiene las fechas de la URL
+                      const desde = desdeParam;
+                      const hasta = hastaParam;
+                      router.push(`/reservar?desde=${desde}&hasta=${hasta}`);
+                    }}>
+                      Sí
+                    </button>
+                    <button className="popup-boton" onClick={() => router.push('/menu')}>
+                      No
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+            {/* Popup de Error de Disponibilidad */}
+            {popupErrorDisponibilidad && (
+              <div className="popup">
+                <div className="popup-contenido">
+                  <div className='popup-encabezado'>
+                    <Image className='popup-icono' src="/img/iconoError.svg" alt="icono" width={100} height={30} />
+                    <div className='popup-descripcion'>
+                      <h2>
+                        Error de Disponibilidad
+                      </h2>
+                      <p>
+                        {mensajeErrorDisponibilidad}
+                      </p>
+                    </div>
+                  </div>
+                  <div className='popup-botonera'>
+                    <button className="popup-boton" onClick={() => {
+                      setPopupErrorDisponibilidad(false);
+                      setMensajeErrorDisponibilidad('');
+                    }}>
+                      Entendido
+                    </button>
+                    <button className="popup-boton" onClick={() => router.push('/menu')}>
+                      Volver al Menú
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
         </div>
       </div>
     </div>
-  );
+    </div>
+  </>
+);
+
+
+
+
 }

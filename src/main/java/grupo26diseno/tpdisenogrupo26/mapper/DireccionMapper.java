@@ -1,7 +1,7 @@
 package grupo26diseno.tpdisenogrupo26.mapper;
 
 import org.springframework.stereotype.Component;
-import DTOs.DireccionDTO;
+import grupo26diseno.tpdisenogrupo26.dtos.DireccionDTO;
 import grupo26diseno.tpdisenogrupo26.model.Direccion;
 
 @Component

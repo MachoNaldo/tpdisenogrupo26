@@ -1,5 +1,6 @@
 package grupo26diseno.tpdisenogrupo26.dtos;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -12,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class ReservaDTO {
 
     private ClienteDTO cliente;
-    private List<HabitacionReservaDTO> reservas;
+    private List<HabitacionReservaDTO> reservas = new ArrayList<>();
 
     @Data
     @AllArgsConstructor
@@ -27,7 +28,7 @@ public class ReservaDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class HabitacionReservaDTO {
-        private Integer numeroHabitacion;
+        private Long numeroHabitacion;
         private String fechaInicio;
         private String fechaFin;
     }

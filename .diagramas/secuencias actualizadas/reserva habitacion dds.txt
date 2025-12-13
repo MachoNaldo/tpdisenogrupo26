@@ -1,0 +1,101 @@
+@startuml
+
+title Diagrama de Secuencia - Reservar Habitacion
+
+actor Conserje
+participant "Pantalla_Reservar_Habitacion" as P
+participant "ReservaController" as HC
+participant "HabitacionService" as GH
+participant "HabitacionRepository" as H
+participant "ReservaRepository" as R
+
+Conserje -[#red]-> P : solicita reservar habitacion
+activate P
+loop [se selecciona "Reintentar"]
+   P -[#red]-> Conserje : muestra campos a completar
+   Conserje -[#red]-> P : completa los campos
+    alt 
+
+      P -> P : mostrarError("Datos invalidos/faltantes")
+      P -> Conserje : mostrarOpciones [Reintentar Operacion / Cancelar]
+        Conserje -> P : selecciona "Reintentar Operacion"
+      alt
+        Conserje -> P : selecciona "Cancelar"
+        P -> Conserje : muestra mensaje "Operacion Cancelada"
+      end
+    end
+  end
+  
+P -[#red]-> P : mostrar mensaje "Datos Correctos"
+P -[#red]-> HC : crearReserva(reservaDTO)
+activate HC
+HC -[#red]-> GH : crearReserva(reservaDTO)
+activate GH
+
+loop [se seleccion "Reintentar Operacion"]
+  
+  GH -[#red]-> H #blue : validarDisponibilidad(long numeroHab,date fInicio,date fFin)
+  activate H
+  alt Error de base de datos || Habitacion resulta no estar disponible
+    H -> GH
+    GH -> HC
+      HC -> P : mostrarError("Error al conectar con la Base de Datos")
+      alt
+        HC -> P : mostrarError("La habitacion no se encuentra disponible")
+      end
+    P -> Conserje : mostrarOpciones [Reintentar Operacion / Cancelar]
+        Conserje -> P : selecciona "Reintentar Operacion"
+      alt
+        Conserje -> P : selecciona "Cancelar"
+        P -> Conserje : muestra mensaje "Operacion Cancelada"
+      end
+  end
+
+H -[#red]-> GH
+GH -[#red]-> HC
+HC -[#red]-> P : muestra el mensaje "Reservar a nombre de: "
+loop [se selecciona "Reintentar"]
+    P -[#red]-> Conserje : muestra campos a completar
+    Conserje -[#red]-> P : completa los campos
+    P -[#red]-> HC : verificarCampos()
+    activate HC
+    alt 
+     HC -> P 
+      P -> P : mostrarError("Datos invalidos/faltantes")
+      P -> Conserje : mostrarOpciones [Reintentar Operacion / Cancelar]
+        Conserje -> P : selecciona "Reintentar Operacion"
+      alt
+        Conserje -> P : selecciona "Cancelar"
+        P -> Conserje : muestra mensaje "Operacion Cancelada"
+      end
+    end
+  end
+
+GH -[#red]-> H : findById(long numeroHab)
+H -[#red]-> GH : habitacion
+GH -[#red]-> GH : new Reserva() : nuevaReserva
+GH -[#red]-> GH :  nuevaReserva.setHabitacion(habitacion)
+GH -[#red]-> GH :  nuevaReserva.setDatosCliente(datosCliente)
+
+GH -[#red]-> R : save(nuevaReserva)
+activate R
+  alt Error de base de datos
+      H -> HC
+      HC -> P
+      P -> Conserje : mostrarOpciones [Reintentar Operacion / Cancelar]
+        Conserje -> P : selecciona "Reintentar Operacion"
+      alt
+        Conserje -> P : selecciona "Cancelar"
+        P -> Conserje : muestra mensaje "Operacion Cancelada"
+      end
+  end
+end
+R -[#red]-> GH
+GH -[#red]-> HC
+deactivate R
+
+HC -[#red]-> P : muestra mensaje "Reserva cargada con exito"
+deactivate GH 
+deactivate P
+@enduml
+

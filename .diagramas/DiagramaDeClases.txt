@@ -1,0 +1,455 @@
+@startuml
+
+title TP ETAPA 2 - GRUPO 26 - Diagrama de Clases
+
+
+
+interface HabitacionService{
+  +agregarReserva(ReservaDTO reservaDTO)
+  +cancelarReserva(int numerohabitacion, string nombrehuesped, date fechaInicio)
+  +ocuparHabitacion(EstadiaDTO estadiaDTO)
+  +asociarServicio(int id_estadia, string nombreServicio)
+}
+
+interface IngresoService{
+  +ingresarPago(int monto, int numeroFactura, nombreMetodoPago metodo)
+  +listarIngresos(string nombreMetodoPago)
+  +gestionarListados(tipoListado, fechaInicio, fechaFin)
+  +listarIngresos(fechaInicio, fechaFin)
+}
+
+interface HuespedService  {
+  +buscarHuesped(Huesped_DTO huesped)
+  +agregarHuesped(Huesped_DTO huesped, boolean forzar)
+  +modificarHuesped(string nombrehuesped)
+  +modificarHuesped(string apellidoHuesped)
+  +modificarHuesped(int documentacion) 
+  +darBajaHuesped(string nombrehuesped)
+  +darBajaHuesped(string apellidoHuesped)
+  +darBajaHuesped(int documentacion) 
+}
+
+interface UsuarioService{
+  +autenticarUsuario(string Usuario, string Contrasena)
+}
+
+interface GestorRDP{
+  +buscarResDePago(string cuit)
+  +buscarResDePago(string razonSocial)
+  +darAltaRespDePago(string cuit, string razonSocial, string telefono, string nacionalidad)
+  +modificarResDePago(string cuit)
+  +modificarResDePago(string razonSocial)
+  +darBajaRespDePago(string cuit)
+  +darBajaRespDePago(string razonSocial)
+}
+
+interface GestorDeFacturacion{
+  +generarFacturar(string cuit, string razonSocial, string telefono, string nacionalidad, int numeroHabitacion, int importeNeto, int iva)
+  +ingresarNotaDeCredito(Factura facturaAPagar, int monto)
+}
+
+interface HuespedRepository {
+    +findByTipoDocumentoAndDocumentacion(TipoDoc tipoDocumento, String documentacion)
+    +findById(long id)
+    +buscarPorCriterios(String apellido, String nombres, TipoDoc tipoDocumento, String documentacion)
+    +ModificarHuesped(Huesped_DTO huesped)
+    +BuscarHuesped(string nombres, string apellido)
+    +BuscarHuesped(int documentacion)
+    +BuscarHuesped(string cuit)
+    +BorrarHuesped(int id_huesped)
+    +BorrarHuesped(string cuit)
+    +BorrarHuesped(int documentacion)
+}
+
+interface RDP_DAO {
+    +Agregar(RDP_DTO rdp)
+    +Modificar(RDP_DTO rdp)
+    +Buscar(string razonSocial)
+    +Buscar(string cuit)
+    +Borrar(string razonSocial)
+    +Borrar(string cuit)
+    +Borrar(int id_rdp)
+}
+
+interface EstadiaRepository {
+    +Agregar(Estadia estadia)
+    +Modificar(Estadia estadia)
+    +Buscar(int id_estadia)
+    +Borrar(int id_estadia)
+}
+
+interface ReservaRepository {
+    +Agregar(Reserva reserva);
+    +Modificar(Reserva reserva)
+    +Buscar(int id_reserva)
+    +Borrar(int id_reserva)
+}
+
+interface Factura_DAO {
+    +Agregar(Factura_DTO factura)
+    +Modificar(Factura_DTO factura)
+    +Buscar(int numero)
+    +Borrar(int numero)
+}
+
+interface Pago_DAO {
+    +Agregar(Pago_DTO pago)
+    +Modificar(Pago_DTO pago)
+    +Buscar(int id_pago)
+    +Borrar(int id_pago)
+}
+
+
+class Servicio{
+    -nombre: string
+    -costo: float
+}
+
+
+class Persona {
+    -cuit: string
+    -telefono: string
+    -nacionalidad: string
+}
+
+class Huesped {
+    -nombres: string
+    -apellido: string
+    -edad: int
+    -sexo: TipoSexo
+    -horaSalida: datetime
+    -documentacion: int
+    -fechaNacimiento: date
+    -consumidorFinal: TipoConsumidor
+    -email: string
+    -ocupacion: string
+    +GetNombre()
+    +GetApellido()
+    +GetDocumento()
+}
+
+class Responsable_Pago {
+    -razonSocial: string
+    +GetCUIT()
+    +GetRazonSocial()
+}
+
+
+Persona <|-- Huesped
+Persona <|-- Responsable_Pago
+
+
+class Reserva{
+  +fechaInicio: date
+  +fechaFin: date
+  +id_reserva: int
+}
+
+class Habitacion{
+  -numero: int
+  -tipo: TipoHabitacion
+  +getNumero(): int
+  +getTipo(): TipoHabitacion
+  +bucarDia(date: unaFecha): EstadoHabitacion
+  +cambiarEstado(TipoHabitacion: unEstado): EstadoHabitacion
+}
+
+class Periodo_Habitacion{
+  -fechaInicial: LocalDate
+  -fechaFinal: LocalDate
+  -tipoEstado: TipoEstadoHabitacion 
+}
+
+class Factura{
+  +importeTotal: int
+  +estado: EstadoFactura
+  +fechaConfeccion: date
+  +numero: int
+  +importeNeto: int
+  +iva: int
+  +getNumero(): int
+  +getFecha(): date
+  +getEstado(): EstadoFactura
+}
+
+class Nota_Credito {
+    +numero: int
+    +importeNeto: float
+    +iva: int
+    +montoTotal: float
+}
+
+class Pago{
+  +fecha: date
+  +monto: int
+  +id_pago: int
+}
+
+class MetodoPago{
+  +moneda: TipoMoneda
+}
+
+class Efectivo{
+  +vuelto: int
+}
+class Cheque{
+  +numCheque: int
+  +fechaEmision: date
+  +fechaCobro: date
+  +banco: string
+  +plaza: int
+  +cotizacion: int
+}
+
+class Tarjeta{
+  +numTarjeta: int
+  +tipo: TipoTarjeta
+}
+
+class Direccion {
+  +nombreCalle: string
+  +numCalle: int
+  +codPostal: string
+  +localidad: string
+  +pais: string
+  +piso: string
+  +departamento: string
+}
+
+class Estadia {
+  +fechaCheckIn: date
+  +fechaCheckOut: date
+  +id_estadia: int
+}
+
+
+enum TipoTarjeta {
+  Credito
+  Debito
+}
+enum TipoSexo {
+  Masculino
+  Femenino
+}
+enum TipoConsumidor {
+  A
+  B
+}
+enum EstadoHabitacion {
+  Libre
+  Reservada
+  Ocupada
+  FueraDeServicio
+}
+enum TipoHabitacion {
+  Individual
+  DobleEstandar
+  DobleSuperior
+  SuperiorFamilyPlan
+  Suite
+}
+enum TipoListado {
+  Cheque_cartera
+  Fecha_MedioDePago
+}
+enum EstadoFactura {
+  Paga
+  Pendiente
+  Cancelada
+}
+enum TipoMoneda {
+  ARS
+  USD
+  BRL
+  UYU
+  EUR
+}
+
+Cheque --|> MetodoPago
+Efectivo --|> MetodoPago
+Tarjeta --|> MetodoPago
+
+
+Factura "0..*"-->"1" Responsable_Pago : Posee >
+Factura o--"0..*" Pago : Registra >
+
+Nota_Credito "0..*"-->"1" Responsable_Pago
+Nota_Credito "0..1"-->"1..*" Factura
+
+Estadia "0..*" -- "1..*" Huesped : posee <
+Reserva "0..*" -- "1" Huesped 
+Huesped <.. HuespedService
+
+Pago *--"1" MetodoPago : Posee > 
+Habitacion "1"<--"0..*" Reserva : Pertenece <
+
+Estadia o-- "0..N" Servicio
+
+Persona *-- "1" Direccion : Tiene >
+
+Estadia "0..*"-->"1" Habitacion : OcurreEn >
+Estadia "1"<--"0..*" Factura 
+
+
+Responsable_Pago <.. RDP_DAO
+Estadia <.. EstadiaService
+Reserva <.. ReservaService
+Factura <.. Factura_DAO
+Pago <.. Pago_DAO
+
+
+GestorDeFacturacion ..> Factura_DAO
+GestorRDP ..> RDP_DAO
+GestorDeIngresos ..> Pago_DAO
+HuespedService ..> HuespedRepository
+HabitacionService ..> EstadiaRepository
+HabitacionService ..> ReservaRepository
+HabitacionService ..> HabitacionRepository
+
+interface Nota_Credito_DAO {
+    +Agregar(Nota_Credito_DTO nota_credito)
+    +Modificar(Nota_Credito_DTO nota_credito)
+    +Buscar(int numero)
+    +Borrar(int numero)
+}
+
+interface Servicio_DAO{
+    +Agregar(Servicio_DTO servicio)
+    +Modificar(Servicio_DTO servicio)
+    +Buscar(string nombreServicio)
+    +Borrar(string nombreServicio)
+}
+
+class Servicio_DTO{
+    +nombre: string
+    +costo: float
+}
+
+class Nota_Credito_SQL_DAO {
+    +Agregar()
+    +Modificar()
+    +Buscar()
+    +Borrar()
+}
+Nota_Credito <.. Nota_Credito_DAO
+Nota_Credito_SQL_DAO ..|> Nota_Credito_DAO
+
+
+class Huesped_DTO {
+    +nombres: string
+    +apellido: string
+    +edad: int
+    +sexo: TipoSexo
+    +horaSalida: datetime
+    +documentacion: int
+    +fechaNacimiento: date
+    +consumidorFinal: TipoConsumidor
+    +email: string
+    +ocupacion: string
+}
+
+class RDP_DTO {
+    +razonSocial: string
+    +cuit: string
+}
+
+class Estadia_DTO {
+  +tipoHabitacionId: String
+  +tipoHabitacionNombre: String
+  +numeroHabitacion: long
+  +fechaInicio: date
+  +fechaFin: date
+  +ocupante: HuespedDTO
+  +acompanantes: List<HuespedDTO>
+  +id_estadia: int
+}
+
+class Reserva_DTO {
+    +cliente: ClienteDTO
+    +reservas: List<HabitacionReservaDTO>
+}
+class Cliente_DTO{
+  +nombre: String
+  +apellido: String
+  +telefono: String
+}
+class HabitacionReservaDTO{
+  +numeroHabitacion: Integer
+  +fechaInicio: date
+  +fechaFin: date
+}
+
+class Factura_DTO {
+    +importe: int
+    +estado: EstadoFactura
+    +fechaConfeccion: date
+    +numero: int
+    +iva: int
+    +importeNeto: int
+}
+
+class Pago_DTO {
+    +fecha: date
+    +id_pago: int
+    +monto: float
+}
+
+class Nota_Credito_DTO {
+    +importeNeto: float
+    +iva: int
+    +montoTotal: float
+    +numero: int
+}
+
+
+HuespedRepository ..> Huesped_DTO
+RDP_DAO ..> RDP_DTO
+EstadiaRepository ..> Estadia_DTO
+ReservaRepository ..> Reserva_DTO
+Factura_DAO ..> Factura_DTO
+Pago_DAO ..> Pago_DTO
+Nota_Credito_DAO ..> Nota_Credito_DTO
+HabitacionRepository ..> Habitacion_DTO
+ 
+
+Periodo_Habitacion "*" *-- "1" Habitacion
+
+
+
+interface HabitacionRepository {
+    +Agregar(Habitacion habitacion)
+    +Modificar(Habitacion habitacion)
+    +Buscar(int numero)
+    +Borrar(int numero)
+}
+
+
+class Habitacion_DTO {
+    +numero: int
+    +tipo: string
+    +capacidad: int
+    +precio: float
+}
+
+
+GestorHuesped ..> Huesped
+GestorRDP ..> Responsable_Pago
+GestorDeFacturacion ..> Factura
+GestorDeFacturacion ..> Nota_Credito
+GestorDeIngresos ..> Pago
+HabitacionService ..> Estadia
+HabitacionService ..> Reserva
+HabitacionService ..> Habitacion
+
+HabitacionService ..> Servicio
+HabitacionService ..> Servicio_DAO
+
+Servicio_DAO ..> Servicio_DTO
+Servicio_DAO ..> Servicio
+Servicio_SQL_DAO --> Servicio_DAO
+
+Cliente_DTO ..> Reserva_DTO
+HabitacionReservaDTO ..> Reserva_DTO
+
+
+@enduml

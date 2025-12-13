@@ -2,21 +2,15 @@ package grupo26diseno.tpdisenogrupo26.mapper;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.time.ZoneId;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import DTOs.HuespedDTO;
+
+import grupo26diseno.tpdisenogrupo26.dtos.HuespedDTO;
 import grupo26diseno.tpdisenogrupo26.model.Huesped;
 import grupo26diseno.tpdisenogrupo26.model.TipoConsumidor;
 import grupo26diseno.tpdisenogrupo26.model.TipoDoc;
 import grupo26diseno.tpdisenogrupo26.model.TipoSexo;
-import grupo26diseno.tpdisenogrupo26.mapper.DireccionMapper;
-import DTOs.DireccionDTO;
-import java.time.LocalDate;
-import java.util.Date;
-import java.time.Period;
-import java.time.ZoneId;
 
 @Component
 public class HuespedMapper {
@@ -33,13 +27,7 @@ public class HuespedMapper {
         h.setDocumentacion(dto.getDocumentacion());
         h.setEmail(dto.getEmail());
         LocalDate hoy = LocalDate.now();
-         if (dto.getFechaNacimiento() != null) {
-            h.setFechaNacimiento(
-                Date.from(dto.getFechaNacimiento()
-                    .atStartOfDay(ZoneId.systemDefault())
-                    .toInstant())
-            );
-        }
+        h.setFechaNacimiento(dto.getFechaNacimiento());
         int edad = Period.between(dto.getFechaNacimiento(), hoy).getYears();
         h.setEdad(edad);
         
@@ -54,4 +42,27 @@ public class HuespedMapper {
 
         return h;
     }
+    public HuespedDTO crearDTO(Huesped h) {
+    HuespedDTO dto = new HuespedDTO();
+    dto.setId(h.getId());
+    dto.setApellido(h.getApellido());
+    dto.setConsumidorFinal(h.getConsumidorFinal().name());
+    dto.setCuit(h.getCuit());
+    dto.setDocumentacion(h.getDocumentacion());
+    dto.setEmail(h.getEmail());
+    dto.setFechaNacimiento(h.getFechaNacimiento());
+    dto.setEdad(h.getEdad());
+    dto.setNacionalidad(h.getNacionalidad());
+    dto.setNombres(h.getNombres());
+    dto.setOcupacion(h.getOcupacion());
+    dto.setSexo(h.getSexo().name());
+    dto.setTelefono(h.getTelefono());
+    dto.setTipoDocumento(h.getTipoDocumento().name());
+
+    // Dejo comentado ya que en realidad al buscar huespedes no mostramos la direccion, para mostrarla habria que modificar el front y en el mapper de direccion hacer el crearDTO
+    //dto.setDireccion(direccionMapper.crearDTO(h.getDireccion()));
+
+    return dto;
+}
+
 }

@@ -1,0 +1,82 @@
+ @startuml
+
+title Diagrama de Secuencia - Dar Alta de Huesped
+
+actor Conserje
+participant "Pantalla_DarAltaHuesped" as P
+participant "HuespedController" as HC
+participant "HuespedService" as GH
+participant "HuespedRepository" as H
+
+Conserje -[#red]-> P : solicita dar de alta un huesped
+activate P
+
+  loop [se selecciona "Corregir"]
+    loop [se selecciona "Reintentar"]
+     P -[#red]-> Conserje : muestra campos a completar
+     Conserje -[#red]-> P : completa los campos
+      P -[#red]-> HC : verificarCampos(huesped_DTO)
+      activate HC 
+      HC -[#red]-> GH : verificarCampos(huesped_DTO)
+      activate GH
+      alt 
+       HC -> P 
+        P -> P : mostrarError("Campos Obligatorios invalidos/faltantes")
+        P -> Conserje : mostrarOpciones [Reintentar Operacion / Cancelar]
+          Conserje -> P : selecciona "Reintentar Operacion"
+        alt
+          Conserje -> P : selecciona "Cancelar"
+          P -> Conserje : muestra mensaje "Operacion Cancelada"
+        end
+      end
+    end
+    GH -[#red]-> GH : agregarHuesped(huesped_DTO)
+    activate H
+    GH -[#red]-> GH : newDireccion():direccionNueva;
+    GH -[#red]-> GH : newHueped(): nuevoHuesped;
+    GH -[#red]-> GH : nuevoHuesped.setDireccion(direccionNueva)
+    GH -[#red]-> H : save(nuevoHuesped)
+
+    
+    loop [se selecciona "Reintentar Operacion"]
+    
+      alt error de base de datos
+        H -> HC
+          HC -> P : mostrarError("Error al conectar con la Base de Datos")
+          
+        P -> Conserje : mostrarOpciones [Reintentar Operacion / Cancelar]
+            Conserje -> P : selecciona "Reintentar Operacion"
+          alt
+            Conserje -> P : selecciona "Cancelar"
+            P -> Conserje : muestra mensaje "Operacion Cancelada"
+          end
+      end
+    end
+    
+    alt docuementacion existente
+      H -> GH
+      GH -> HC
+      HC -> P : mostrarMensaje("Documentacion ya existente")
+      P -> Conserje : mostrarOpeciones ["Aceptar igualmente" / "Corregir"]
+      Conserje -> P : selecciona "Aceptar igualmente"
+      P -> HC : Forzar huesped
+      GH -> H : Metodo crearHuesped con el forzar en verdadero
+      alt
+        Conserje -> P : selecciona "Corregir"
+      end
+    end
+  end
+    
+  H -[#red]-> GH
+  GH -[#red]-> HC
+  HC -[#red]-> P : mostrarMensaje("El Huesped se cargo con exito en el sistema. ¿Desea cargar otro?")
+  P -[#red]-> Conserje : mostrarOpciones("Si" / "No")
+  alt
+    Conserje -> P : selecciona "Si"
+    P -> HC : ejecuta_CU-9
+  end
+    
+  Conserje -[#red]-> P : selecciona "No"  
+
+
+@enduml
