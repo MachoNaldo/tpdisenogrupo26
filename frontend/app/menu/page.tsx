@@ -106,10 +106,6 @@ export default function Menu() {
             </div>
             <p className="menu-label font-serif">Facturar</p>
           </Link>
-        
-
-
-
 
 
         </div>
