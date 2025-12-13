@@ -46,6 +46,8 @@ export interface Reserva {
   numeroHabitacion: number;
 }
 
+
+
 // --- Estructura para los Criterios de Búsqueda (Patrón Builder) ---
 export interface CriteriosBusquedaHuesped {
     apellido: string;
@@ -66,6 +68,7 @@ export type ReservaDTO = {
     telefono: string;
   };
   reservas: Array<{
+    idReserva: number; 
     numeroHabitacion: number;
     tipo: string;
     fechaInicio: string;

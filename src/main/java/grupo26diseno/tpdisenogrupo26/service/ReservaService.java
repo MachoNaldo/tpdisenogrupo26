@@ -12,5 +12,8 @@ public interface ReservaService {
 
     List<ReservaDTO> buscarReservaPorCriterios(String apellido, String nombres);
 
+    void cancelarReserva(Long idReserva);
+
+
 }
 

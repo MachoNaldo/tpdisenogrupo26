@@ -23,4 +23,6 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
             @Param("apellido") String apellido,
             @Param("nombres") String nombres);
     Reserva findById(long id);
+
+    
 }

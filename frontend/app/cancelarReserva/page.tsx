@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Reserva, CriteriosBusquedaReserva } from '../lib/tipos';
+import {ReservaDTO, CriteriosBusquedaReserva } from '../lib/tipos';
+
 import '../styles/estilos.css';
 
 // URL base del backend, asumimos que está en el .env.local
@@ -16,14 +17,13 @@ const INITIAL_CRITERIA: CriteriosBusquedaReserva = {
 
 export default function PaginaCancelarReserva() {
   const [criterios, setCriterios] = useState<CriteriosBusquedaReserva>(INITIAL_CRITERIA);
-  const [resultados, setResultados] = useState<Reserva[]>([]);
+  const [resultados, setResultados] = useState<ReservaDTO[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [tieneError, setTieneError] = useState(false);
 
-  // true: Muestra tabla de resultados, false: Muestra formulario
+
   const [isListing, setIsListing] = useState(false);
-
-  // Renombrado: antes selectedHuespedId
   const [selectedReservaId, setSelectedReservaId] = useState<number | null>(null);
 
   const router = useRouter();
@@ -52,74 +52,134 @@ export default function PaginaCancelarReserva() {
     verificarSesion();
   }, [router]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCriterios((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
+
     setError(null);
+    setTieneError(false);
   };
+
 
   // Buscar reservas por criterios: apellido/nombres -> query params
   const handleBuscar = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    setLoading(true);
-    setError(null);
-    setResultados([]);
+  const apellido = criterios.apellido?.trim() ?? '';
+  const nombres = criterios.nombres?.trim() ?? '';
+
+  // Apellido obligatorio
+  if (!apellido) {
+  setError('El apellido es obligatorio para realizar la búsqueda.');
+  setTieneError(true);
+  return;
+  }
+
+
+  setLoading(true);
+  setError(null);
+  setTieneError(false);
+  setResultados([]);
+  setSelectedReservaId(null);
+
+  // Construcción de query params
+  const params = new URLSearchParams();
+  params.append('apellido', apellido);
+
+  // Nombre opcional
+  if (nombres) {
+    params.append('nombres', nombres);
+  }
+
+  const url = `${SPRING_BOOT_API_URL}/api/reservas/buscar?${params.toString()}`;
+
+  try {
+    const response = await fetch(url, { credentials: 'include' });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        router.push('/login');
+        return;
+      }
+      throw new Error(`Error HTTP: ${response.status}`);
+    }
+
+    const data: ReservaDTO[] = await response.json();
+    setResultados(data);
+    setIsListing(true);
+
+    if (data.length === 0) {
+      const shouldGoToAlta = window.confirm(
+        'No existen reservas para los criterios de búsqueda.'
+      );
+      if (shouldGoToAlta) {
+        router.push('/cancelarReserva');
+      }
+    }
+  } catch (err) {
+    console.error('Error al buscar reservas:', err);
+    setError(
+      'Error al comunicarse con el servidor de búsqueda. Asegúrese que el endpoint /api/reservas/buscar esté activo.'
+    );
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+  const handleAceptar = async () => {
+  if (!selectedReservaId) {
+    window.alert('Debe seleccionar una reserva.');
+    return;
+  }
+
+  const ok = window.confirm('¿Confirma la cancelación de la reserva seleccionada?');
+  if (!ok) return;
+
+  try {
+    const res = await fetch(`${SPRING_BOOT_API_URL}/api/reservas/${selectedReservaId}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+
+    if (!res.ok) {
+      if (res.status === 401) {
+        router.push('/login');
+        return;
+      }
+      throw new Error(`HTTP ${res.status}`);
+    }
+
+    // saca visualmente la reserva cancelada
+    setResultados(prev =>
+      prev
+        .map(r => ({ ...r, reservas: r.reservas.filter(h => h.idReserva !== selectedReservaId) }))
+        .filter(r => r.reservas.length > 0)
+    );
     setSelectedReservaId(null);
 
-    // Construcción de query params (Builder simple)
-    const params = new URLSearchParams();
-    const apellido = criterios.apellido?.trim();
-    const nombres = criterios.nombres?.trim();
+    window.alert('Reserva cancelada y habitación liberada.');
+  } catch (e) {
+    console.error(e);
+    window.alert('No se pudo cancelar la reserva.');
+  }
+};
 
-    if (apellido) params.append('apellido', apellido);
-    if (nombres) params.append('nombres', nombres);
 
-    // Endpoint de reservas (antes: /api/huespedes/buscar)
-    const url = `${SPRING_BOOT_API_URL}/api/reservas/buscar?${params.toString()}`;
 
-    try {
-      const response = await fetch(url, { credentials: 'include' });
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          router.push('/login');
-          return;
-        }
-        throw new Error(`Error HTTP: ${response.status}`);
-      }
-
-      const data: Reserva[] = await response.json();
-      setResultados(data);
-      setIsListing(true);
-
-      if (data.length === 0) {
-        const shouldGoToAlta = window.confirm('No existen reservas para los criterios de búsqueda.');
-        if (shouldGoToAlta) {
-          router.push('/seleccionarFechas');
-        }
-      }
-    } catch (err) {
-      console.error('Error al buscar reservas:', err);
-      setError(
-        'Error al comunicarse con el servidor de búsqueda. Asegúrese que el endpoint /api/reservas/buscar esté activo.'
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleCancelar = () => {
-    // Si estamos en la Vista 2 (Resultados)
+
     if (isListing) {
-      // Volver a la Vista 1, manteniendo los criterios.
       setIsListing(false);
       setResultados([]);
       setSelectedReservaId(null);
     } else {
-      // Si estamos en la Vista 1 (Criterios)
+
+
       router.push('/menu');
     }
   };
@@ -144,6 +204,9 @@ export default function PaginaCancelarReserva() {
     </header>
   );
 
+
+
+
   // Vista 1: Formulario
   if (!isListing) {
     return (
@@ -159,24 +222,17 @@ export default function PaginaCancelarReserva() {
                   gridTemplateColumns: '150px 1fr',
                   gap: '20px',
                   alignItems: 'center',
-                }}
-              >
+                }}>
                 <label
                   className="font-serif"
-                  style={{ textAlign: 'right', fontStyle: 'italic', fontSize: '20px', marginBottom: '10px' }}
-                >
+                  style={{ textAlign: 'right', fontStyle: 'italic', fontSize: '20px', marginBottom: '10px' }}>
                   Apellido
                 </label>
 
-                {/* IMPORTANTE: no anidar form dentro de form */}
+
                 <div className="form">
-                  <input
-                    type="text"
-                    name="apellido"
-                    placeholder="Ej: Moreira"
-                    value={criterios.apellido}
-                    onChange={handleChange}
-                  />
+                  <input type="text" name="apellido"
+                    placeholder="Ej: Moreira" value={criterios.apellido} onChange={handleChange}/>
                 </div>
               </div>
 
@@ -207,7 +263,18 @@ export default function PaginaCancelarReserva() {
               </div>
             </div>
 
-            {error && <p style={{ color: 'red', textAlign: 'center', marginTop: '20px' }}>{error}</p>}
+
+            {tieneError && (
+              <div className="error-box">
+                <div className="error-icon">
+                  <Image src="img/iconoError.svg" alt="icono" width={40} height={40} />
+                </div>
+                <p className="error-text">
+                  {error}
+                </p>
+              </div>
+            )}
+
 
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '40px', gap: '80px', position: 'relative' }}>
               <button className="btn" type="submit" disabled={loading}>
@@ -224,6 +291,9 @@ export default function PaginaCancelarReserva() {
     );
   }
 
+
+
+  
   // Vista 2: Resultados
   return (
     <div className="estilo1">
@@ -267,8 +337,12 @@ export default function PaginaCancelarReserva() {
 
         </table>
 
+
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '60px', gap: '30px' }}>
-          <button className="btn" type="button" onClick={handleCancelar}>
+           <button className="btn" type="button" onClick={handleAceptar}>
+              Aceptar
+            </button>
+            <button className="btn" type="button" onClick={handleCancelar}>
             Cancelar
           </button>
         </div>
