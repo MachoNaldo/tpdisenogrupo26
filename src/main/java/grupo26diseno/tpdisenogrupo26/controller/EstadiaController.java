@@ -44,13 +44,22 @@ public class EstadiaController {
     }
 
     @GetMapping("/facturar/buscar")
-    public ResponseEntity<Estadia> obtenerDatos(@RequestParam Long habitacion, @RequestParam LocalDate fecha) {
+public ResponseEntity<Estadia> obtenerDatos(@RequestParam Long habitacion, @RequestParam LocalDate fecha) {
+    // El repositorio busca la estadía usando la fecha intermedia o final
     Estadia estadia = estadiaService.buscarEstadiaCompleta(habitacion, fecha);
     
     if (estadia == null) {
          return ResponseEntity.notFound().build();
     }
-    return ResponseEntity.ok(estadia);
+
+    // Antes de devolverla al frontend, actualizamos visualmente la fecha
+    // para que el sistema "piense" que termina hoy y calcule bien los días.
+    // Esto no guarda en base de datos, solo cambia lo que ve el usuario/frontend en este momento.
+    if (fecha.isBefore(estadia.getFechaCheckOut())) {
+        estadia.setFechaCheckOut(fecha); 
     }
+
+    return ResponseEntity.ok(estadia);
+}
 }
 

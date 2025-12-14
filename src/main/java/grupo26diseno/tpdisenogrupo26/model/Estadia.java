@@ -45,7 +45,7 @@ public class Estadia {
     private LocalDate fechaCheckOut;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "numero_habitacion", nullable = false)
+    @JoinColumn(name = "numero_habitacion", referencedColumnName = "numero", nullable = false)
     //@ToString.Exclude
     private Habitacion habitacion;
 

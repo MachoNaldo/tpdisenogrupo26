@@ -204,7 +204,13 @@ const handleBuscar = async (e: React.FormEvent) => {
 
 };
 
-
+   const handleSiguiente = () => {
+      if (!selectedHuespedId) {
+          alert("⚠️ Por favor, selecciona un Huésped Principal (responsable de pago) de la lista.");
+          return;
+      }
+    }
+    
     const handleCancelar = () => {
         router.push('/menu'); 
     };

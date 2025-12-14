@@ -19,11 +19,12 @@ public interface EstadiaRepository extends JpaRepository<Estadia, Long> {
 
 
     @Query("SELECT e FROM Estadia e " +
-           "JOIN FETCH e.huespedPrincipal " +   
-           "LEFT JOIN FETCH e.acompanantes " +  
-           "WHERE e.habitacion.numero = :nroHabitacion " +
-           "AND e.fechaCheckOut = :fechaSalida")
-    Estadia buscarParaFacturar(@Param("nroHabitacion") Long nroHabitacion, 
-                               @Param("fechaSalida") LocalDate fechaSalida);
+       "JOIN FETCH e.huespedPrincipal " +   
+       "JOIN FETCH e.habitacion " +  
+       "LEFT JOIN FETCH e.acompanantes " +
+       "WHERE e.habitacion.numero = :nroHabitacion " +
+       "AND :fechaSalida BETWEEN e.fechaCheckIn AND e.fechaCheckOut")//no toma directamente la fecha de salida, sino el rango
+Estadia buscarParaFacturar(@Param("nroHabitacion") Long nroHabitacion, 
+                           @Param("fechaSalida") LocalDate fechaSalida);
 
 }
