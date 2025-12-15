@@ -34,23 +34,23 @@ public class HuespedServiceImpl implements HuespedService {
     public Huesped agregarHuesped(HuespedDTO huesped, boolean forzar) throws DocumentoUsadoException {
         if (!forzar) { // Si no se fuerza la creación, verificamos si el documento ya está en uso para notificar al usuario
             List<Huesped> existente = huespedRepository.findByTipoDocumentoAndDocumentacion(
-                    TipoDoc.valueOf(huesped.getTipoDocumento()), huesped.getDocumentacion());
+                        TipoDoc.valueOf(huesped.getTipoDocumento()), huesped.getDocumentacion());
             if (!existente.isEmpty()) {
                 throw new DocumentoUsadoException("El documento " + existente.get(0).getTipoDocumento() + " "
-                        + existente.get(0).getDocumentacion() + " ya se encuentra registrado para otro huésped.");
+                            + existente.get(0).getDocumentacion() + " ya se encuentra registrado para otro huésped.");
             }
         }
         DireccionDTO direccion = huesped.getDireccion();
         Huesped nuevoHuesped = huespedMapper.crearEntidad(huesped);
         if (direccion != null) {
             Optional<Direccion> direccionExistente = direccionRepository
-                    .findByNombreCalleAndNumCalleAndLocalidadAndCodPostalAndProvinciaAndPais(
-                            direccion.getNombreCalle(),
-                            direccion.getNumCalle(),
-                            direccion.getLocalidad(),
-                            direccion.getCodPostal(),
-                            direccion.getProvincia(),
-                            direccion.getPais());
+                        .findByNombreCalleAndNumCalleAndLocalidadAndCodPostalAndProvinciaAndPais(
+                                direccion.getNombreCalle(),
+                                direccion.getNumCalle(),
+                                direccion.getLocalidad(),
+                                direccion.getCodPostal(),
+                                direccion.getProvincia(),
+                                direccion.getPais());
 
             if (direccionExistente.isPresent()) {
                 nuevoHuesped.setDireccion(direccionExistente.get());
@@ -63,14 +63,34 @@ public class HuespedServiceImpl implements HuespedService {
     @Override
     public List<HuespedDTO> buscarHuespedesPorCriterios(String apellido, String nombres, TipoDoc tipoDocumento,
             String documentacion) {
-            List<HuespedDTO> listaHuespedDTOs = huespedRepository.buscarPorCriterios(apellido, nombres, tipoDocumento, documentacion).stream()
-                    .map(huesped -> huespedMapper.crearDTO(huesped))
-                    .toList();
-            return listaHuespedDTOs;
+                List<HuespedDTO> listaHuespedDTOs = huespedRepository.buscarPorCriterios(apellido, nombres, tipoDocumento, documentacion).stream()
+                        .map(huesped -> huespedMapper.crearDTO(huesped))
+                        .toList();
+                return listaHuespedDTOs;
     }
 
     @Override
     public Optional<Huesped> buscarHuespedPorId(Long id) {
         return huespedRepository.findById(id);
+    }
+    
+    @Override
+    @Transactional
+    public int eliminarHuesped(Long id) {
+        Optional<Huesped> huespedOptional = huespedRepository.findById(id);
+
+        if (huespedOptional.isEmpty()) {
+            return 1; // 1: No Encontrado
+        }
+
+        Huesped huesped = huespedOptional.get();
+
+        if (huesped.isHospedado()) {
+            return 2; // 2: Ya Alojado (Flujo Alternativo 2.A)
+        }
+        
+        // Flujo Principal: Eliminar
+        huespedRepository.deleteById(id);
+        return 0; // 0: Exito
     }
 }

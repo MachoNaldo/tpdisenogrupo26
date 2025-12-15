@@ -10,13 +10,18 @@ import grupo26diseno.tpdisenogrupo26.model.TipoDoc;
 
 public interface HuespedService {
     
-
+    
     Huesped agregarHuesped(HuespedDTO huesped, boolean forzar) throws DocumentoUsadoException;
 
+    
     public Optional<Huesped> buscarHuespedPorId(Long id);
 
-    List<HuespedDTO> buscarHuespedesPorCriterios(String apellido, String nombres, TipoDoc tipoDocumento, String documentacion);
-
     
+    List<HuespedDTO> buscarHuespedesPorCriterios(String apellido, String nombres, TipoDoc tipoDocumento, String documentacion);
+    /**
+      //Elimina huesped por el id
+      @param id 
+      @return //0 si se elimino con exito, 1 si no se encontro, 2 si ya estuvo hospedado.
+     */
+    int eliminarHuesped(Long id);
 }
-
