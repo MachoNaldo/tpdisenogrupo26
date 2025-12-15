@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Huesped, CriteriosBusquedaHuesped, TiposDocumentoArray } from '../lib/tipos'; 
 import { useEffect } from "react";
+import EliminarHuespedDialog from '../components/BotonEliminarHuesped';
 import "../styles/estilos.css"; 
 
 
@@ -24,31 +25,34 @@ export default function BuscarHuespedPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
+    
+    // NUEVO ESTADO PARA ELIMINAR
+    const [huespedToDelete, setHuespedToDelete] = useState<Huesped | null>(null); 
 
     useEffect(() => {
     const verificarSesion = async () => {
-        try {
-            const res = await fetch(`${SPRING_BOOT_API_URL}/revisar-sesion`, {
-                credentials: "include",
-            });
+            try {
+                const res = await fetch(`${SPRING_BOOT_API_URL}/revisar-sesion`, {
+                    credentials: "include",
+                });
 
-            if (!res.ok) {
+                if (!res.ok) {
+                    router.push("/login");
+                    return;
+                }
+
+                const data = await res.json();
+                if (!data.autenticado) {
+                    router.push("/login");
+                }
+
+            } catch (err) {
                 router.push("/login");
-                return;
             }
-
-            const data = await res.json();
-            if (!data.autenticado) {
-                router.push("/login");
-            }
-
-        } catch (err) {
-            router.push("/login");
-        }
     };
 
     verificarSesion();
-}, []);
+    }, []);
 
     
     // true: Muestra tabla de resultados (Window-1.jpg), false: Muestra formulario (Window.jpg)
@@ -63,9 +67,22 @@ export default function BuscarHuespedPage() {
         setError(null);
     };
 
+    // Función que devuelve los criterios de búsqueda al formato URL
+    const buildSearchUrl = (criteria: CriteriosBusquedaHuesped) => {
+        const params = new URLSearchParams();
+        Object.entries(criteria).forEach(([key, value]) => {
+            if (value && value !== '---' && value !== '') {
+                const backendKey = key === 'documento' ? 'documentacion' : key;
+                params.append(backendKey, value);
+            }
+        });
+        return `${SPRING_BOOT_API_URL}/api/huespedes/buscar?${params.toString()}`;
+    };
+
+
     // Lógica principal: Patrón Builder y Fetching
-    const handleBuscar = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleBuscar = async (e: React.FormEvent | null) => {
+        if (e) e.preventDefault();
         setLoading(true);
         setError(null);
         setResultados([]); 
@@ -80,7 +97,8 @@ export default function BuscarHuespedPage() {
             }
         });
 
-        const url = `${SPRING_BOOT_API_URL}/api/huespedes/buscar?${params.toString()}`;
+
+        const url = buildSearchUrl(criterios); 
         
         try {
             const response = await fetch(url, { credentials: 'include' });
@@ -140,7 +158,31 @@ export default function BuscarHuespedPage() {
         router.push('/menu'); 
     }
 };
+
+    const handleBorrar = () => {
+        if (!selectedHuespedId) {
+            alert("Debe seleccionar un huésped para borrar.");
+            return;
+        }
+        
+        const selectedHuesped = resultados.find(h => h.id === selectedHuespedId);
+        
+        if (selectedHuesped) {
+            setHuespedToDelete(selectedHuesped);
+        } else {
+            alert("Error: Huésped seleccionado no encontrado en la lista.");
+        }
+    };
     
+    const handleEliminarCerrar = (eliminado: boolean) => {
+        setHuespedToDelete(null);
+        
+        if (eliminado) {
+             // Si fue eliminado con exito, se rrecarga la lista.
+             handleBuscar(null);
+        }
+    };
+
     const renderHeader = () => (
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 40px', backgroundColor: '#000', borderBottom: '2px solid #b8975a'}}>
             <h1 className="font-serif" style={{ fontFamily: 'Georgia, serif', fontSize: '42px', fontStyle: 'italic'}}>
@@ -226,7 +268,6 @@ export default function BuscarHuespedPage() {
             {renderHeader()}
             
             <main style={{ maxWidth: '900px', margin: '50px auto' }}>
-                
 
                 <table className="w-full border-[5px] border-[#a67c52]
                 table-fixed border-collapse">
@@ -240,7 +281,7 @@ export default function BuscarHuespedPage() {
                     </thead>
                     <tbody >
                         {resultados.map((huesped) => (
-                            <tr className='border' key={huesped.documentacion} 
+                            <tr className='border' key={huesped.id} 
                                 onClick={() => setSelectedHuespedId(huesped.id || null)}
                                 style={{
                                     cursor: 'pointer', backgroundColor: selectedHuespedId === huesped.id ? '#5B5EF3' : 'white',
@@ -254,7 +295,18 @@ export default function BuscarHuespedPage() {
                     </tbody>
                 </table>
                 
+
                 <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: '60px', gap: '30px'}}>
+                    <button 
+                        className="btn" 
+                        type="button" 
+                        onClick={handleBorrar} 
+                        disabled={!selectedHuespedId}
+                        style={{backgroundColor: selectedHuespedId ? '#D9534F' : '#5b5b5bff'}} // Color rojo para Borrar
+                    >
+                        Borrar
+                    </button>
+
                     <button className= "btn" type="button" onClick={handleSiguiente}>
                         Siguiente
                     </button>
@@ -263,6 +315,12 @@ export default function BuscarHuespedPage() {
                     </button>
                 </div>
             </main>
+            {huespedToDelete && (
+                <EliminarHuespedDialog 
+                    huesped={huespedToDelete} 
+                    onClose={handleEliminarCerrar} 
+                />
+            )}
         </div>
     );
 };

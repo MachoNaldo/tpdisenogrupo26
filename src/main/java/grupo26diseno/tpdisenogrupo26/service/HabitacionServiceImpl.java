@@ -26,7 +26,6 @@ import grupo26diseno.tpdisenogrupo26.model.Reserva;
 import grupo26diseno.tpdisenogrupo26.model.TipoEstadoHabitacion;
 import grupo26diseno.tpdisenogrupo26.repository.EstadiaRepository;
 import grupo26diseno.tpdisenogrupo26.repository.HabitacionRepository;
-import grupo26diseno.tpdisenogrupo26.repository.PeriodoRepository;
 import grupo26diseno.tpdisenogrupo26.repository.ReservaRepository;
 import grupo26diseno.tpdisenogrupo26.service.handler.EstadoHabitacionChainFactory;
 import grupo26diseno.tpdisenogrupo26.service.handler.EstadoHabitacionHandler;
@@ -40,8 +39,6 @@ public class HabitacionServiceImpl implements HabitacionService {
     private ReservaRepository reservaRepository;
     @Autowired
     private PeriodoEstadoService periodoEstadoService;
-    @Autowired
-    private PeriodoRepository periodoRepository;
     @Autowired
     private HuespedService huespedService;
     @Autowired
