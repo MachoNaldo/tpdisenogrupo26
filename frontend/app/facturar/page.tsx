@@ -266,7 +266,7 @@ export default function FacturarPage() {
     </header>
   );
 
-  // --- VISTA 1: CRITERIOS (habitacion + fecha) ---
+  // VISTA 1: CRITERIOS (habitacion + fecha)
   if (!isListing) {
     return (
       <main className="ui-hero">

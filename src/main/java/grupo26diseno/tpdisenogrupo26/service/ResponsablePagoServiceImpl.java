@@ -32,7 +32,6 @@ public class ResponsablePagoServiceImpl implements ResponsablePagoService {
     public ResponsablePago crearResponsablePago(ResponsablePagoDTO dto, boolean forzar)
             throws DocumentoUsadoException {
 
-        // 🔴 Validación de duplicado por CUIT (equivalente a tipoDoc + documentacion)
         if (!forzar) {
             boolean existe = responsablePagoRepository.existsByCuit(dto.getCuit());
             if (existe) {
@@ -44,7 +43,6 @@ public class ResponsablePagoServiceImpl implements ResponsablePagoService {
         DireccionDTO direccionDTO = dto.getDireccion();
         ResponsablePago nuevo = responsablePagoMapper.crearEntidad(dto);
 
-        // 🔁 Reutilización de dirección (misma lógica que Huesped)
         if (direccionDTO != null) {
             Optional<Direccion> direccionExistente =
                     direccionRepository.findByNombreCalleAndNumCalleAndLocalidadAndCodPostalAndProvinciaAndPais(

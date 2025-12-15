@@ -33,10 +33,6 @@ public class ResponsablePagoMapper {
         dto.setRazonSocial(rp.getRazonSocial());
         dto.setTelefono(rp.getTelefono());
         dto.setNacionalidad(rp.getNacionalidad());
-
-        // Igual que Huesped: solo si el front la necesita
-        // dto.setDireccion(direccionMapper.crearDTO(rp.getDireccion()));
-
         return dto;
     }
 }

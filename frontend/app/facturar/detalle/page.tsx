@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { Huesped } from '../../lib/tipos';
 import '../../styles/estilos.css';
 
-// URL base del backend (.env.local)
+
 const SPRING_BOOT_API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 type EstadiaApi = {
@@ -26,20 +26,16 @@ type FacturableItem = {
   amount?: number;
 };
 
-/**
- * Mapea el enum TipoConsumidor (como string) a 'A' | 'B'.
- * Ajustá acá si tu enum no es 'A'/'B' y usa otros literales.
- */
+
 function mapTipoConsumidorToFactura(consumidorFinal: unknown): 'A' | 'B' | null {
   if (!consumidorFinal) return null;
 
   const v = String(consumidorFinal).trim().toUpperCase();
 
-  // Caso típico: enum "A" o "B"
+
   if (v === 'A' || v === 'B') return v;
 
-  // Si tu enum es más descriptivo, contemplamos variantes comunes:
-  // Ej: "CONSUMIDOR_A", "FACTURA_A", etc.
+
   if (v.includes('A')) return 'A';
   if (v.includes('B')) return 'B';
 
@@ -60,7 +56,7 @@ export default function FacturarDetallePage() {
   const [estadia, setEstadia] = useState<EstadiaApi | null>(null);
   const [responsable, setResponsable] = useState<Huesped | null>(null);
 
-  // Ítems (estructura lista). Importes reales: requieren endpoint/DTO de “pre-factura”.
+
   const [items] = useState<FacturableItem[]>([
     { key: 'estadia', label: 'Estadía' },
     { key: 'consumos', label: 'Consumos' },
@@ -71,7 +67,7 @@ export default function FacturarDetallePage() {
     consumos: true,
   });
 
-  // --- Sesión ---
+
   useEffect(() => {
     const verificarSesion = async () => {
       try {
@@ -185,11 +181,9 @@ export default function FacturarDetallePage() {
     }, 0);
   }, [items, selectedKeys]);
 
-  /**
-   * CLAVE: Tipo factura desde el responsable (consumidorFinal)
-   */
+
+
   const tipoFactura = useMemo<'A' | 'B' | null>(() => {
-    // Si tu TS de Huesped no tiene consumidorFinal tipado, igual lo tomamos por any.
     const consumidorFinal = (responsable as any)?.consumidorFinal;
     return mapTipoConsumidorToFactura(consumidorFinal);
   }, [responsable]);
@@ -213,7 +207,7 @@ export default function FacturarDetallePage() {
       return;
     }
 
-    // Si no se puede determinar A/B, avisamos (porque te lo piden en el requisito)
+    
     if (!tipoFactura) {
       setError('No se pudo determinar si el responsable es Consumidor A o B. Verifique consumidorFinal.');
       return;
