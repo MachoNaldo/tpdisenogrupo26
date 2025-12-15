@@ -37,7 +37,7 @@ public class Huesped extends Persona {
     @Temporal(TemporalType.DATE)
     private LocalDate fechaNacimiento;
     @Enumerated(EnumType.STRING)
-    private TipoConsumidor consumidorFinal;
+    private CondicionFiscal condicionFiscal;
     @Column(nullable = true)
     private String email;
     @Column(nullable = false)

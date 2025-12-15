@@ -14,11 +14,10 @@ import grupo26diseno.tpdisenogrupo26.model.TipoEstadoHabitacion;
 public interface HabitacionService{
     Map<LocalDate, TipoEstadoHabitacion> obtenerEstadosHabitacionEnPeriodo(Long numeroHabitacion, LocalDate fechaInicio, LocalDate fechaFin);
     void validarDisponibilidad(Long numeroHabitacion, LocalDate fechaInicio, LocalDate fechaFin) throws DisponibilidadException;
-   // Habitacion buscarPorNumero(Long numeroHabitacion);
     public void ocuparHabitacion(EstadiaDTO estadiaDTO, boolean forzar) throws DisponibilidadException;
-    //public void reservarHabitacion(Long numero, LocalDate desde, LocalDate hasta);
     public void crearReserva(ReservaDTO dto) throws DisponibilidadException;
     List<DisponibilidadDTO> obtenerDisponibilidad(LocalDate desde, LocalDate hasta);
     boolean existeNumero (Long numero);
+    public List<Long> listarNumeros();
     
 }

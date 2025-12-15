@@ -25,6 +25,8 @@ export default function FacturarPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [estadia, setEstadia] = useState<any | null>(null);
+  const [listaHabitaciones, setListaHabitaciones] = useState<any[]>([]);
+  const [mostrarGrilla, setMostrarGrilla] = useState(false);
 
 
   const [isListing, setIsListing] = useState(false);
@@ -59,6 +61,16 @@ export default function FacturarPage() {
 
     verificarSesion();
   }, [router]);
+  useEffect(() => {
+    //Buscamos todas las habitaciones que tenga el hotel
+    fetch(`${SPRING_BOOT_API_URL}/api/habitaciones`, { credentials: 'include' })
+      .then((res) => {
+        if (res.ok) return res.json();
+        throw new Error('Error al cargar habitaciones');
+      })
+      .then((data) => setListaHabitaciones(data))
+      .catch((err) => console.error(err));
+  }, []);
 
   const handleBuscar = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -228,7 +240,7 @@ export default function FacturarPage() {
 
         window.alert(
           'No se pudo resolver automáticamente el Responsable de Pago para este huésped.\n' +
-            'Puede facturar a nombre de un tercero o dar de alta el Responsable de Pago manualmente.'
+          'Puede facturar a nombre de un tercero o dar de alta el Responsable de Pago manualmente.'
         );
         return;
       }
@@ -276,63 +288,102 @@ export default function FacturarPage() {
         <div className="ui-hero-card">
           <h1 className="ui-hero-title">Generar Factura</h1>
 
-        {error  && ( <div className="error-box">
-                     <div className="error-icon">
-                          <Image src="img/iconoError.svg" alt="icono" width={40} height={40} />
-                     </div>
-                     <p className="error-text">
-                      {error}
-                     </p>
-                  </div>
-                  )}
-                    
+          {error && (<div className="error-box">
+            <div className="error-icon">
+              <Image src="img/iconoError.svg" alt="icono" width={40} height={40} />
+            </div>
+            <p className="error-text">
+              {error}
+            </p>
+          </div>
+          )}
 
-                  
-          
+
+
+
 
           <form className="form" onSubmit={handleBuscar}>
-            <div>
-              {/* Número de habitación */}
-              <div>
+            <div className="ui-input-group-wrapper">
+
+              <div className="ui-input-with-action">
                 <input
                   ref={numeroRef}
                   type="number"
                   min="1"
                   placeholder="Número de Habitación"
                   value={numero}
+                  className="ui-input-field" // Asegúrate de tener estilos para tu input si no los tenías
                   onChange={(e) => {
                     setNumero(e.target.value);
                     setError(null);
-                  }}/>
-              </div>
-
-              {/* Fecha de salida */}
-              <div>
-                <input
-                  ref={fechaRef}
-                  type="date"
-                  className="ui-input-date"
-                  value={fecha}
-                  onChange={(e) => {
-                    setFecha(e.target.value);
-                    setError(null);
                   }}
+                  // Opcional: Cerrar la grilla si el usuario empieza a escribir
+                  onFocus={() => setMostrarGrilla(false)}
                 />
+
+                {/* Botón para desplegar la grilla */}
+                <button
+                  type="button"
+                  className="ui-btn-icon"
+                  onClick={() => setMostrarGrilla(!mostrarGrilla)}
+                  title="Ver lista de habitaciones"
+                >
+                  {/* Icono simple de lista/flecha (puedes usar una imagen o svg) */}
+                  ▼
+                </button>
               </div>
-            </div>
 
-            <div className="ui-actions-center">
-              <button type="submit" className="btn" disabled={loading}>
-                {loading ? 'Buscando...' : 'Buscar'}
-              </button>
+              {/* LA GRILLA FLOTANTE (Solo se muestra si mostrarGrilla es true) */}
+              {mostrarGrilla && (
+                <div className="ui-grid-popover">
+                  {listaHabitaciones.length > 0 ? (
+                    listaHabitaciones.map((num) => (
+                      <button
+                        key={num}
+                        type="button"
+                        className="ui-grid-item"
+                        onClick={() => {
+                          setNumero(String(num)); // Selecciona el número
+                          setMostrarGrilla(false); // Cierra el menú
+                          setError(null);
+                        }}
+                      >
+                        {num}
+                      </button>
+                    ))
+                  ) : (
+                    <div style={{ padding: '10px', color: '#888' }}>Cargando...</div>
+                  )}
+                </div>
+              )}
 
-              <button type="button" onClick={handleCancelar} className="btn">
-                Cancelar
-              </button>
+            {/* Fecha de salida */}
+            <div>
+              <input
+                ref={fechaRef}
+                type="date"
+                className="ui-input-date"
+                value={fecha}
+                onChange={(e) => {
+                  setFecha(e.target.value);
+                  setError(null);
+                }}
+              />
             </div>
-          </form>
         </div>
-      </main>
+
+        <div className="ui-actions-center">
+          <button type="submit" className="btn" disabled={loading}>
+            {loading ? 'Buscando...' : 'Buscar'}
+          </button>
+
+          <button type="button" onClick={handleCancelar} className="btn">
+            Cancelar
+          </button>
+        </div>
+      </form>
+        </div >
+      </main >
     );
   }
 

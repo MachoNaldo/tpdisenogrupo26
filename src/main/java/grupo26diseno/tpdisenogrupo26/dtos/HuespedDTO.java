@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class HuespedDTO {
     private Long id;
     private String apellido;
-    private String consumidorFinal;
+    private String condicionFiscal;
     private String cuit;
     private DireccionDTO direccion;
     private String documentacion;

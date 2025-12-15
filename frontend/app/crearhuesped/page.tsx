@@ -25,7 +25,7 @@ interface Formulario {
   documentacion: string;
   sexo: string;
   fechaNacimiento: string;
-  consumidorFinal: string;
+  condicionFiscal: string;
   email: string;
   cuit: string;
   direccion: Direccion;
@@ -33,6 +33,18 @@ interface Formulario {
   nacionalidad: string;
   ocupacion: string;
 }
+
+interface GeoRefProvincia {
+  id: string;
+  nombre: string;
+}
+
+interface GeoRefLocalidad {
+  id: string;
+  nombre: string;
+}
+
+
 
 function normalizarCuit(value: string): string {
   const digits = (value ?? '').replace(/\D/g, '');
@@ -51,6 +63,10 @@ export default function CrearHuesped() {
   const [DuplicadoPopup, setDuplicadoPopup] = useState(false);
   const [duplicateMessage, setDuplicateMessage] = useState('');
   const [FormularioGlobal, setFormularioGlobal] = useState<Formulario | null>(null);
+  const [provincias, setProvincias] = useState<GeoRefProvincia[]>([]);
+  const [localidades, setLocalidades] = useState<GeoRefLocalidad[]>([]);
+  const [cargandoLocalidades, setCargandoLocalidades] = useState(false);
+
 
   useEffect(() => {
     const verificarSesion = async () => {
@@ -76,6 +92,54 @@ export default function CrearHuesped() {
 
     verificarSesion();
   }, []);
+  // Carga todas las provincias 
+  useEffect(() => {
+    const fetchProvincias = async () => {
+      try {
+        // Pedimos todas las provincias
+        const res = await fetch('https://apis.datos.gob.ar/georef/api/provincias?orden=nombre');
+        const data = await res.json();
+        setProvincias(data.provincias);
+      } catch (error) {
+        console.error("Error al cargar provincias", error);
+      }
+    };
+    fetchProvincias();
+  }, []);
+
+  // Carga todas las ciudades cuando se elige una provincia
+  const cargarLocalidades = async (nombreProvincia: string) => {
+    if (!nombreProvincia) {
+      setLocalidades([]);
+      return;
+    }
+    setCargandoLocalidades(true);
+    try {
+      // Pedimos localidades filtrando por nombre de provincia y recibimos hasta 1000
+      const res = await fetch(`https://apis.datos.gob.ar/georef/api/localidades?provincia=${nombreProvincia}&orden=nombre&max=1000`);
+      const data = await res.json();
+      setLocalidades(data.localidades);
+    } catch (error) {
+      console.error("Error al cargar localidades", error);
+    } finally {
+      setCargandoLocalidades(false);
+    }
+  };
+
+  // Se encarga de manejar el cambio de provincia
+  const cambioProvincia = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = e.target;
+
+    // Actualizamos el formulario
+    setFormulario(prev => ({
+      ...prev,
+      [name]: value,
+      localidad: '' // Reseteamos localidad al cambiar provincia
+    }));
+
+    // Disparamos la búsqueda de localidades
+    cargarLocalidades(value);
+  };
 
   const renderHeader = () => (
     <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 40px', backgroundColor: '#000', borderBottom: '2px solid #b8975a' }}>
@@ -97,7 +161,7 @@ export default function CrearHuesped() {
     mes: '',
     anio: '',
     sexo: '',
-    consumidorFinal: '',
+    condicionFiscal: '',
     email: '',
     cuit: '',
     calle: '',
@@ -150,7 +214,7 @@ export default function CrearHuesped() {
       const mes = Formulario.mes.padStart(2, '0');
       const anio = Formulario.anio;
 
-     
+
       const cuitSinGuiones = cuitSoloDigitos(Formulario.cuit);
 
       datos = {
@@ -160,7 +224,7 @@ export default function CrearHuesped() {
         documentacion: Formulario.documento,
         sexo: Formulario.sexo,
         fechaNacimiento: `${anio}-${mes}-${dia}`,
-        consumidorFinal: Formulario.consumidorFinal,
+        condicionFiscal: Formulario.condicionFiscal,
         email: Formulario.email,
         cuit: cuitSinGuiones,
         direccion: {
@@ -225,7 +289,7 @@ export default function CrearHuesped() {
       mes: '',
       anio: '',
       sexo: '',
-      consumidorFinal: '',
+      condicionFiscal: '',
       email: '',
       cuit: '',
       calle: '',
@@ -243,6 +307,7 @@ export default function CrearHuesped() {
     });
     window.scrollTo(0, 0);
   };
+  const requiereCuit = Formulario.condicionFiscal === 'MONOTRIBUTISTA' || Formulario.condicionFiscal === 'RESPONSABLE_INSCRIPTO';
 
   return (
     <>
@@ -362,17 +427,18 @@ export default function CrearHuesped() {
 
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="consumidorFinal">Consumidor final</label>
+              <label htmlFor="condicionFiscal">Condición frente al IVA</label>
               <select
-                id="consumidorFinal"
-                name="consumidorFinal"
-                value={Formulario.consumidorFinal}
+                id="condicionFiscal"
+                name="condicionFiscal"
+                value={Formulario.condicionFiscal}
                 onChange={cambioInput}
                 required
               >
-                <option value="">---</option>
-                <option value="A">A</option>
-                <option value="B">B</option>
+                <option value="">--- Seleccione ---</option>
+                <option value="CONSUMIDOR_FINAL">Consumidor Final</option>
+                <option value="MONOTRIBUTISTA">Monotributista</option>
+                <option value="RESPONSABLE_INSCRIPTO">Responsable Inscripto</option>
               </select>
             </div>
           </div>
@@ -389,19 +455,23 @@ export default function CrearHuesped() {
               />
             </div>
 
-            <div className="form-group">
-              <label htmlFor="cuit">CUIT (opcional)</label>
-              <input
-                type="text"
-                id="cuit"
-                name="cuit"
-                placeholder="##-########-#"
-                value={Formulario.cuit}
-                onChange={cambioCuitFormateado} 
-                inputMode="numeric"
-              />
+              <div className="form-group">
+                <label htmlFor="cuit">
+                  CUIT {requiereCuit ? <span style={{ color: 'red' }}>* (Obligatorio)</span> : '(opcional)'}
+                </label>
+                <input
+                  type="text"
+                  id="cuit"
+                  name="cuit"
+                  placeholder="##-########-#"
+                  value={Formulario.cuit}
+                  onChange={cambioCuitFormateado}
+                  inputMode="numeric"
+                  required={requiereCuit} //Revisamos si es necesario hacer obligatorio el ingreso de cuit
+                  className={requiereCuit && !Formulario.cuit ? 'input-error' : ''}
+                />
+              </div>
             </div>
-          </div>
 
           <div className="form-row four-col">
             <div className="form-group">
@@ -451,17 +521,6 @@ export default function CrearHuesped() {
               />
             </div>
             <div className="form-group">
-              <label htmlFor="localidad">Localidad</label>
-              <input
-                type="text"
-                id="localidad"
-                name="localidad"
-                value={Formulario.localidad}
-                onChange={cambioInput}
-                required
-              />
-            </div>
-            <div className="form-group">
               <label htmlFor="codigoPostal">Cod. Postal</label>
               <input
                 type="text"
@@ -507,17 +566,7 @@ export default function CrearHuesped() {
           </div>
 
           <div className="form-row three-col">
-            <div className="form-group">
-              <label htmlFor="provincia">Provincia</label>
-              <input
-                type="text"
-                id="provincia"
-                name="provincia"
-                value={Formulario.provincia}
-                onChange={cambioInput}
-                required
-              />
-            </div>
+
             <div className="form-group">
               <label htmlFor="pais">País</label>
               <input
@@ -525,21 +574,70 @@ export default function CrearHuesped() {
                 id="pais"
                 name="pais"
                 value={Formulario.pais}
-                onChange={cambioInput}
+                onChange={cambioInput} // Si el usuario escribe algo distinto a Argentina, los selects de abajo cambian a input
+                placeholder="Ej: Argentina"
                 required
               />
             </div>
+
             <div className="form-group">
-              <label htmlFor="nacionalidad">Nacionalidad</label>
-              <input
-                type="text"
-                id="nacionalidad"
-                name="nacionalidad"
-                value={Formulario.nacionalidad}
-                onChange={cambioInput}
-                required
-              />
+              <label htmlFor="provincia">Provincia</label>
+              {Formulario.pais.toLowerCase() === 'argentina' || Formulario.pais === '' ? (
+                <select
+                  id="provincia"
+                  name="provincia"
+                  value={Formulario.provincia}
+                  onChange={cambioProvincia}
+                  required
+                >
+                  <option value="">Seleccione...</option>
+                  {provincias.map((prov) => (
+                    <option key={prov.id} value={prov.nombre}>
+                      {prov.nombre}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                // Si no es Argentina, input de texto normal
+                <input
+                  type="text"
+                  name="provincia"
+                  value={Formulario.provincia}
+                  onChange={cambioInput}
+                />
+              )}
             </div>
+
+            <div className="form-group">
+              <label htmlFor="localidad">Localidad</label>
+              {Formulario.pais.toLowerCase() === 'argentina' || Formulario.pais === '' ? (
+                <select
+                  id="localidad"
+                  name="localidad"
+                  value={Formulario.localidad}
+                  onChange={cambioInput}
+                  disabled={!Formulario.provincia || cargandoLocalidades}
+                  required
+                >
+                  <option value="">
+                    {cargandoLocalidades ? 'Cargando...' : 'Seleccione...'}
+                  </option>
+                  {localidades.map((loc) => (
+                    <option key={loc.id} value={loc.nombre}>
+                      {loc.nombre}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  name="localidad"
+                  value={Formulario.localidad}
+                  onChange={cambioInput}
+                />
+              )}
+            </div>
+
           </div>
 
           <div className='grupo-row'>

@@ -1,7 +1,7 @@
 package grupo26diseno.tpdisenogrupo26.repository;
 
-import java.util.Optional;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -28,4 +28,7 @@ public interface HabitacionRepository extends JpaRepository<Habitacion, Long> {
            WHERE h.numero = :numero
            """)
     Optional<Habitacion> findByNumeroConPeriodos(Long numero);
+
+    @Query("SELECT h.numero FROM Habitacion h ORDER BY h.numero ASC")
+    List<Long> findAllNumeros();
 }

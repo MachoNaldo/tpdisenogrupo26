@@ -512,4 +512,41 @@ body {
     gap: 20px;
   }
 }
+.habitaciones-grilla {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  border: 1px solid #eee;
+}
+
+.titulo-habitaciones {
+  width: 100%;
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+
+.habitacion-radio {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  gap: 6px;
+  padding: 6px 12px;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+/* Efecto al pasar el mouse */
+.habitacion-radio:hover {
+  background-color: #f0f0f0;
+  border-color: #ccc;
+}
 

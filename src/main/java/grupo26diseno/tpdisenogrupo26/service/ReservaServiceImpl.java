@@ -9,9 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import grupo26diseno.tpdisenogrupo26.dtos.ReservaDTO;
 import grupo26diseno.tpdisenogrupo26.mapper.ReservaMapper;
-import grupo26diseno.tpdisenogrupo26.model.PeriodoEstado;
 import grupo26diseno.tpdisenogrupo26.model.Reserva;
-import grupo26diseno.tpdisenogrupo26.model.TipoEstadoHabitacion;
 import grupo26diseno.tpdisenogrupo26.repository.PeriodoRepository;
 import grupo26diseno.tpdisenogrupo26.repository.ReservaRepository;
 
@@ -64,38 +62,6 @@ public class ReservaServiceImpl implements ReservaService {
     public void cancelarReserva(Long idReserva) {
         Reserva reserva = reservaRepository.findById(idReserva)
                 .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
-
-        Long numeroHabitacion = reserva.getHabitacion().getNumero();
-        LocalDate inicio = reserva.getFechaInicio();
-        LocalDate fin = reserva.getFechaFinal();
-
-        // Buscamos los periodos que se superponen con el rango de la reserva
-        List<PeriodoEstado> periodos = periodoRepository
-                .findByHabitacionNumeroAndFechaInicioLessThanEqualAndFechaFinGreaterThanEqual(
-                        numeroHabitacion,
-                        fin,
-                        inicio
-                );
-
-        // Eliminamos el periodo reservado que coincide con la reserva
-        PeriodoEstado aEliminar = periodos.stream()
-                .filter(p -> p.getTipoEstado() == TipoEstadoHabitacion.RESERVADO)
-                .filter(p -> p.getFechaInicio().equals(inicio) && p.getFechaFin().equals(fin))
-                .findFirst()
-                .orElse(null);
-
-        // Esto es por si no hay un resultado exacto, igual elimina el primero
-
-        if (aEliminar == null) {
-            aEliminar = periodos.stream()
-                    .filter(p -> p.getTipoEstado() == TipoEstadoHabitacion.RESERVADO)
-                    .findFirst()
-                    .orElse(null);
-        }
-
-        if (aEliminar != null) {
-            periodoRepository.delete(aEliminar);
-        }
 
          // Elimina la reserva
         reservaRepository.delete(reserva);

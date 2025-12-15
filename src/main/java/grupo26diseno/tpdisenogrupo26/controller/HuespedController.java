@@ -1,6 +1,5 @@
 package grupo26diseno.tpdisenogrupo26.controller;
 
-
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +27,8 @@ public class HuespedController {
     private HuespedService huespedService;
 
     @PostMapping("/crearhuesped")
-    public ResponseEntity<?> agregarHuesped(@RequestBody HuespedDTO huesped, @RequestParam(defaultValue = "false") boolean forzar) {
+    public ResponseEntity<?> agregarHuesped(@RequestBody HuespedDTO huesped,
+            @RequestParam(defaultValue = "false") boolean forzar) {
         try {
             huespedService.agregarHuesped(huesped, forzar);
             return ResponseEntity.status(HttpStatus.CREATED).body(huesped);
@@ -36,7 +36,6 @@ public class HuespedController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
     }
-
 
     @GetMapping("/buscar")
     public List<HuespedDTO> buscarHuespedes(
@@ -47,10 +46,10 @@ public class HuespedController {
 
         return huespedService.buscarHuespedesPorCriterios(apellido, nombres, tipoDocumento, documentacion);
     }
-    
+
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Long id) {
-    huespedService.eliminarHuesped(id);
-    return ResponseEntity.noContent().build(); // Devuelve 204 si fue eliminado
+        huespedService.eliminarHuesped(id);
+        return ResponseEntity.noContent().build(); // Devuelve 204 si fue eliminado
     }
 }

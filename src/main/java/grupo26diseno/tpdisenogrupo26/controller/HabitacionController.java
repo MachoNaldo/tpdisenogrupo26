@@ -40,5 +40,11 @@ public class HabitacionController {
     return ResponseEntity.ok(existe);
     }
 
+    @GetMapping
+    public ResponseEntity<List<Long>> obtenerTodas() {
+        List<Long> habitaciones = habitacionService.listarNumeros();
+        return ResponseEntity.ok(habitaciones);
+    }
+
 }
 

@@ -107,6 +107,10 @@ public class HabitacionServiceImpl implements HabitacionService {
 
         return mapa;
     }
+    @Override
+    public List<Long> listarNumeros(){
+        return habitacionRepository.findAllNumeros();
+    }
 
     @Override
     @Transactional
