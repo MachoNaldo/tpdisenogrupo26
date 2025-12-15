@@ -1,17 +1,27 @@
 package grupo26diseno.tpdisenogrupo26.controller;
 
+import java.time.LocalDate;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
+
 
 import grupo26diseno.tpdisenogrupo26.dtos.EstadiaDTO;
 import grupo26diseno.tpdisenogrupo26.excepciones.DisponibilidadException;
+import grupo26diseno.tpdisenogrupo26.model.Estadia;
+import grupo26diseno.tpdisenogrupo26.service.EstadiaService;
 import grupo26diseno.tpdisenogrupo26.service.HabitacionService;
+
+
 
 @RestController
 @RequestMapping("/api/estadias")
@@ -19,6 +29,9 @@ public class EstadiaController {
 
     @Autowired
     private HabitacionService habitacionService;  
+
+    @Autowired
+    private EstadiaService estadiaService;
 
     @PostMapping("/ocupar") // Forzar sirve para cuando queremos ocupar una habitacion aunque haya un solapamiento
     public ResponseEntity<?> crear(@RequestBody EstadiaDTO estadiaDTO,  @RequestParam(defaultValue = "false") boolean forzar) {
@@ -34,5 +47,26 @@ public class EstadiaController {
                     .body("Error al crear la ocupación: " + e.getMessage());
         }
     }
+
+    @GetMapping("/facturar/buscar")
+    public ResponseEntity<Estadia> obtenerDatos(
+            @RequestParam("habitacion") Long habitacion,
+            @RequestParam("fecha") @DateTimeFormat(iso = ISO.DATE) LocalDate fecha) {
+
+        Estadia estadia = estadiaService.buscarEstadiaCompleta(habitacion, fecha);
+
+        if (estadia == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (fecha.isBefore(estadia.getFechaCheckOut())) {
+            estadia.setFechaCheckOut(fecha);
+        }
+
+        return ResponseEntity.ok(estadia);
+    }
+
+
+
 }
 

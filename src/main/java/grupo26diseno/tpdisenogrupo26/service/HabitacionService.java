@@ -19,4 +19,6 @@ public interface HabitacionService{
     //public void reservarHabitacion(Long numero, LocalDate desde, LocalDate hasta);
     public void crearReserva(ReservaDTO dto) throws DisponibilidadException;
     List<DisponibilidadDTO> obtenerDisponibilidad(LocalDate desde, LocalDate hasta);
+    boolean existeNumero (Long numero);
+    
 }

@@ -14,6 +14,8 @@ public interface HabitacionRepository extends JpaRepository<Habitacion, Long> {
 
     Optional<Habitacion> findByNumero(Long numero);
 
+    boolean existsByNumero(Long numero);
+
     @Query("""
            SELECT h FROM Habitacion h
            LEFT JOIN FETCH h.periodos

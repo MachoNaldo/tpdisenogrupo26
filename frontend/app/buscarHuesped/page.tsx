@@ -70,21 +70,16 @@ export default function BuscarHuespedPage() {
         setError(null);
         setResultados([]); 
         setSelectedHuespedId(null);
-        
-        // 1. Aplicando lógica Builder para Criterios: Construir URL de Query
         const params = new URLSearchParams();
         
         Object.entries(criterios).forEach(([key, value]) => {
-            // Solo incluimos el criterio si tiene valor
             if (value && value !== '---' && value !== '') {
-                // Mapeamos 'documento' del frontend a 'documentacion' del backend
+
                 const backendKey = key === 'documento' ? 'documentacion' : key;
                 params.append(backendKey, value);
             }
         });
 
-        // 2. Endpoint final
-        // Endpoint: /app/huespedes/buscar?apellido=X&documentacion=Y
         const url = `${SPRING_BOOT_API_URL}/api/huespedes/buscar?${params.toString()}`;
         
         try {
@@ -98,9 +93,8 @@ export default function BuscarHuespedPage() {
             }
             const data: Huesped[] = await response.json();
             setResultados(data);
-            setIsListing(true); // Pasar a la vista de resultados
+            setIsListing(true);
             
-            // 3. Manejo del Flujo Alternativo (4.A) - Si no hay coincidencias
             if (data.length === 0) {
                 const shouldGoToAlta = window.confirm(
                     "No existe ninguna concordancia. ¿Desea ejecutar 'Dar Alta de Huésped'?"
@@ -129,19 +123,19 @@ export default function BuscarHuespedPage() {
             return;
         }
         
-        // Redirigir a la siguiente etapa del TP (ej: Modificar/Reserva)
+       
         router.push(`/gestionreserva/${selectedHuespedId}`); 
     };
     
     const handleCancelar = () => {
-    // Si estamos en la Vista 2 (Resultados)
+   
     if (isListing) {
-        // Volver a la Vista 1, manteniendo los criterios.
+        
         setIsListing(false); 
-        setResultados([]); // Limpiar la lista para evitar confusiones
+        setResultados([]);
         setSelectedHuespedId(null);
     } 
-    // Si estamos en la Vista 1 (Criterios) 
+
     else {
         router.push('/menu'); 
     }
