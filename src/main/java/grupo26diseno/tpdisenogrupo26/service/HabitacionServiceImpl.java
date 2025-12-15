@@ -213,4 +213,9 @@ public class HabitacionServiceImpl implements HabitacionService {
         }
     }
 
+    @Override
+    public boolean existeNumero(Long numero) {
+      return habitacionRepository.existsByNumero(numero);
+} 
+
 }

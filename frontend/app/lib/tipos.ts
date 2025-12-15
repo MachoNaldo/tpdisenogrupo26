@@ -36,10 +36,42 @@ export interface Huesped {
   hospedado: boolean;
 }
 
+export interface Reserva {
+  id: number; 
+  apellidoReservador: string;
+  nombresReservador: string;
+  fechaInicio: string;
+  fechaFin: string; 
+  telefonoReservador: string; 
+  numeroHabitacion: number;
+}
+
+
+
 // --- Estructura para los Criterios de Búsqueda (Patrón Builder) ---
-export interface CriteriosBusqueda {
+export interface CriteriosBusquedaHuesped {
     apellido: string;
     nombres: string;
     tipoDocumento: TipoDocumento | ''; // <--- USANDO EL TIPO DE UNIÓN, MÁS EL VALOR VACÍO ''
     documento: string; // Corresponde al campo 'documentacion' en Spring
 }
+
+export interface CriteriosBusquedaReserva {
+    apellido: string;
+    nombres: string;
+}
+
+export type ReservaDTO = {
+  cliente: {
+    nombre: string;
+    apellido: string;
+    telefono: string;
+  };
+  reservas: Array<{
+    idReserva: number; 
+    numeroHabitacion: number;
+    tipo: string;
+    fechaInicio: string;
+    fechaFin: string;
+  }>;
+};

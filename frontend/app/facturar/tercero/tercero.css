@@ -1,0 +1,231 @@
+/*Fondo*/
+.tercero-bg {
+  min-height: 100vh;
+  color: #b8975a;
+  font-family: "Georgia", serif;
+
+  background-color: #000;
+  background-image: url('/img/Fondo2.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  display: flex;
+  flex-direction: column;
+}
+
+/*Header*/
+.tercero-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+
+  padding: 18px 40px;
+  background-color: rgba(0, 0, 0, 0.85);
+  border-bottom: 2px solid #b8975a;
+}
+
+.tercero-header-title {
+  font-size: 38px;
+  font-style: italic;
+  font-weight: 700;
+  margin: 0;
+}
+
+.tercero-header-logo {
+  opacity: 0.85;
+}
+
+/* Contenedor */
+.tercero-form-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 46px 18px;
+}
+
+/* Tarjeta */
+.tercero-form-container form {
+  width: 100%;
+  max-width: 760px;
+  padding: 46px;
+  border-radius: 14px;
+
+  background: rgba(0, 0, 0, 0.66);
+  border: 2px solid rgba(184, 151, 90, 0.95);
+  box-shadow: 0 0 24px rgba(184, 151, 90, 0.28);
+}
+
+
+
+.tercero-form-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.tercero-label {
+  font-style: italic;
+  font-size: 25px;
+  text-align: center;
+}
+
+.tercero-input {
+  width: 320px;
+  height: 44px;
+  padding: 0 14px;
+
+  border: 2px solid rgba(184, 151, 90, 0.95);
+  border-radius: 10px;
+
+  background-color: rgba(0, 0, 0, 0.38);
+  color: #b8975a;
+  font-size: 16px;
+  text-align: center;
+}
+
+.tercero-input::placeholder {
+  color: rgba(184, 151, 90, 0.65);
+  text-align: center;
+}
+
+.tercero-input:focus-visible {
+  outline: 2px solid rgba(212, 176, 106, 0.95);
+  outline-offset: 2px;
+}
+
+/*Botones: un poco más altos */
+.tercero-buttons {
+  margin-top: 34px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.tercero-btn {
+  height: 50px;              
+  padding: 0 16px;
+  width: 100%;
+
+  background-color: rgba(184, 151, 90, 0.92);
+  color: white;
+  font-family: "Georgia", serif;
+  font-size: 16px;
+  font-weight: 700;
+
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, opacity 0.15s ease;
+  box-shadow: 0 4px 12px rgba(184, 151, 90, 0.25);
+}
+
+.tercero-btn:hover {
+  background-color: #d4b06a;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(184, 151, 90, 0.42);
+}
+
+.tercero-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+
+
+
+
+.tercero-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.62);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 18px;
+  z-index: 9999;
+}
+
+.tercero-modal {
+  width: 100%;
+  max-width: 560px;
+  padding: 26px;
+  border-radius: 12px;
+
+  background: rgba(0,0,0,0.9);
+  border: 2px solid rgba(184, 151, 90, 0.9);
+  box-shadow: 0 14px 38px rgba(0,0,0,0.7);
+}
+
+.tercero-modal-row {
+  margin-bottom: 16px;
+}
+
+.tercero-modal-label {
+  font-weight: 700;
+  color: #b8975a;
+  margin-bottom: 8px;
+  font-size: 20px;
+}
+
+.tercero-modal-box {
+  padding: 10px 12px;
+  border-radius: 10px;
+
+  background: rgba(184, 151, 90, 0.12);
+  border: 1px solid rgba(184, 151, 90, 0.55);
+
+  color: #f2d9a6;
+  font-weight: 700;
+}
+
+.tercero-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.tercero-modal-btn {
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 10px;
+
+  background: rgba(184, 151, 90, 0.92);
+  color: #0b0b0b;
+  font-weight: 700;
+
+  border: none;
+  cursor: pointer;
+}
+
+/* === Responsive === */
+@media (max-width: 820px) {
+  .tercero-header {
+    padding: 16px 18px;
+  }
+
+  .tercero-header-title {
+    font-size: 28px;
+  }
+
+  .tercero-form-container form {
+    padding: 32px 20px;
+  }
+
+  .tercero-input {
+    width: 100%;
+  }
+
+  .tercero-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .tercero-modal-actions {
+    flex-direction: column;
+  }
+}

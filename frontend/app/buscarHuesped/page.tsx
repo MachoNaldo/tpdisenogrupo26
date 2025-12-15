@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Huesped, CriteriosBusqueda, TiposDocumentoArray } from '../lib/tipos'; 
+import { Huesped, CriteriosBusquedaHuesped, TiposDocumentoArray } from '../lib/tipos'; 
 import { useEffect } from "react";
 import "../styles/estilos.css"; 
 
@@ -11,7 +11,7 @@ import "../styles/estilos.css";
 // URL base del backend, asumimos que está en el .env.local
 const SPRING_BOOT_API_URL = process.env.NEXT_PUBLIC_API_URL; 
 
-const INITIAL_CRITERIA: CriteriosBusqueda = {
+const INITIAL_CRITERIA: CriteriosBusquedaHuesped = {
     apellido: '',
     nombres: '',
     tipoDocumento: '',
@@ -19,7 +19,7 @@ const INITIAL_CRITERIA: CriteriosBusqueda = {
 };
 
 export default function BuscarHuespedPage() {
-    const [criterios, setCriterios] = useState<CriteriosBusqueda>(INITIAL_CRITERIA);
+    const [criterios, setCriterios] = useState<CriteriosBusquedaHuesped>(INITIAL_CRITERIA);
     const [resultados, setResultados] = useState<Huesped[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -70,21 +70,16 @@ export default function BuscarHuespedPage() {
         setError(null);
         setResultados([]); 
         setSelectedHuespedId(null);
-        
-        // 1. Aplicando lógica Builder para Criterios: Construir URL de Query
         const params = new URLSearchParams();
         
         Object.entries(criterios).forEach(([key, value]) => {
-            // Solo incluimos el criterio si tiene valor
             if (value && value !== '---' && value !== '') {
-                // Mapeamos 'documento' del frontend a 'documentacion' del backend
+
                 const backendKey = key === 'documento' ? 'documentacion' : key;
                 params.append(backendKey, value);
             }
         });
 
-        // 2. Endpoint final
-        // Endpoint: /app/huespedes/buscar?apellido=X&documentacion=Y
         const url = `${SPRING_BOOT_API_URL}/api/huespedes/buscar?${params.toString()}`;
         
         try {
@@ -98,9 +93,8 @@ export default function BuscarHuespedPage() {
             }
             const data: Huesped[] = await response.json();
             setResultados(data);
-            setIsListing(true); // Pasar a la vista de resultados
+            setIsListing(true);
             
-            // 3. Manejo del Flujo Alternativo (4.A) - Si no hay coincidencias
             if (data.length === 0) {
                 const shouldGoToAlta = window.confirm(
                     "No existe ninguna concordancia. ¿Desea ejecutar 'Dar Alta de Huésped'?"
@@ -129,19 +123,19 @@ export default function BuscarHuespedPage() {
             return;
         }
         
-        // Redirigir a la siguiente etapa del TP (ej: Modificar/Reserva)
+       
         router.push(`/gestionreserva/${selectedHuespedId}`); 
     };
     
     const handleCancelar = () => {
-    // Si estamos en la Vista 2 (Resultados)
+   
     if (isListing) {
-        // Volver a la Vista 1, manteniendo los criterios.
+        
         setIsListing(false); 
-        setResultados([]); // Limpiar la lista para evitar confusiones
+        setResultados([]);
         setSelectedHuespedId(null);
     } 
-    // Si estamos en la Vista 1 (Criterios) 
+
     else {
         router.push('/menu'); 
     }

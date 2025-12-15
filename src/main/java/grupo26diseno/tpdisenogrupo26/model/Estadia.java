@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.time.LocalDate;
 import java.util.List;
 
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,6 +22,8 @@ import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+//import lombok.ToString;
+
 
 
 @Data
@@ -42,7 +45,8 @@ public class Estadia {
     private LocalDate fechaCheckOut;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "numero_habitacion", nullable = false)
+    @JoinColumn(name = "numero_habitacion", referencedColumnName = "numero", nullable = false)
+    //@ToString.Exclude
     private Habitacion habitacion;
 
     @OneToMany(mappedBy = "estadia")
@@ -50,6 +54,7 @@ public class Estadia {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "huesped_principal_id", nullable = false)
+    //@ToString.Exclude
     private Huesped huespedPrincipal; 
 
     @ManyToMany

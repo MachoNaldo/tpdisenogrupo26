@@ -28,7 +28,9 @@ public class ReservaDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class HabitacionReservaDTO {
+        private Long idReserva;
         private Long numeroHabitacion;
+        private String tipo;
         private String fechaInicio;
         private String fechaFin;
     }

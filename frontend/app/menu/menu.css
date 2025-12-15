@@ -52,9 +52,15 @@
 
 .menu-grid {
   display: grid;
-  grid-template-columns: repeat(2, 260px);
+  grid-template-columns: repeat(3, 260px);
   gap: 40px;
   justify-content: center;
+}
+
+.menu-grid .menu-card:last-child:nth-child(odd){
+  grid-column: span 2;
+  width: 50%;
+  margin: 0 auto;
 }
 
 

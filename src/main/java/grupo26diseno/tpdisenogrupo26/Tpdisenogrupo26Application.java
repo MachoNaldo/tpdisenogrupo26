@@ -9,5 +9,4 @@ public class Tpdisenogrupo26Application {
 	public static void main(String[] args) {
 		SpringApplication.run(Tpdisenogrupo26Application.class, args);
 	}
-
 }

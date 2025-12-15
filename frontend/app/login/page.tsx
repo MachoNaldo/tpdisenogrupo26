@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import "./login.css"; 
 
+
 export default function Login() {
   const router = useRouter();
 
@@ -15,6 +16,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const [mostrarPopup, setMostrarPopup] = useState(false);
   const [tieneError, setTieneError] = useState(false);
+  
 
   const loguearse = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
