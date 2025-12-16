@@ -20,11 +20,15 @@ import grupo26diseno.tpdisenogrupo26.excepciones.DisponibilidadException;
 import grupo26diseno.tpdisenogrupo26.model.Estadia;
 import grupo26diseno.tpdisenogrupo26.service.EstadiaService;
 import grupo26diseno.tpdisenogrupo26.service.HabitacionService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 
 
 @RestController
 @RequestMapping("/api/estadias")
+@Tag(name = "Gestión de Estadías", description = "Operaciones para registrar ocupación y facturación")
 public class EstadiaController {
 
     @Autowired
@@ -32,8 +36,15 @@ public class EstadiaController {
 
     @Autowired
     private EstadiaService estadiaService;
+    
 
-    @PostMapping("/ocupar") // Forzar sirve para cuando queremos ocupar una habitacion aunque haya un solapamiento
+
+    @Operation(summary = "Registrar Ocupación (Check-in)", description = "Crea la estadía. Usa 'forzar=true' para ignorar solapamiento y ocupar la habitación de igual forma.")
+    @ApiResponse(responseCode = "201", description = "Estadía creada exitosamente.")
+    @ApiResponse(responseCode = "409", description = "La habitación ya está ocupada.")
+    @ApiResponse(responseCode = "400", description = "Datos inválidos.")
+    @ApiResponse(responseCode = "500", description = "Error interno del servidor.")
+    @PostMapping("/ocupar") 
     public ResponseEntity<?> crear(@RequestBody EstadiaDTO estadiaDTO,  @RequestParam(defaultValue = "false") boolean forzar) {
         try {
             habitacionService.ocuparHabitacion(estadiaDTO, forzar);
@@ -47,7 +58,10 @@ public class EstadiaController {
                     .body("Error al crear la ocupación: " + e.getMessage());
         }
     }
-
+    
+    @Operation(summary = "Buscar estadía para facturar", description = "Busca una estadía activa por habitación y fecha. Si la fecha es anterior al checkout, la ajusta.")
+    @ApiResponse(responseCode = "200", description = "Estadía encontrada")
+    @ApiResponse(responseCode = "404", description = "No se encontró estadía en esa habitación para esa fecha")
     @GetMapping("/facturar/buscar")
     public ResponseEntity<Estadia> obtenerDatos(
             @RequestParam("habitacion") Long habitacion,

@@ -1,6 +1,6 @@
 cd ”C:\ProgramFiles\PostgreSQL\17\bin" o donde tengan el postgresql instalado
 
-psql -U postgres
+.\psql -U postgres -U postgres
 
 CREATE DATABASE bdgrupo26;
 
