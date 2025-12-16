@@ -9,24 +9,34 @@ import grupo26diseno.tpdisenogrupo26.excepciones.DocumentoUsadoException;
 import grupo26diseno.tpdisenogrupo26.model.Huesped;
 import grupo26diseno.tpdisenogrupo26.model.TipoDoc;
 
+
+
 public interface HuespedService {
-    
-    
+
     Huesped agregarHuesped(HuespedDTO huesped, boolean forzar) throws DocumentoUsadoException;
 
     
-    public Optional<Huesped> buscarHuespedPorId(Long id);
+    HuespedDTO obtenerPorId(Long id);
 
+    boolean existeDocumento(TipoDoc tipoDocumento, String documentacion);
     
+    void eliminarPorCuit(String cuit);
+
+
+    //Modificar
+    HuespedDTO actualizarHuesped(Long id, HuespedDTO dto) throws DocumentoUsadoException;
+
+    Optional<Huesped> buscarHuespedPorId(Long id);
+
     List<HuespedDTO> buscarHuespedesPorCriterios(String apellido, String nombres, TipoDoc tipoDocumento, String documentacion);
+
     /**
-      //Elimina huesped por el id
-      @param id 
-      @return //0 si se elimino con exito, 1 si no se encontro, 2 si ya estuvo hospedado.
+      Elimina huésped por el id
+      @param id
      */
     void eliminarHuesped(Long id);
 
-    public void actualizarCuitCondicionFiscal(Long huespedId, ActualizarCuitCondicionFiscalDTO dto);
+    void actualizarCuitCondicionFiscal(Long huespedId, ActualizarCuitCondicionFiscalDTO dto);
 
-    public HuespedDTO buscarPorCuit(String cuit);
+    HuespedDTO buscarPorCuit(String cuit);
 }

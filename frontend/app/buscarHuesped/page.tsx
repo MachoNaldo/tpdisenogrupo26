@@ -8,7 +8,6 @@ import { useEffect } from "react";
 import EliminarHuespedDialog from '../components/BotonEliminarHuesped';
 import "../styles/estilos.css"; 
 
-
 // URL base del backend, asumimos que está en el .env.local
 const SPRING_BOOT_API_URL = process.env.NEXT_PUBLIC_API_URL; 
 
@@ -30,7 +29,7 @@ export default function BuscarHuespedPage() {
     const [huespedToDelete, setHuespedToDelete] = useState<Huesped | null>(null); 
 
     useEffect(() => {
-    const verificarSesion = async () => {
+        const verificarSesion = async () => {
             try {
                 const res = await fetch(`${SPRING_BOOT_API_URL}/revisar-sesion`, {
                     credentials: "include",
@@ -49,12 +48,11 @@ export default function BuscarHuespedPage() {
             } catch (err) {
                 router.push("/login");
             }
-    };
+        };
 
-    verificarSesion();
+        verificarSesion();
     }, []);
 
-    
     // true: Muestra tabla de resultados (Window-1.jpg), false: Muestra formulario (Window.jpg)
     const [isListing, setIsListing] = useState(false);
     const [selectedHuespedId, setSelectedHuespedId] = useState<number | null>(null);
@@ -79,7 +77,6 @@ export default function BuscarHuespedPage() {
         return `${SPRING_BOOT_API_URL}/api/huespedes/buscar?${params.toString()}`;
     };
 
-
     // Lógica principal: Patrón Builder y Fetching
     const handleBuscar = async (e: React.FormEvent | null) => {
         if (e) e.preventDefault();
@@ -87,16 +84,6 @@ export default function BuscarHuespedPage() {
         setError(null);
         setResultados([]); 
         setSelectedHuespedId(null);
-        const params = new URLSearchParams();
-        
-        Object.entries(criterios).forEach(([key, value]) => {
-            if (value && value !== '---' && value !== '') {
-
-                const backendKey = key === 'documento' ? 'documentacion' : key;
-                params.append(backendKey, value);
-            }
-        });
-
 
         const url = buildSearchUrl(criterios); 
         
@@ -140,24 +127,19 @@ export default function BuscarHuespedPage() {
             }
             return;
         }
-        
        
         router.push(`/gestionreserva/${selectedHuespedId}`); 
     };
     
     const handleCancelar = () => {
-   
-    if (isListing) {
-        
-        setIsListing(false); 
-        setResultados([]);
-        setSelectedHuespedId(null);
-    } 
-
-    else {
-        router.push('/menu'); 
-    }
-};
+        if (isListing) {
+            setIsListing(false); 
+            setResultados([]);
+            setSelectedHuespedId(null);
+        } else {
+            router.push('/menu'); 
+        }
+    };
 
     const handleBorrar = () => {
         if (!selectedHuespedId) {
@@ -173,13 +155,24 @@ export default function BuscarHuespedPage() {
             alert("Error: Huésped seleccionado no encontrado en la lista.");
         }
     };
+
+
+    const handleModificar = () => {
+        if (!selectedHuespedId) {
+            alert("Debe seleccionar un huésped para modificar.");
+            return;
+        }
+
+        
+        router.push(`/modificar?id=${selectedHuespedId}`);
+    };
     
     const handleEliminarCerrar = (eliminado: boolean) => {
         setHuespedToDelete(null);
         
         if (eliminado) {
-             // Si fue eliminado con exito, se rrecarga la lista.
-             handleBuscar(null);
+            // Si fue eliminado con exito, se recarga la lista.
+            handleBuscar(null);
         }
     };
 
@@ -209,7 +202,7 @@ export default function BuscarHuespedPage() {
                                     Apellido
                                 </label>
                                 <form className="form">
-                                <input type="text" name="apellido" placeholder="Ej: Ojeda" value={criterios.apellido} onChange={handleChange} />
+                                    <input type="text" name="apellido" placeholder="Ej: Ojeda" value={criterios.apellido} onChange={handleChange} />
                                 </form>
                             </div>
 
@@ -218,7 +211,7 @@ export default function BuscarHuespedPage() {
                                     Nombres
                                 </label>
                                 <form className="form">
-                                <input type="text" name="nombres" placeholder="Ej: Eduardo Nicolás" value={criterios.nombres} onChange={handleChange}/>
+                                    <input type="text" name="nombres" placeholder="Ej: Eduardo Nicolás" value={criterios.nombres} onChange={handleChange}/>
                                 </form>
                             </div>
 
@@ -241,13 +234,12 @@ export default function BuscarHuespedPage() {
                                     Documento
                                 </label>
                                 <form className="form">
-                                <input type="text" name="documento" value={criterios.documento} onChange={handleChange}/>
+                                    <input type="text" name="documento" value={criterios.documento} onChange={handleChange}/>
                                 </form>
                             </div>
                         </div>
                         
                         {error && <p style={{color: 'red', textAlign: 'center', marginTop: '20px'}}>{error}</p>}
-                        
                         
                         <div style={{display: 'flex', justifyContent: 'center', marginTop: '40px', gap: '80px', position: 'relative'}}>
                             <button className="btn" type="submit" disabled={loading}>
@@ -294,27 +286,34 @@ export default function BuscarHuespedPage() {
                         ))}
                     </tbody>
                 </table>
-                
 
                 <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: '60px', gap: '30px'}}>
+                    <button
+                    className="btn"
+                    type="button"
+                    onClick={handleModificar}
+                    disabled={!selectedHuespedId}
+                    style={{backgroundColor: selectedHuespedId ? '#5a8fb8' : '#5b5b5bff'}}>
+                    Modificar
+                    </button>
+
                     <button 
                         className="btn" 
                         type="button" 
                         onClick={handleBorrar} 
                         disabled={!selectedHuespedId}
-                        style={{backgroundColor: selectedHuespedId ? '#D9534F' : '#5b5b5bff'}} // Color rojo para Borrar
-                    >
+                        style={{backgroundColor: selectedHuespedId ? '#D9534F' : '#5b5b5bff'}}>
                         Borrar
                     </button>
 
-                    <button className= "btn" type="button" onClick={handleSiguiente}>
-                        Siguiente
-                    </button>
-                    <button className= "btn" type="button" onClick={handleCancelar}>
+                    
+
+                    <button className="btn" type="button" onClick={handleCancelar}>
                         Cancelar
                     </button>
                 </div>
             </main>
+
             {huespedToDelete && (
                 <EliminarHuespedDialog 
                     huesped={huespedToDelete} 
