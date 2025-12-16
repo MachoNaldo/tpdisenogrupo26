@@ -16,8 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import grupo26diseno.tpdisenogrupo26.dtos.HuespedDTO;
 import grupo26diseno.tpdisenogrupo26.excepciones.DocumentoUsadoException;
+import grupo26diseno.tpdisenogrupo26.excepciones.HuespedYaHospedadoException;
 import grupo26diseno.tpdisenogrupo26.model.TipoDoc;
 import grupo26diseno.tpdisenogrupo26.service.HuespedService;
+import jakarta.persistence.EntityNotFoundException;
 
 @RestController
 @RequestMapping("/api/huespedes")
@@ -49,7 +51,18 @@ public class HuespedController {
 
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Long id) {
-        huespedService.eliminarHuesped(id);
-        return ResponseEntity.noContent().build(); // Devuelve 204 si fue eliminado
+        try {
+            huespedService.eliminarHuesped(id);
+            return ResponseEntity.noContent().build(); // 204 si se elimina
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (HuespedYaHospedadoException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT) // 409 si agarra esta excepcion
+                    .body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error inesperado al intentar eliminar el huésped.");
+        }
     }
 }
