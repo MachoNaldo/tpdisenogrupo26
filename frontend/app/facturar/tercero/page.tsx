@@ -181,7 +181,7 @@ export default function FacturarTerceroPage() {
         `habitacion=${encodeURIComponent(habitacion)}&` +
         `fecha=${encodeURIComponent(fecha)}&` +
         `responsable=${encodeURIComponent(String(personaEncontrada.id))}&` +
-        `responsablePagoId=${encodeURIComponent(String(personaEncontrada.id))}&` +
+        `personaId=${encodeURIComponent(String(personaEncontrada.id))}&` +
         `cuit=${encodeURIComponent(personaEncontrada.cuit || '')}&` +
         `razonSocial=${encodeURIComponent(razonSocial)}&` +
         `telefono=${encodeURIComponent(personaEncontrada.telefono || '')}&` +
@@ -195,7 +195,7 @@ export default function FacturarTerceroPage() {
         `/facturar/detalle?` +
         `habitacion=${encodeURIComponent(habitacion)}&` +
         `fecha=${encodeURIComponent(fecha)}&` +
-        `responsablePagoId=${encodeURIComponent(String(personaEncontrada.id))}&` +
+        `personaId=${encodeURIComponent(String(personaEncontrada.id))}&` +
         `cuit=${encodeURIComponent(personaEncontrada.cuit || '')}&` +
         `razonSocial=${encodeURIComponent(personaEncontrada.razonSocial || '')}&` +
         `telefono=${encodeURIComponent(personaEncontrada.telefono || '')}&` +

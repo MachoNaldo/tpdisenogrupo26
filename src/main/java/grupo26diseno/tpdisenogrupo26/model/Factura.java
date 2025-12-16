@@ -1,6 +1,6 @@
 package grupo26diseno.tpdisenogrupo26.model;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 import jakarta.persistence.Column;
@@ -42,7 +42,7 @@ public class Factura {
     
     @Temporal(TemporalType.DATE)
     @Column(nullable = false)
-    private Date fechaConfeccion;
+    private LocalDate fechaConfeccion;
     
     @Column(nullable = false)
     private double importeNeto;
@@ -54,7 +54,7 @@ public class Factura {
     private double iva;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "responsable_id", nullable = false)
+    @JoinColumn(name = "persona_id", nullable = false)
     private Persona responsable;
 
     @OneToMany(mappedBy = "factura")

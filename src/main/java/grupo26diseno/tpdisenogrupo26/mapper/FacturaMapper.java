@@ -1,7 +1,7 @@
 package grupo26diseno.tpdisenogrupo26.mapper;
 
 
-import java.time.ZoneId;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 import org.springframework.stereotype.Component;
@@ -22,8 +22,7 @@ public class FacturaMapper {
         dto.setNumero(factura.getNumero());
         dto.setImporteTotal((double) factura.getImporteTotal());
         dto.setEstado(factura.getEstado().toString());
-        dto.setFechaConfeccion(factura.getFechaConfeccion().toInstant()
-            .atZone(ZoneId.systemDefault()).toLocalDate());
+        dto.setFechaConfeccion(factura.getFechaConfeccion());
         dto.setImporteNeto((double) factura.getImporteNeto());
         dto.setIva((double) factura.getIva());
         dto.setTipoFactura(factura.getTipo());

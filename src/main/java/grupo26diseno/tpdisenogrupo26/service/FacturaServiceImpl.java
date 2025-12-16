@@ -37,9 +37,9 @@ public class FacturaServiceImpl implements FacturaService {
     @Override
     @Transactional
     public FacturaDTO crearFactura(CrearFacturaRequest request) {
-        System.out.println("REQUEST RECIBIDO: " + request); 
-    System.out.println("ID Estadia: " + request.getEstadiaId());
-    System.out.println("ID Responsable: " + request.getPersonaId());
+        System.out.println("REQUEST RECIBIDO: " + request);
+        System.out.println("ID Estadia: " + request.getEstadiaId());
+        System.out.println("ID Responsable: " + request.getPersonaId());
         Estadia estadia = estadiaRepository.findById(request.getEstadiaId()).orElseThrow();
         Persona persona = personaRepository.findById(request.getPersonaId())
                 .orElseThrow(() -> new EntityNotFoundException(
@@ -69,6 +69,7 @@ public class FacturaServiceImpl implements FacturaService {
         CalculadoraFiscalStrategy estrategia = calculadoraFactory.obtenerEstrategia(persona);
         ResultadoCalculo resultado = estrategia.calcular(subtotalNeto);
 
+        
         // Crear factura
         Factura factura = new Factura();
         factura.setImporteNeto(resultado.getNeto());
@@ -77,7 +78,7 @@ public class FacturaServiceImpl implements FacturaService {
         factura.setTipo(resultado.getLetraFactura());
         factura.setResponsable(persona);
         factura.setEstadia(estadia);
-        factura.setFechaConfeccion(java.sql.Date.valueOf(LocalDate.now()));
+        factura.setFechaConfeccion(LocalDate.now());
         factura.setEstado(EstadoFactura.Pendiente);
         factura.setNumero(generarNumeroFactura());
 
@@ -90,7 +91,7 @@ public class FacturaServiceImpl implements FacturaService {
         return facturaDTO;
     }
 
-    private int generarNumeroFactura() {
+    private Integer generarNumeroFactura() {
         Integer ultimoNumero = facturaRepository.buscarNumeroFactura();
         return (ultimoNumero != null ? ultimoNumero : 0) + 1;
     }
