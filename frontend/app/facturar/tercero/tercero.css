@@ -203,6 +203,23 @@
   cursor: pointer;
 }
 
+.tercero-select {
+  padding: 12px 15px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 15px;
+  width: 100%;
+  transition: all 0.3s ease;
+  background: #fff;
+  cursor: pointer;
+}
+
+.tercero-select:focus {
+  outline: none;
+  border-color: #b8975a;
+  box-shadow: 0 0 0 3px rgba(184, 151, 90, 0.1);
+}
+
 /* === Responsive === */
 @media (max-width: 820px) {
   .tercero-header {

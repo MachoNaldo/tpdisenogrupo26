@@ -5,21 +5,19 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Image from "next/image";
 import './tercero.css';
 
-
 const SPRING_BOOT_API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-// Debe devolver un ResponsablePago por CUIT
-const ENDPOINT_BUSCAR_RESPONSABLE = '/api/responsablespago/buscar-por-cuit';
-
-
 const MENSAJE_ERROR_CUIT =
-  'Error: “CUIT no válido.\nPor favor complete el campo correctamente.”';
+  'Error: "CUIT no válido.\nPor favor complete el campo correctamente."';
 
-type ResponsablePagoApi = {
+type PersonaApi = {
   id?: number;
   cuit?: string;
+  tipo?: string; // "HUESPED" o "RESPONSABLE_PAGO"
   documentacion?: string;
   razonSocial?: string;
+  nombres?: string;
+  apellido?: string;
 };
 
 function normalizarCuit(value: string): string {
@@ -44,12 +42,10 @@ export default function FacturarTerceroPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-
   const [mostrarModal, setMostrarModal] = useState(false);
-  const [responsablePago, setResponsablePago] = useState<ResponsablePagoApi | null>(null);
+  const [personaEncontrada, setPersonaEncontrada] = useState<PersonaApi | null>(null);
 
   const cuitRef = useRef<HTMLInputElement>(null);
-
 
   useEffect(() => {
     const verificarSesion = async () => {
@@ -82,9 +78,8 @@ export default function FacturarTerceroPage() {
 
   const cerrarModal = () => {
     setMostrarModal(false);
-    setResponsablePago(null);
+    setPersonaEncontrada(null);
   };
-
 
   const handleConfirmar = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,7 +101,8 @@ export default function FacturarTerceroPage() {
 
     setLoading(true);
     try {
-      const url = `${SPRING_BOOT_API_URL}${ENDPOINT_BUSCAR_RESPONSABLE}?cuit=${encodeURIComponent(
+      // Endpoint unificado - busca en ambas tablas
+      const url = `${SPRING_BOOT_API_URL}/api/personas/buscar-por-cuit?cuit=${encodeURIComponent(
         cuitDigits
       )}`;
 
@@ -118,40 +114,50 @@ export default function FacturarTerceroPage() {
           return;
         }
         if (res.status === 404) {
-          setError('No existe un Responsable de Pago para el CUIT ingresado.');
+          setError('No se encontró ninguna persona con el CUIT ingresado.');
           return;
         }
         throw new Error(`Error HTTP ${res.status}`);
       }
 
-      const data: ResponsablePagoApi = await res.json();
+      const data: PersonaApi = await res.json();
 
       const cuitBackend = data.cuit ?? data.documentacion ?? cuitTrim;
-      const razon = data.razonSocial;
 
-      if (!razon) {
-        setError('El Responsable de Pago no tiene Razón Social registrada.');
-        return;
+      // Construir nombre según el tipo encontrado
+      let nombreMostrar = '';
+      if (data.tipo === 'HUESPED') {
+        nombreMostrar = `${data.apellido ?? ''} ${data.nombres ?? ''}`.trim();
+        if (!nombreMostrar) {
+          setError('La persona encontrada no tiene nombre registrado.');
+          return;
+        }
+      } else if (data.tipo === 'RESPONSABLE_PAGO') {
+        nombreMostrar = data.razonSocial ?? '';
+        if (!nombreMostrar) {
+          setError('La persona encontrada no tiene Razón Social registrada.');
+          return;
+        }
       }
 
-      setResponsablePago({
+      setPersonaEncontrada({
         ...data,
         cuit: cuitBackend,
-        razonSocial: razon,
+        razonSocial: nombreMostrar,
       });
 
       setMostrarModal(true);
     } catch (err) {
       console.error(err);
-      setError('Error al buscar Responsable de Pago.');
+      setError('Error al buscar persona.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleAceptarModal = () => {
-    if (!responsablePago?.id) {
-      setError('El Responsable de Pago no tiene un ID válido.');
+    if (!personaEncontrada?.id || !personaEncontrada?.tipo) {
+      setError('Los datos de la persona no son válidos.');
       cerrarModal();
       return;
     }
@@ -162,11 +168,20 @@ export default function FacturarTerceroPage() {
       return;
     }
 
-    router.push(
-      `/facturar/detalle?habitacion=${encodeURIComponent(habitacion)}&fecha=${encodeURIComponent(
-        fecha
-      )}&responsablePagoId=${encodeURIComponent(String(responsablePago.id))}`
-    );
+    // Navegar según el tipo encontrado
+    if (personaEncontrada.tipo === 'HUESPED') {
+      router.push(
+        `/facturar/detalle?habitacion=${encodeURIComponent(habitacion)}&fecha=${encodeURIComponent(
+          fecha
+        )}&responsable=${encodeURIComponent(String(personaEncontrada.id))}`
+      );
+    } else if (personaEncontrada.tipo === 'RESPONSABLE_PAGO') {
+      router.push(
+        `/facturar/detalle?habitacion=${encodeURIComponent(habitacion)}&fecha=${encodeURIComponent(
+          fecha
+        )}&responsablePagoId=${encodeURIComponent(String(personaEncontrada.id))}`
+      );
+    }
   };
 
   const handleCancelar = () => {
@@ -177,12 +192,12 @@ export default function FacturarTerceroPage() {
     <div className="tercero-bg">
       <header className="tercero-header">
         <h1 className="tercero-header-title">Facturar a nombre de tercero</h1>
-        <Image src="/img/iconoError.svg" alt="icono" width={40} height={40} />
-
+        <Image src="/img/Logotipo3.png" alt="Logo" width={80} height={80} />
       </header>
 
       <main className="tercero-form-container">
         <form onSubmit={handleConfirmar}>
+          
           <div className="tercero-form-row">
             <label className="tercero-label">CUIT</label>
             <input
@@ -198,17 +213,14 @@ export default function FacturarTerceroPage() {
             />
           </div>
 
-          {error  && ( <div className="error-box">
-            <div className="error-icon">
-              <Image src="img/iconoError.svg" alt="icono" width={40} height={40} />
+          {error && (
+            <div className="error-box">
+              <div className="error-icon">
+                <Image src="/img/iconoError.svg" alt="icono" width={40} height={40} />
               </div>
-              <p className="error-text">
-              {error}
-              </p>
-              </div>
+              <p className="error-text">{error}</p>
+            </div>
           )}
-
-          
 
           <div className="tercero-buttons">
             <button className="tercero-btn" type="submit" disabled={loading || !puedeConfirmar}>
@@ -231,17 +243,23 @@ export default function FacturarTerceroPage() {
         </form>
       </main>
 
-      {mostrarModal && responsablePago && (
+      {mostrarModal && personaEncontrada && (
         <div className="tercero-modal-overlay">
           <div className="tercero-modal">
+            <h3 className="tercero-modal-titulo">
+              {personaEncontrada.tipo === 'HUESPED' ? 'Huésped encontrado' : 'Responsable de Pago encontrado'}
+            </h3>
+
             <div className="tercero-modal-row">
               <div className="tercero-modal-label text-center">CUIT</div>
-              <div className="tercero-modal-box">{responsablePago.cuit}</div>
+              <div className="tercero-modal-box">{personaEncontrada.cuit}</div>
             </div>
 
             <div className="tercero-modal-row">
-              <div className="tercero-modal-label text-center">Razón Social</div>
-              <div className="tercero-modal-box">{responsablePago.razonSocial}</div>
+              <div className="tercero-modal-label text-center">
+                {personaEncontrada.tipo === 'HUESPED' ? 'Nombre' : 'Razón Social'}
+              </div>
+              <div className="tercero-modal-box">{personaEncontrada.razonSocial}</div>
             </div>
 
             <div className="tercero-modal-actions">

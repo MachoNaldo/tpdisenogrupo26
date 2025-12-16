@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,10 +21,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
 
 
+import grupo26diseno.tpdisenogrupo26.dtos.ActualizarCuitCondicionFiscalDTO;
 import grupo26diseno.tpdisenogrupo26.dtos.HuespedDTO;
 import grupo26diseno.tpdisenogrupo26.excepciones.DocumentoUsadoException;
+import grupo26diseno.tpdisenogrupo26.excepciones.HuespedYaHospedadoException;
 import grupo26diseno.tpdisenogrupo26.model.TipoDoc;
 import grupo26diseno.tpdisenogrupo26.service.HuespedService;
+import jakarta.persistence.EntityNotFoundException;
 
 @RestController
 @RequestMapping("/api/huespedes")
@@ -68,7 +72,44 @@ public class HuespedController {
 
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Long id) {
-        huespedService.eliminarHuesped(id);
-        return ResponseEntity.noContent().build(); 
+        try {
+            huespedService.eliminarHuesped(id);
+            return ResponseEntity.noContent().build(); // 204 si se elimina
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (HuespedYaHospedadoException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT) // 409 si agarra esta excepcion
+                    .body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error inesperado al intentar eliminar el huésped.");
+        }
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> actualizarCuitCondicionFiscal(
+            @PathVariable Long id,
+            @RequestBody ActualizarCuitCondicionFiscalDTO dto) {
+        try {
+            huespedService.actualizarCuitCondicionFiscal(id, dto);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error al actualizar el huésped");
+        }
+    }
+
+    @GetMapping("/buscar-por-cuit")
+    public ResponseEntity<?> buscarPorCuit(@RequestParam String cuit) {
+        try {
+            HuespedDTO huesped = huespedService.buscarPorCuit(cuit);
+            return ResponseEntity.ok(huesped);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error al buscar huésped");
+        }
     }
 }
