@@ -45,11 +45,9 @@ export default function FacturarDetallePage() {
 
   const habitacionParam = searchParams.get('habitacion') ?? '';
   const fechaParam = searchParams.get('fecha') ?? '';
-  const responsableParam = searchParams.get('responsable') ?? '';
-  const PersonaIdParam = searchParams.get('PersonaId') ?? '';
   const personaIdParam = searchParams.get('personaId') ?? ''; 
   
-  // Datos del responsable que vienen de la página anterior
+  // Datos de la persona que vienen de la página anterior
   const cuitParam = searchParams.get('cuit') ?? '';
   const razonSocialParam = searchParams.get('razonSocial') ?? '';
   const telefonoParam = searchParams.get('telefono') ?? '';
@@ -67,12 +65,12 @@ export default function FacturarDetallePage() {
     consumos: true,
   });
 
-  // Construir el objeto Persona desde los parámetros
-  const Persona = useMemo<PersonaData | null>(() => {
-    if (!PersonaIdParam) return null;
+  // Construir el objeto persona desde los parámetros
+  const persona = useMemo<PersonaData | null>(() => {
+    if (!personaIdParam) return null;
     
     return {
-      id: Number(PersonaIdParam),
+      id: Number(personaIdParam),
       cuit: cuitParam || null,
       razonSocial: razonSocialParam,
       telefono: telefonoParam,
@@ -80,7 +78,7 @@ export default function FacturarDetallePage() {
       tipoDocumento: tipoDocumentoParam,
       documentacion: documentacionParam,
     };
-  }, [PersonaIdParam, cuitParam, razonSocialParam, telefonoParam, nacionalidadParam, tipoDocumentoParam, documentacionParam]);
+  }, [personaIdParam, cuitParam, razonSocialParam, telefonoParam, nacionalidadParam, tipoDocumentoParam, documentacionParam]);
 
   useEffect(() => {
     const verificarSesion = async () => {
@@ -110,9 +108,9 @@ export default function FacturarDetallePage() {
     const cargar = async () => {
       setError(null);
 
-      // Validar parámetros mínimos (responsable es opcional cuando es tercero)
-      if (!habitacionParam || !fechaParam || !PersonaIdParam) {
-        setError('Faltan parámetros para facturar (habitacion, fecha o PersonaId).');
+      // Validar parámetros mínimos
+      if (!habitacionParam || !fechaParam || !personaIdParam) {
+        setError('Faltan parámetros para facturar (habitacion, fecha o personaId).');
         return;
       }
 
@@ -153,7 +151,7 @@ export default function FacturarDetallePage() {
     };
 
     cargar();
-  }, [habitacionParam, fechaParam, PersonaIdParam, router]);
+  }, [habitacionParam, fechaParam, personaIdParam, router]);
 
   const noches = useMemo(() => {
     // Si el backend ya envía cantidadNoches, usarlo directamente
@@ -207,10 +205,10 @@ export default function FacturarDetallePage() {
 
   // Determinar tipo de factura según tenga o no CUIT válido
   const tipoFactura = useMemo<'A' | 'B'>(() => {
-    const cuit = Persona?.cuit;
+    const cuit = persona?.cuit;
     const cuitLimpio = cuit?.replace(/\D/g, '') ?? '';
     return cuitLimpio.length === 11 ? 'A' : 'B';
-  }, [Persona]);
+  }, [persona]);
 
   const esFacturaA = tipoFactura === 'A';
 
@@ -227,7 +225,7 @@ export default function FacturarDetallePage() {
   }, [esFacturaA, subtotal, montoIVA]);
 
   const handleAceptar = async () => {
-    if (!Persona || !estadia) {
+    if (!persona || !estadia) {
       setError('No hay datos suficientes para generar la factura.');
       return;
     }
@@ -241,13 +239,17 @@ export default function FacturarDetallePage() {
     setError(null);
 
     try {
-      // Preparar request para crear factura
+      // Preparar request - solo IDs y flags, el backend calcula el resto
       const requestBody = {
         estadiaId: estadia.id,
-        PersonaId: Persona.id,
+        personaId: persona.id,
         incluirEstadia: selectedKeys.estadia,
         incluirConsumos: selectedKeys.consumos,
       };
+
+      console.log("=== ENVIANDO FACTURA ===");
+      console.log("Request body:", requestBody);
+      console.log("========================");
 
       const response = await fetch(`${SPRING_BOOT_API_URL}/api/facturas/crear`, {
         method: 'POST',
@@ -274,7 +276,7 @@ export default function FacturarDetallePage() {
         `✓ Factura generada exitosamente\n\n` +
         `Número: ${facturaCreada.numero}\n` +
         `Tipo: ${facturaCreada.tipoFactura}\n` +
-        `Responsable: ${facturaCreada.Persona.razonSocial}\n` +
+        `Responsable: ${facturaCreada.responsablePago.razonSocial}\n` +
         `Total: ${facturaCreada.importeTotal.toFixed(2)}\n` +
         `Estado: ${facturaCreada.estado}`
       );
@@ -402,10 +404,10 @@ export default function FacturarDetallePage() {
             Responsable de pago
           </h2>
 
-          {Persona ? (
+          {persona ? (
             <div style={{ color: '#fff', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
               <div>
-                <strong>Razón Social:</strong> {Persona.razonSocial}
+                <strong>Razón Social:</strong> {persona.razonSocial}
               </div>
 
               <div>
@@ -415,31 +417,31 @@ export default function FacturarDetallePage() {
               {/* FACTURA A: Mostrar CUIT */}
               {esFacturaA && (
                 <div>
-                  <strong>CUIT:</strong> {Persona.cuit}
+                  <strong>CUIT:</strong> {persona.cuit}
                 </div>
               )}
 
-              {/* FACTURA B: Mostrar documentación del huésped */}
-              {!esFacturaA && Persona.tipoDocumento && Persona.documentacion && (
+              {/* FACTURA B: Mostrar documentación */}
+              {!esFacturaA && persona.tipoDocumento && persona.documentacion && (
                 <>
                   <div>
-                    <strong>Tipo Documento:</strong> {Persona.tipoDocumento}
+                    <strong>Tipo Documento:</strong> {persona.tipoDocumento}
                   </div>
                   <div>
-                    <strong>Documento:</strong> {Persona.documentacion}
+                    <strong>Documento:</strong> {persona.documentacion}
                   </div>
                 </>
               )}
 
-              {Persona.telefono && (
+              {persona.telefono && (
                 <div>
-                  <strong>Teléfono:</strong> {Persona.telefono}
+                  <strong>Teléfono:</strong> {persona.telefono}
                 </div>
               )}
 
-              {Persona.nacionalidad && (
+              {persona.nacionalidad && (
                 <div>
-                  <strong>Nacionalidad:</strong> {Persona.nacionalidad}
+                  <strong>Nacionalidad:</strong> {persona.nacionalidad}
                 </div>
               )}
             </div>

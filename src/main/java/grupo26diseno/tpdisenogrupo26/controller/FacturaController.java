@@ -16,8 +16,14 @@ public class FacturaController {
     
     @PostMapping("/crear")
     public ResponseEntity<FacturaDTO> crearFactura(@RequestBody CrearFacturaRequest request) {
-        FacturaDTO facturaDTO = facturaService.crearFactura(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(facturaDTO);
+        try {
+            FacturaDTO facturaDTO = facturaService.crearFactura(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(facturaDTO);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
     
     @GetMapping("/{id}")
