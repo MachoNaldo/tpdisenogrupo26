@@ -262,17 +262,4 @@ public class HuespedServiceImpl implements HuespedService {
         return huespedRepository.existsByTipoDocumentoAndDocumentacion(tipoDocumento, docLimpio);
     }
 
-    @Override
-    @Transactional
-    public void eliminarPorCuit(String cuit) {
-        String cuitLimpio = (cuit == null) ? "" : cuit.replaceAll("\\D", "");
-        if (cuitLimpio.isEmpty()) {
-            throw new EntityNotFoundException("CUIT inválido.");
-        }
-
-        Huesped huesped = huespedRepository.findByCuit(cuitLimpio)
-                .orElseThrow(() -> new EntityNotFoundException("No existe huésped con CUIT: " + cuit));
-        eliminarHuesped(huesped.getId());
-    }
-
 }

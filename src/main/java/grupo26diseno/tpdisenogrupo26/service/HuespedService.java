@@ -19,8 +19,6 @@ public interface HuespedService {
     HuespedDTO obtenerPorId(Long id);
 
     boolean existeDocumento(TipoDoc tipoDocumento, String documentacion);
-    
-    void eliminarPorCuit(String cuit);
 
 
     //Modificar

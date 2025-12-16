@@ -83,20 +83,8 @@ public class HuespedController {
                     .body("Error inesperado al intentar eliminar el huésped.");
         }
     }
-   @DeleteMapping("/eliminar-por-cuit")
-    public ResponseEntity<?> eliminarPorCuit(@RequestParam String cuit) {
-        try {
-            huespedService.eliminarPorCuit(cuit);
-            return ResponseEntity.noContent().build();
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (HuespedYaHospedadoException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error inesperado al intentar eliminar el huésped.");
-        }
-    }
+
+    
 
 
     @PatchMapping("/{id}")
