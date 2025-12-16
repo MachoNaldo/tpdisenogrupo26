@@ -11,9 +11,14 @@ import org.springframework.stereotype.Repository;
 import grupo26diseno.tpdisenogrupo26.model.Huesped;
 import grupo26diseno.tpdisenogrupo26.model.TipoDoc;
 
+
+
 @Repository
 public interface HuespedRepository  extends JpaRepository<Huesped, Long> {
     List<Huesped> findByTipoDocumentoAndDocumentacion(TipoDoc tipoDocumento, String documentacion);
+    boolean existsByTipoDocumentoAndDocumentacion(TipoDoc tipoDocumento, String documentacion);
+
+
     
      @Query("SELECT h FROM Huesped h WHERE " +
            "(:apellido IS NULL OR h.apellido LIKE %:apellido%) AND " +
@@ -28,5 +33,7 @@ public interface HuespedRepository  extends JpaRepository<Huesped, Long> {
     Huesped findById(long id);
 
     Optional<Huesped> findByCuit(String cuit);
+
+    
 
 }

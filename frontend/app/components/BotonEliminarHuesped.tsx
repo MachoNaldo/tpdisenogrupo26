@@ -78,8 +78,7 @@ export default function EliminarHuespedDialog({ huesped, onClose }: EliminarHues
                 <button 
                     className="btn" 
                     onClick={handleEliminarConfirmado}
-                    disabled={isLoadingInternal}
-                >
+                    disabled={isLoadingInternal}>
                     Eliminar
                 </button>
                 <button className="btn" onClick={() => handleCerrar(false)}>
