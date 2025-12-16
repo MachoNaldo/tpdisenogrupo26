@@ -19,7 +19,10 @@ public class EstadoHabitacionChainFactory {
     @Autowired
     private EstadiaHandler estadiaHandler;
 
-    
+    /**
+     * Crea y configura la cadena de responsabilidad
+     * @return El primer handler de la cadena listo para procesar.
+     */
     public EstadoHabitacionHandler crearCadena() {
         // Configuramos la cadena
         periodoEstadoHandler
