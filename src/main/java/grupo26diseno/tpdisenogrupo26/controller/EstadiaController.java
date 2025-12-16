@@ -16,6 +16,7 @@ import org.springframework.format.annotation.DateTimeFormat.ISO;
 
 
 import grupo26diseno.tpdisenogrupo26.dtos.EstadiaDTO;
+import grupo26diseno.tpdisenogrupo26.dtos.EstadiaFacturaDTO;
 import grupo26diseno.tpdisenogrupo26.excepciones.DisponibilidadException;
 import grupo26diseno.tpdisenogrupo26.model.Estadia;
 import grupo26diseno.tpdisenogrupo26.service.EstadiaService;
@@ -49,21 +50,12 @@ public class EstadiaController {
     }
 
     @GetMapping("/facturar/buscar")
-    public ResponseEntity<Estadia> obtenerDatos(
-            @RequestParam("habitacion") Long habitacion,
-            @RequestParam("fecha") @DateTimeFormat(iso = ISO.DATE) LocalDate fecha) {
-
-        Estadia estadia = estadiaService.buscarEstadiaCompleta(habitacion, fecha);
-
-        if (estadia == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        if (fecha.isBefore(estadia.getFechaCheckOut())) {
-            estadia.setFechaCheckOut(fecha);
-        }
-
-        return ResponseEntity.ok(estadia);
+    public ResponseEntity<EstadiaFacturaDTO> buscarEstadiaParaFacturar(
+            @RequestParam long habitacion,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+        
+        EstadiaFacturaDTO estadiaDTO = estadiaService.obtenerEstadiaParaFacturar(habitacion, fecha);
+        return ResponseEntity.ok(estadiaDTO);
     }
 
 

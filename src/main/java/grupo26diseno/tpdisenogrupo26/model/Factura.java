@@ -34,7 +34,7 @@ public class Factura {
     private int numero;
     
     @Column(nullable = false)
-    private int importeTotal;
+    private double importeTotal;
     
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -45,14 +45,17 @@ public class Factura {
     private Date fechaConfeccion;
     
     @Column(nullable = false)
-    private int importeNeto;
+    private double importeNeto;
     
     @Column(nullable = false)
-    private int iva;
+    private String tipo;
+
+    @Column(nullable = false)
+    private double iva;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "responsable_pago_id", nullable = false)
-    private ResponsablePago responsablePago;
+    @JoinColumn(name = "responsable_id", nullable = false)
+    private Persona responsable;
 
     @OneToMany(mappedBy = "factura")
     private List<Pago> pagos;

@@ -6,18 +6,31 @@ import Image from 'next/image';
 import { Huesped } from '../../lib/tipos';
 import '../../styles/estilos.css';
 
-
 const SPRING_BOOT_API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 type EstadiaApi = {
   id?: number;
   fechaCheckIn?: string;
   fechaCheckOut?: string;
+  cantidadNoches?: number;
+  precioTotal?: number;
   huespedPrincipal?: Huesped;
   acompanantes?: Huesped[];
   habitacion?: {
     numero?: number;
+    tipo?: string;
+    precioPorNoche?: number;
   };
+};
+
+type PersonaData = {
+  id: number;
+  cuit: string | null;
+  razonSocial: string;
+  telefono: string;
+  nacionalidad: string;
+  tipoDocumento?: string;
+  documentacion?: string;
 };
 
 type FacturableItem = {
@@ -26,22 +39,6 @@ type FacturableItem = {
   amount?: number;
 };
 
-
-function mapTipoConsumidorToFactura(consumidorFinal: unknown): 'A' | 'B' | null {
-  if (!consumidorFinal) return null;
-
-  const v = String(consumidorFinal).trim().toUpperCase();
-
-
-  if (v === 'A' || v === 'B') return v;
-
-
-  if (v.includes('A')) return 'A';
-  if (v.includes('B')) return 'B';
-
-  return null;
-}
-
 export default function FacturarDetallePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -49,24 +46,41 @@ export default function FacturarDetallePage() {
   const habitacionParam = searchParams.get('habitacion') ?? '';
   const fechaParam = searchParams.get('fecha') ?? '';
   const responsableParam = searchParams.get('responsable') ?? '';
+  const PersonaIdParam = searchParams.get('PersonaId') ?? '';
+  const personaIdParam = searchParams.get('personaId') ?? ''; 
+  
+  // Datos del responsable que vienen de la página anterior
+  const cuitParam = searchParams.get('cuit') ?? '';
+  const razonSocialParam = searchParams.get('razonSocial') ?? '';
+  const telefonoParam = searchParams.get('telefono') ?? '';
+  const nacionalidadParam = searchParams.get('nacionalidad') ?? '';
+  const tipoDocumentoParam = searchParams.get('tipoDocumento') ?? '';
+  const documentacionParam = searchParams.get('documentacion') ?? '';
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [estadia, setEstadia] = useState<EstadiaApi | null>(null);
-  const [responsable, setResponsable] = useState<Huesped | null>(null);
-
-
-  const [items] = useState<FacturableItem[]>([
-    { key: 'estadia', label: 'Estadía' },
-    { key: 'consumos', label: 'Consumos' },
-  ]);
 
   const [selectedKeys, setSelectedKeys] = useState<Record<string, boolean>>({
     estadia: true,
     consumos: true,
   });
 
+  // Construir el objeto Persona desde los parámetros
+  const Persona = useMemo<PersonaData | null>(() => {
+    if (!PersonaIdParam) return null;
+    
+    return {
+      id: Number(PersonaIdParam),
+      cuit: cuitParam || null,
+      razonSocial: razonSocialParam,
+      telefono: telefonoParam,
+      nacionalidad: nacionalidadParam,
+      tipoDocumento: tipoDocumentoParam,
+      documentacion: documentacionParam,
+    };
+  }, [PersonaIdParam, cuitParam, razonSocialParam, telefonoParam, nacionalidadParam, tipoDocumentoParam, documentacionParam]);
 
   useEffect(() => {
     const verificarSesion = async () => {
@@ -96,66 +110,58 @@ export default function FacturarDetallePage() {
     const cargar = async () => {
       setError(null);
 
-      if (!habitacionParam || !fechaParam || !responsableParam) {
-        setError('Faltan parámetros para facturar (habitacion, fecha o responsable).');
+      // Validar parámetros mínimos (responsable es opcional cuando es tercero)
+      if (!habitacionParam || !fechaParam || !PersonaIdParam) {
+        setError('Faltan parámetros para facturar (habitacion, fecha o PersonaId).');
         return;
       }
 
       setLoading(true);
 
       try {
+        // Cargar estadía
         const params = new URLSearchParams();
         params.append('habitacion', habitacionParam);
         params.append('fecha', fechaParam);
 
-        const url = `${SPRING_BOOT_API_URL}/api/estadias/facturar/buscar?${params.toString()}`;
+        const urlEstadia = `${SPRING_BOOT_API_URL}/api/estadias/facturar/buscar?${params.toString()}`;
+        const resEstadia = await fetch(urlEstadia, { credentials: 'include' });
 
-        const res = await fetch(url, { credentials: 'include' });
-
-        if (!res.ok) {
-          if (res.status === 401) {
+        if (!resEstadia.ok) {
+          if (resEstadia.status === 401) {
             router.push('/login');
             return;
           }
-          const txt = await res.text().catch(() => '');
-          throw new Error(`HTTP ${res.status} - ${txt}`);
+          const txt = await resEstadia.text().catch(() => '');
+          throw new Error(`HTTP ${resEstadia.status} - ${txt}`);
         }
 
-        const data: EstadiaApi = await res.json();
-        setEstadia(data);
+        const dataEstadia: EstadiaApi = await resEstadia.json();
+        setEstadia(dataEstadia);
+        
+        console.log("=== ESTADÍA CARGADA ===");
+        console.log("Estadia completa:", dataEstadia);
+        console.log("Estadia ID:", dataEstadia.id);
+        console.log("=======================");
 
-        const lista: Huesped[] = [];
-        if (data?.huespedPrincipal) lista.push(data.huespedPrincipal);
-        if (Array.isArray(data?.acompanantes)) lista.push(...data.acompanantes);
-
-        const responsableId = Number(responsableParam);
-        const resp = lista.find((h) => h.id === responsableId) ?? null;
-
-        if (!resp) {
-          setError('No se pudo identificar el responsable seleccionado en la estadía.');
-          setResponsable(null);
-          return;
-        }
-
-        if (typeof resp.edad === 'number' && resp.edad < 18) {
-          setError('La persona seleccionada es menor de edad, seleccione otra.');
-          setResponsable(null);
-          return;
-        }
-
-        setResponsable(resp);
       } catch (e) {
         console.error(e);
-        setError('No se pudieron cargar los datos para facturar. Verifique los endpoints y los parámetros.');
+        setError('No se pudieron cargar los datos para facturar. Verifique los endpoints.');
       } finally {
         setLoading(false);
       }
     };
 
     cargar();
-  }, [habitacionParam, fechaParam, responsableParam, router]);
+  }, [habitacionParam, fechaParam, PersonaIdParam, router]);
 
   const noches = useMemo(() => {
+    // Si el backend ya envía cantidadNoches, usarlo directamente
+    if (estadia?.cantidadNoches !== undefined) {
+      return estadia.cantidadNoches;
+    }
+    
+    // Fallback: calcular desde las fechas (por si acaso)
     const inStr = estadia?.fechaCheckIn;
     const outStr = estadia?.fechaCheckOut;
     if (!inStr || !outStr) return null;
@@ -169,6 +175,24 @@ export default function FacturarDetallePage() {
     return days;
   }, [estadia]);
 
+  const precioEstadia = useMemo(() => {
+    if (estadia?.precioTotal !== undefined) {
+      return estadia.precioTotal;
+    }
+    
+    if (!noches || noches === 0) return null;
+    const precioPorNoche = estadia?.habitacion?.precioPorNoche;
+    if (typeof precioPorNoche !== 'number') return null;
+    return noches * precioPorNoche;
+  }, [noches, estadia]);
+
+  const items = useMemo<FacturableItem[]>(() => {
+    return [
+      { key: 'estadia', label: 'Estadía', amount: precioEstadia ?? undefined },
+      { key: 'consumos', label: 'Consumos', amount: 0 }, // TODO: cargar consumos reales
+    ];
+  }, [precioEstadia]);
+
   const handleToggleItem = (key: FacturableItem['key']) => {
     setSelectedKeys((prev) => ({ ...prev, [key]: !prev[key] }));
   };
@@ -181,16 +205,17 @@ export default function FacturarDetallePage() {
     }, 0);
   }, [items, selectedKeys]);
 
+  // Determinar tipo de factura según tenga o no CUIT válido
+  const tipoFactura = useMemo<'A' | 'B'>(() => {
+    const cuit = Persona?.cuit;
+    const cuitLimpio = cuit?.replace(/\D/g, '') ?? '';
+    return cuitLimpio.length === 11 ? 'A' : 'B';
+  }, [Persona]);
 
-
-  const tipoFactura = useMemo<'A' | 'B' | null>(() => {
-    const consumidorFinal = (responsable as any)?.consumidorFinal;
-    return mapTipoConsumidorToFactura(consumidorFinal);
-  }, [responsable]);
-
-  // IVA y total final (solo si corresponde)
-  const IVA_ALICUOTA = 0.21;
   const esFacturaA = tipoFactura === 'A';
+
+  // IVA y total final
+  const IVA_ALICUOTA = 0.21;
 
   const montoIVA = useMemo(() => {
     if (!esFacturaA) return null;
@@ -202,20 +227,71 @@ export default function FacturarDetallePage() {
   }, [esFacturaA, subtotal, montoIVA]);
 
   const handleAceptar = async () => {
-    if (!responsable || !estadia) {
+    if (!Persona || !estadia) {
       setError('No hay datos suficientes para generar la factura.');
       return;
     }
 
-    
-    if (!tipoFactura) {
-      setError('No se pudo determinar si el responsable es Consumidor A o B. Verifique consumidorFinal.');
+    if (!SPRING_BOOT_API_URL) {
+      setError('Error de configuración: NEXT_PUBLIC_API_URL no definido.');
       return;
     }
 
-    window.alert(
-      'Paso 6 listo (UI). Para generar factura, falta implementar el endpoint de creación/previsualización de factura en backend.'
-    );
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Preparar request para crear factura
+      const requestBody = {
+        estadiaId: estadia.id,
+        PersonaId: Persona.id,
+        incluirEstadia: selectedKeys.estadia,
+        incluirConsumos: selectedKeys.consumos,
+      };
+
+      const response = await fetch(`${SPRING_BOOT_API_URL}/api/facturas/crear`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          router.push('/login');
+          return;
+        }
+        const errorText = await response.text().catch(() => '');
+        throw new Error(`Error HTTP ${response.status}: ${errorText}`);
+      }
+
+      const facturaCreada = await response.json();
+
+      // Mostrar confirmación
+      window.alert(
+        `✓ Factura generada exitosamente\n\n` +
+        `Número: ${facturaCreada.numero}\n` +
+        `Tipo: ${facturaCreada.tipoFactura}\n` +
+        `Responsable: ${facturaCreada.Persona.razonSocial}\n` +
+        `Total: ${facturaCreada.importeTotal.toFixed(2)}\n` +
+        `Estado: ${facturaCreada.estado}`
+      );
+
+      // Redirigir al menú o a una página de factura
+      router.push('/menu');
+
+    } catch (err) {
+      console.error('Error al crear factura:', err);
+      setError(
+        err instanceof Error 
+          ? `Error al generar la factura: ${err.message}` 
+          : 'Error desconocido al generar la factura'
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCancelar = () => {
@@ -286,7 +362,13 @@ export default function FacturarDetallePage() {
               <strong>Habitación:</strong> {habitacionParam}
             </div>
             <div>
+              <strong>Tipo:</strong> {estadia?.habitacion?.tipo ?? 'N/D'}
+            </div>
+            <div>
               <strong>Fecha salida (seleccionada):</strong> {fechaParam}
+            </div>
+            <div>
+              <strong>Precio por noche:</strong> ${estadia?.habitacion?.precioPorNoche?.toFixed(2) ?? 'N/D'}
             </div>
             <div>
               <strong>Check-in:</strong> {estadia?.fechaCheckIn ?? 'N/D'}
@@ -298,12 +380,15 @@ export default function FacturarDetallePage() {
               <strong>Noches:</strong> {noches ?? 'N/D'}
             </div>
             <div>
-              <strong>Estado:</strong> Pendiente de pago (al generar factura)
+              <strong>Subtotal estadía:</strong> ${precioEstadia?.toFixed(2) ?? 'N/D'}
+            </div>
+            <div>
+              <strong>Estado:</strong> Pendiente de pago
             </div>
           </div>
         </section>
 
-        {/* Responsable */}
+        {/* Responsable de pago */}
         <section
           style={{
             border: '2px solid #b8975a',
@@ -317,30 +402,53 @@ export default function FacturarDetallePage() {
             Responsable de pago
           </h2>
 
-          {responsable ? (
-            <div style={{ color: '#fff' }}>
+          {Persona ? (
+            <div style={{ color: '#fff', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
               <div>
-                <strong>Apellido y nombres:</strong> {responsable.apellido}, {responsable.nombres}
-              </div>
-              <div>
-                <strong>Documento:</strong> {responsable.tipoDocumento} {responsable.documentacion}
-              </div>
-              <div>
-                <strong>Edad:</strong> {responsable.edad}
+                <strong>Razón Social:</strong> {Persona.razonSocial}
               </div>
 
-              {/* NUEVO: Consumidor A/B desde consumidorFinal */}
               <div>
-                <strong>Condición (consumidorFinal):</strong>{' '}
-                {tipoFactura ? `Consumidor ${tipoFactura}` : 'No informada / no mapeable'}
+                <strong>Tipo de Factura:</strong> {tipoFactura}
               </div>
+
+              {/* FACTURA A: Mostrar CUIT */}
+              {esFacturaA && (
+                <div>
+                  <strong>CUIT:</strong> {Persona.cuit}
+                </div>
+              )}
+
+              {/* FACTURA B: Mostrar documentación del huésped */}
+              {!esFacturaA && Persona.tipoDocumento && Persona.documentacion && (
+                <>
+                  <div>
+                    <strong>Tipo Documento:</strong> {Persona.tipoDocumento}
+                  </div>
+                  <div>
+                    <strong>Documento:</strong> {Persona.documentacion}
+                  </div>
+                </>
+              )}
+
+              {Persona.telefono && (
+                <div>
+                  <strong>Teléfono:</strong> {Persona.telefono}
+                </div>
+              )}
+
+              {Persona.nacionalidad && (
+                <div>
+                  <strong>Nacionalidad:</strong> {Persona.nacionalidad}
+                </div>
+              )}
             </div>
           ) : (
             <div style={{ color: '#fff' }}>No seleccionado.</div>
           )}
         </section>
 
-        {/* Ítems a facturar (Paso 6) */}
+        {/* Ítems a facturar */}
         <section
           style={{
             border: '2px solid #b8975a',
@@ -350,16 +458,15 @@ export default function FacturarDetallePage() {
             background: 'rgba(0,0,0,0.35)',
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
-            <h2 className="font-serif" style={{ color: '#b8975a', fontSize: '22px', marginBottom: '10px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+            <h2 className="font-serif" style={{ color: '#b8975a', fontSize: '22px', margin: 0 }}>
               Ítems pendientes de facturar
             </h2>
 
-            {/* REEMPLAZO: ya no hay selector; sale del responsable */}
             <div style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '10px' }}>
               <strong>Tipo factura:</strong>
               <span style={{ border: '1px solid #b8975a', padding: '6px 10px', borderRadius: '6px' }}>
-                {tipoFactura ?? 'N/D'}
+                {tipoFactura}
               </span>
             </div>
           </div>
@@ -368,7 +475,6 @@ export default function FacturarDetallePage() {
             Seleccione qué ítems desea incluir en la factura.
           </div>
 
-          {/* TABLA SIN COLUMNA DETALLE */}
           <table style={{ width: '100%', borderCollapse: 'collapse', border: '2px solid #b8975a' }}>
             <thead>
               <tr style={{ backgroundColor: '#b8975a', color: '#000' }}>
@@ -398,7 +504,6 @@ export default function FacturarDetallePage() {
               ))}
             </tbody>
 
-            {/* FOOTER: Subtotal / IVA / Total */}
             <tfoot>
               <tr style={{ color: '#fff' }}>
                 <td style={tableCellStyle} />
@@ -406,21 +511,23 @@ export default function FacturarDetallePage() {
                 <td style={{ ...tableCellStyle, textAlign: 'right' }}>$ {subtotal.toFixed(2)}</td>
               </tr>
 
-              {/* FILA IVA: solo corresponde si A; además indica Consumidor A/B */}
+              {/* Fila IVA */}
               <tr style={{ color: '#fff' }}>
                 <td style={tableCellStyle} />
                 <td style={{ ...tableCellStyle, fontWeight: 'bold' }}>
-                  IVA (21%) {tipoFactura ? `- Consumidor ${tipoFactura}` : ''}
+                  {esFacturaA ? 'IVA (21%)' : 'IVA (incluido)'}
                 </td>
                 <td style={{ ...tableCellStyle, textAlign: 'right' }}>
                   {esFacturaA ? `$ ${(montoIVA ?? 0).toFixed(2)}` : 'N/A'}
                 </td>
               </tr>
 
-              <tr style={{ color: '#fff' }}>
+              <tr style={{ color: '#fff', backgroundColor: 'rgba(184, 151, 90, 0.2)' }}>
                 <td style={tableCellStyle} />
-                <td style={{ ...tableCellStyle, fontWeight: 'bold' }}>Total</td>
-                <td style={{ ...tableCellStyle, textAlign: 'right' }}>$ {totalFinal.toFixed(2)}</td>
+                <td style={{ ...tableCellStyle, fontWeight: 'bold', fontSize: '18px' }}>Total</td>
+                <td style={{ ...tableCellStyle, textAlign: 'right', fontWeight: 'bold', fontSize: '18px' }}>
+                  $ {totalFinal.toFixed(2)}
+                </td>
               </tr>
             </tfoot>
           </table>

@@ -19,9 +19,6 @@ public class ResponsablePago extends Persona {
     private String razonSocial;
 
     @OneToMany(mappedBy = "responsablePago")
-    private List<Factura> facturasGeneradas;
-
-    @OneToMany(mappedBy = "responsablePago")
     private List<NotaCredito> notasCreditoGeneradas;
 
     public ResponsablePago(String cuit, String telefono, String nacionalidad, Direccion direccion, String razonSocial) {
