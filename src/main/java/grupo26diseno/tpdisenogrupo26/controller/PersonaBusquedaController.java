@@ -10,18 +10,28 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Parameter;
+
 import grupo26diseno.tpdisenogrupo26.dtos.PersonaBusquedaDTO;
 import grupo26diseno.tpdisenogrupo26.service.PersonaService;
 
 @RestController
 @RequestMapping("/api/personas")
+@Tag(name = "Búsqueda de Personas", description = "Servicio auxiliar para buscar datos de personas por identificadores fiscales")
 public class PersonaBusquedaController {
 
     @Autowired
     private PersonaService personaService;
 
     @GetMapping("/buscar-por-cuit")
-    public ResponseEntity<?> buscarPorCuit(@RequestParam String cuit) {
+    @Operation(summary = "Buscar por CUIT", description = "Recupera los datos básicos de una persona dado su CUIT/CUIL.")
+    @ApiResponse(responseCode = "200", description = "Persona encontrada.")
+    @ApiResponse(responseCode = "404", description = "No existe ninguna persona con ese CUIT.")
+    @ApiResponse(responseCode = "500", description = "Error interno del servidor.")
+    public ResponseEntity<?> buscarPorCuit(@Parameter(description = "CUIT/CUIL sin guiones o con guiones") @RequestParam String cuit) {
         try {
             PersonaBusquedaDTO resultado = personaService.buscarPorCuit(cuit);
             return ResponseEntity.ok(resultado);

@@ -15,16 +15,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-//import grupo26diseno.tpdisenogrupo26.dtos.HuespedDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import grupo26diseno.tpdisenogrupo26.dtos.ReservaDTO;
 import grupo26diseno.tpdisenogrupo26.excepciones.DisponibilidadException;
-//import grupo26diseno.tpdisenogrupo26.model.TipoDoc;
 import grupo26diseno.tpdisenogrupo26.service.HabitacionService;
 import grupo26diseno.tpdisenogrupo26.service.ReservaService;
 
 
 @RestController
 @RequestMapping("/api/reservas")
+@Tag(name = "Gestión de Reservas", description = "Creación, búsqueda y cancelación de reservas futuras")
 public class ReservaController {
 
     @Autowired
@@ -33,9 +36,14 @@ public class ReservaController {
     @Autowired
     private ReservaService reservaService;
 
+    @Operation(summary = "Crear nueva reserva", description = "Genera una reserva validando disponibilidad.")
+    @ApiResponse(responseCode = "201", description = "Reserva creada exitosamente.")
+    @ApiResponse(responseCode = "409", description = "La habitación no está disponible en esas fechas.")
+    @ApiResponse(responseCode = "400", description = "Datos inválidos.")
+    @ApiResponse(responseCode = "500", description = "Error interno del servidor.")
+
     @PostMapping
     public ResponseEntity<?> crearReserva(@RequestBody ReservaDTO dto) throws DisponibilidadException {
-        //System.out.println(">>> RESERVA RECIBIDA EN BACKEND");
         try {
         habitacionService.crearReserva(dto);
          return ResponseEntity.status(HttpStatus.CREATED).body(dto);
@@ -50,10 +58,16 @@ public class ReservaController {
     }
 
 
+    @Operation(summary = "Consultar reservas por habitación", description = "Devuelve las reservas de una habitación específica en un rango de fechas.")
+    @ApiResponse(responseCode = "200", description = "Listado obtenido correctamente")
+
     @GetMapping
     public List<ReservaDTO> obtenerReserva(@RequestParam long numeroHabitacion, @RequestParam LocalDate fechaInicio, @RequestParam LocalDate fechaFin) {
         return reservaService.obtenerReservasPorHabitacionYFecha(numeroHabitacion, fechaInicio, fechaFin);
     }
+
+    @Operation(summary = "Buscar reservas por cliente", description = "Filtra reservas por nombre o apellido del titular.")
+    @ApiResponse(responseCode = "200", description = "Búsqueda exitosa")
 
     @GetMapping("/buscar")
     public List<ReservaDTO> buscarReserva(
@@ -63,7 +77,11 @@ public class ReservaController {
         return reservaService.buscarReservaPorCriterios(apellido, nombres);
     }
 
-    @DeleteMapping("/{id}") // Para cancelar reserva
+    @Operation(summary = "Cancelar reserva", description = "Elimina la reserva del sistema.")
+    @ApiResponse(responseCode = "204", description = "Reserva cancelada.")
+    @ApiResponse(responseCode = "404", description = "ID de reserva no encontrado.")
+
+    @DeleteMapping("/{id}") 
     public ResponseEntity<Void> cancelar(@PathVariable Long id) {
         reservaService.cancelarReserva(id);
         return ResponseEntity.noContent().build();

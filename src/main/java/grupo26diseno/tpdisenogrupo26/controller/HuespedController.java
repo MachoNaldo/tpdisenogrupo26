@@ -69,6 +69,8 @@ public class HuespedController {
     @Operation(summary = "Eliminar un huésped", description = "Borra físicamente al huésped de la base de datos por su ID.")
     @ApiResponse(responseCode = "204", description = "Eliminado correctamente.")
     @ApiResponse(responseCode = "404", description = "ID de huésped no encontrado.")
+    @ApiResponse(responseCode = "409", description = "No se puede eliminar: El huésped tiene reservas activas.")
+    @ApiResponse(responseCode = "500", description = "Error interno del servidor.")
 
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Long id) {
@@ -87,6 +89,11 @@ public class HuespedController {
         }
     }
 
+    @Operation(summary = "Actualizar datos fiscales", description = "Modifica el CUIT y la Condición Fiscal de un huésped existente.")
+    @ApiResponse(responseCode = "200", description = "Datos actualizados correctamente")
+    @ApiResponse(responseCode = "400", description = "Datos inválidos en el DTO")
+    @ApiResponse(responseCode = "500", description = "Error interno al actualizar")
+
     @PatchMapping("/{id}")
     public ResponseEntity<?> actualizarCuitCondicionFiscal(
             @PathVariable Long id,
@@ -101,6 +108,10 @@ public class HuespedController {
         }
     }
 
+    @Operation(summary = "Buscar por CUIT", description = "Busca un huésped específico por su número de CUIT.")
+    @ApiResponse(responseCode = "200", description = "Huésped encontrado")
+    @ApiResponse(responseCode = "404", description = "No existe huésped con ese CUIT")
+    
     @GetMapping("/buscar-por-cuit")
     public ResponseEntity<?> buscarPorCuit(@RequestParam String cuit) {
         try {
