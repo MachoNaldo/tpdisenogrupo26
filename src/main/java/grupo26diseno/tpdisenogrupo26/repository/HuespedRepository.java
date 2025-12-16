@@ -1,6 +1,7 @@
 package grupo26diseno.tpdisenogrupo26.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -25,4 +26,7 @@ public interface HuespedRepository  extends JpaRepository<Huesped, Long> {
             @Param("tipoDocumento") TipoDoc tipoDocumento,
             @Param("documentacion") String documentacion);
     Huesped findById(long id);
+
+    Optional<Huesped> findByCuit(String cuit);
+
 }

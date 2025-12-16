@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Huesped } from '../lib/tipos';
+import ModalCuit from './ModalCuit';
 
 
 const SPRING_BOOT_API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -38,6 +39,9 @@ export default function FacturarPage() {
   const fechaRef = useRef<HTMLInputElement>(null);
   const numeroRef = useRef<HTMLInputElement>(null);
 
+  const [mostrarModalCuit, setMostrarModalCuit] = useState(false);
+  const [debeReintentarSiguiente, setDebeReintentarSiguiente] = useState(false);
+
   useEffect(() => {
     const verificarSesion = async () => {
       try {
@@ -71,7 +75,24 @@ export default function FacturarPage() {
       .then((data) => setListaHabitaciones(data))
       .catch((err) => console.error(err));
   }, []);
+  useEffect(() => {
+    if (debeReintentarSiguiente) {
+      setDebeReintentarSiguiente(false);
+      handleSiguiente();
+    }
+  }, [debeReintentarSiguiente, resultados]);
 
+  const handleCuitActualizado = (cuit: string, condicionFiscal: string) => {
+    setResultados(prev => prev.map(h =>
+      h.id === selectedHuespedId
+        ? { ...h, cuit, condicionFiscal } as any
+        : h
+    ));
+
+    setMostrarModalCuit(false);
+
+    setDebeReintentarSiguiente(true);
+  };
   const handleBuscar = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -245,9 +266,15 @@ export default function FacturarPage() {
         return;
       }
     } else {
-      window.alert(
-        'El huésped seleccionado no tiene CUIT válido. Para continuar, facture a nombre de un tercero o registre un Responsable de Pago.'
+      const confirmacion = window.confirm(
+        'El huésped seleccionado no tiene CUIT válido.\n\n' +
+        '¿Desea ingresar el CUIT y condición fiscal ahora?\n\n' +
+        'Presione Aceptar para continuar o Cancelar para facturar a un tercero.'
       );
+
+      if (confirmacion) {
+        setMostrarModalCuit(true);
+      }
       return;
     }
 
@@ -303,48 +330,43 @@ export default function FacturarPage() {
 
 
           <form className="form" onSubmit={handleBuscar}>
-            <div className="ui-input-group-wrapper">
+            <div className="contenedor-input-grupo">
 
-              <div className="ui-input-with-action">
+              <div className="input-con-accion">
                 <input
                   ref={numeroRef}
                   type="number"
                   min="1"
-                  placeholder="Número de Habitación"
+                  placeholder="N° Habitación"
                   value={numero}
-                  className="ui-input-field" // Asegúrate de tener estilos para tu input si no los tenías
                   onChange={(e) => {
                     setNumero(e.target.value);
                     setError(null);
                   }}
-                  // Opcional: Cerrar la grilla si el usuario empieza a escribir
                   onFocus={() => setMostrarGrilla(false)}
                 />
 
-                {/* Botón para desplegar la grilla */}
                 <button
                   type="button"
-                  className="ui-btn-icon"
+                  className="boton-desplegable"
                   onClick={() => setMostrarGrilla(!mostrarGrilla)}
-                  title="Ver lista de habitaciones"
+                  title="Ver habitaciones disponibles"
                 >
-                  {/* Icono simple de lista/flecha (puedes usar una imagen o svg) */}
                   ▼
                 </button>
               </div>
 
-              {/* LA GRILLA FLOTANTE (Solo se muestra si mostrarGrilla es true) */}
               {mostrarGrilla && (
-                <div className="ui-grid-popover">
+                <div className="menu-flotante">
                   {listaHabitaciones.length > 0 ? (
                     listaHabitaciones.map((num) => (
                       <button
                         key={num}
                         type="button"
-                        className="ui-grid-item"
+                        className="item-habitacion"
                         onClick={() => {
-                          setNumero(String(num)); // Selecciona el número
-                          setMostrarGrilla(false); // Cierra el menú
+                          setNumero(String(num));
+                          setMostrarGrilla(false);
                           setError(null);
                         }}
                       >
@@ -352,38 +374,43 @@ export default function FacturarPage() {
                       </button>
                     ))
                   ) : (
-                    <div style={{ padding: '10px', color: '#888' }}>Cargando...</div>
+                    <div style={{ padding: '10px', color: '#b8975a', textAlign: 'center' }}>
+                      Cargando...
+                    </div>
                   )}
                 </div>
               )}
 
-            {/* Fecha de salida */}
-            <div>
-              <input
-                ref={fechaRef}
-                type="date"
-                className="ui-input-date"
-                value={fecha}
-                onChange={(e) => {
-                  setFecha(e.target.value);
-                  setError(null);
-                }}
-              />
+
+              {/* Fecha de salida */}
+              <div>
+                <input
+                  ref={fechaRef}
+                  type="date"
+                  className="ui-input-date"
+                  value={fecha}
+                  onChange={(e) => {
+                    setFecha(e.target.value);
+                    setError(null);
+                  }}
+                />
+              </div>
             </div>
-        </div>
 
-        <div className="ui-actions-center">
-          <button type="submit" className="btn" disabled={loading}>
-            {loading ? 'Buscando...' : 'Buscar'}
-          </button>
+            <div className="ui-actions-center">
+              <button type="submit" className="btn" disabled={loading}>
+                {loading ? 'Buscando...' : 'Buscar'}
+              </button>
 
-          <button type="button" onClick={handleCancelar} className="btn">
-            Cancelar
-          </button>
-        </div>
-      </form>
+              <button type="button" onClick={handleCancelar} className="btn">
+                Cancelar
+              </button>
+            </div>
+          </form>
         </div >
       </main >
+
+
     );
   }
 
@@ -445,6 +472,13 @@ export default function FacturarPage() {
           </div>
         </div>
       </main>
+      {mostrarModalCuit && selectedHuespedId && (
+        <ModalCuit
+          huespedId={selectedHuespedId}
+          onClose={() => setMostrarModalCuit(false)}
+          onSuccess={handleCuitActualizado}
+        />
+      )}
     </div>
   );
 }
