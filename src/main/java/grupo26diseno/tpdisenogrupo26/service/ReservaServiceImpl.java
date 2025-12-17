@@ -56,14 +56,14 @@ public class ReservaServiceImpl implements ReservaService {
 
 
 
-    //Cancelar RESERVA
+  
     @Override
     @Transactional
     public void cancelarReserva(Long idReserva) {
         Reserva reserva = reservaRepository.findById(idReserva)
                 .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
 
-         // Elimina la reserva
+         
         reservaRepository.delete(reserva);
     }
 }

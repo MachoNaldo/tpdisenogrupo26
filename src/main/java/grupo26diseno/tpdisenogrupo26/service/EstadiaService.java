@@ -1,10 +1,10 @@
 package grupo26diseno.tpdisenogrupo26.service;
-
+import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 
 import grupo26diseno.tpdisenogrupo26.dtos.EstadiaFacturaDTO;
 
-@Service 
+
 public interface EstadiaService {
     /**
      * Obtiene la estadía correspondiente a una habitación y fecha de salida

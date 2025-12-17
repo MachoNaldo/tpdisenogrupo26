@@ -7,7 +7,7 @@ public class CalculadoraFacturaB implements CalculadoraFiscalStrategy {
 
     private static final double TASA_IVA = 0.21;
     /** 
-     * Calcula los montos aplicando el 21% de IVA sobre el básico.
+     * Calcula los impuestos y el monto total a pagar para una factura tipo B.
      * @param montoBase Monto base neto sobre el cual se aplican los cálculos fiscales.
      * @return ResultadoCalculo con el desglose de importes y el tipo de comprobante "B".
      */
