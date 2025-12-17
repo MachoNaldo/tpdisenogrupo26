@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import grupo26diseno.tpdisenogrupo26.dtos.ResponsablePagoDTO;
 import grupo26diseno.tpdisenogrupo26.excepciones.DocumentoUsadoException;
@@ -29,12 +31,15 @@ public class ResponsablePagoController {
     private ResponsablePagoMapper responsablePagoMapper;
 
     @Operation(summary = "Crear responsable de pago", description = "Registra una entidad o persona para facturar.")
-    @ApiResponse(responseCode = "201", description = "Responsable creado exitosamente")
+    @ApiResponse(responseCode = "201", description = "Responsable creado exitosamente",
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponsablePagoDTO.class))
+    )
     @ApiResponse(responseCode = "409", description = "El documento/CUIT ya está registrado")
 
     @PostMapping("/crear")
     public ResponseEntity<?> crear(
-            @RequestBody ResponsablePagoDTO dto,@Parameter(description = "Permite duplicados si es true")
+            @RequestBody ResponsablePagoDTO dto,
+            @Parameter(description = "Permite duplicados si es true")
             @RequestParam(defaultValue = "false") boolean forzar) {
 
         try {

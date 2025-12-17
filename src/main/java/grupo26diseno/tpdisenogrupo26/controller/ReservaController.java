@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import grupo26diseno.tpdisenogrupo26.dtos.ReservaDTO;
 import grupo26diseno.tpdisenogrupo26.excepciones.DisponibilidadException;
@@ -37,7 +39,9 @@ public class ReservaController {
     private ReservaService reservaService;
 
     @Operation(summary = "Crear nueva reserva", description = "Genera una reserva validando disponibilidad.")
-    @ApiResponse(responseCode = "201", description = "Reserva creada exitosamente.")
+    @ApiResponse(responseCode = "201", description = "Reserva creada exitosamente.",
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ReservaDTO.class))
+    )
     @ApiResponse(responseCode = "409", description = "La habitación no está disponible en esas fechas.")
     @ApiResponse(responseCode = "400", description = "Datos inválidos.")
     @ApiResponse(responseCode = "500", description = "Error interno del servidor.")

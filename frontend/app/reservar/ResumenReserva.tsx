@@ -36,7 +36,7 @@ export default function ResumenReserva({ reservas, cliente, onAceptar, onRechaza
         Confirmación de Reserva
       </h3>
 
-      <div className="mb-6 bg-black border border-white p-4 rounded-xl">
+      <div className=" text-[#a67c52]  mb-6 bg-black border border-white p-4 rounded-xl">
         <h4 className="text-xl font-semibold mb-3 text-center">Datos del cliente</h4>
         <p><strong>Nombre:</strong> <span style={{ color: "#E9B525" }}>{cliente.nombre}</span></p>
         <p><strong>Apellido:</strong> <span style={{ color: "#E9B525" }}>{cliente.apellido}</span></p>
@@ -45,7 +45,7 @@ export default function ResumenReserva({ reservas, cliente, onAceptar, onRechaza
 
       <div className="space-y-6">
         {reservas.map((r, i) => (
-          <div key={i} className="p-4 bg-black border border-white rounded-xl shadow ">
+          <div key={i} className="text-[#a67c52] p-4 bg-black border border-white rounded-xl shadow ">
             <p className=" text-xl font-bold mb-2 text-center">
               Detalles de la habitación 
             </p>

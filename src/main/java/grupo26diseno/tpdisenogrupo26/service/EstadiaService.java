@@ -1,28 +1,17 @@
 package grupo26diseno.tpdisenogrupo26.service;
 
 import java.time.LocalDate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service; 
 
-import grupo26diseno.tpdisenogrupo26.model.Estadia;
-import grupo26diseno.tpdisenogrupo26.repository.EstadiaRepository;
+import grupo26diseno.tpdisenogrupo26.dtos.EstadiaFacturaDTO;
 
 @Service 
-public class EstadiaService {
-
-    @Autowired 
-    private EstadiaRepository estadiaRepository; 
-
+public interface EstadiaService {
     /**
-     * Busca una estadía completa para facturación basada en el número de habitación y la fecha de salida.
-     * @param nroHabitacion Número de la habitación que se está liberando.
+     * Obtiene la estadía correspondiente a una habitación y fecha de salida
+     * para su facturación.
+     * @param nroHabitacion Número de la habitación.
      * @param fechaSalida Fecha de salida de la estadía.
-     * @return La estadía completa con todos sus detalles para facturación.
+     * @return DTO con los datos necesarios para facturar la estadía.
      */
-    public Estadia buscarEstadiaCompleta(Long nroHabitacion, LocalDate fechaSalida) {
-        
-        return estadiaRepository.buscarParaFacturar(nroHabitacion, fechaSalida);
-    }
-
-    
+    public EstadiaFacturaDTO obtenerEstadiaParaFacturar(Long nroHabitacion, LocalDate fechaSalida);
 }

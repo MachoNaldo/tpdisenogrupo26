@@ -6,7 +6,6 @@ import Image from 'next/image';
 import { Huesped } from '../lib/tipos';
 import ModalCuit from './ModalCuit';
 
-
 const SPRING_BOOT_API_URL = process.env.NEXT_PUBLIC_API_URL;
 const ENDPOINT_RDP_BUSCAR_POR_CUIT = '/api/responsablespago/buscar-por-cuit';
 const ENDPOINT_RDP_CREAR = '/api/responsablespago/crear';
@@ -29,17 +28,18 @@ export default function FacturarPage() {
   const [listaHabitaciones, setListaHabitaciones] = useState<any[]>([]);
   const [mostrarGrilla, setMostrarGrilla] = useState(false);
 
-
   const [isListing, setIsListing] = useState(false);
   const [selectedHuespedId, setSelectedHuespedId] = useState<number | null>(null);
 
   const router = useRouter();
 
-
   const fechaRef = useRef<HTMLInputElement>(null);
   const numeroRef = useRef<HTMLInputElement>(null);
 
   const [mostrarModalCuit, setMostrarModalCuit] = useState(false);
+  
+  const [mostrarModalOpciones, setMostrarModalOpciones] = useState(false);
+
   const [debeReintentarSiguiente, setDebeReintentarSiguiente] = useState(false);
 
   useEffect(() => {
@@ -65,8 +65,8 @@ export default function FacturarPage() {
 
     verificarSesion();
   }, [router]);
+
   useEffect(() => {
-    //Buscamos todas las habitaciones que tenga el hotel
     fetch(`${SPRING_BOOT_API_URL}/api/habitaciones`, { credentials: 'include' })
       .then((res) => {
         if (res.ok) return res.json();
@@ -75,6 +75,7 @@ export default function FacturarPage() {
       .then((data) => setListaHabitaciones(data))
       .catch((err) => console.error(err));
   }, []);
+
   useEffect(() => {
     if (debeReintentarSiguiente) {
       setDebeReintentarSiguiente(false);
@@ -88,14 +89,12 @@ export default function FacturarPage() {
         ? { ...h, cuit, condicionFiscal } as any
         : h
     ));
-
     setMostrarModalCuit(false);
-
     setDebeReintentarSiguiente(true);
   };
+
   const handleBuscar = async (e: React.FormEvent) => {
     e.preventDefault();
-
     const erroresDetectados: string[] = [];
     let primerInputConError: HTMLInputElement | null = null;
 
@@ -120,14 +119,11 @@ export default function FacturarPage() {
         const checkRes = await fetch(`${SPRING_BOOT_API_URL}/api/habitaciones/${numeroTrim}/existe`, {
           credentials: 'include',
         });
-
         if (!checkRes.ok) {
           setError('Error al verificar la habitación.');
           return;
         }
-
         const existe: boolean = await checkRes.json();
-
         if (!existe) {
           erroresDetectados.push(`la habitación ${numeroTrim} no existe`);
           if (!primerInputConError) primerInputConError = numeroRef.current;
@@ -158,7 +154,6 @@ export default function FacturarPage() {
 
     try {
       const response = await fetch(url, { credentials: 'include' });
-
       if (!response.ok) {
         if (response.status === 401) {
           router.push('/login');
@@ -178,12 +173,87 @@ export default function FacturarPage() {
       setIsListing(true);
     } catch (err) {
       console.error('Error al buscar Estadia:', err);
-      setError(
-        'No se encontro encontro Estadia'
-      );
-      //'Error al comunicarse con el servidor de búsqueda. Verifique que el endpoint /api/estadias/facturar/buscar esté activo.'
+      setError('No se encontro encontro Estadia');
     } finally {
       setLoading(false);
+    }
+  };
+
+
+  const procesarResponsablePago = async (huesped: Huesped, cuitAUsar: string) => {
+    if (!SPRING_BOOT_API_URL) {
+      window.alert('Error de configuración: NEXT_PUBLIC_API_URL no definido.');
+      return;
+    }
+
+    let responsablePagoId: number | null = null;
+    const cuitLimpio = cuitSoloDigitos(cuitAUsar);
+
+    try {
+      const urlBuscar = `${SPRING_BOOT_API_URL}${ENDPOINT_RDP_BUSCAR_POR_CUIT}?cuit=${encodeURIComponent(cuitLimpio)}`;
+      const resBuscar = await fetch(urlBuscar, { credentials: 'include' });
+
+      if (resBuscar.ok) {
+        const rdp = await resBuscar.json();
+        responsablePagoId = rdp?.id ?? null;
+      } 
+      else if (resBuscar.status === 404) {
+        const razonSocial = `${huesped.nombres ?? ''} ${huesped.apellido ?? ''}`.trim();
+        const dtoCrear = {
+          cuit: cuitLimpio,
+          razonSocial,
+          direccion: (huesped as any).direccion ?? null,
+          telefono: (huesped as any).telefono ?? '',
+          nacionalidad: (huesped as any).nacionalidad ?? '',
+        };
+
+        const urlCrear = `${SPRING_BOOT_API_URL}${ENDPOINT_RDP_CREAR}`;
+        const resCrear = await fetch(urlCrear, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dtoCrear),
+          credentials: 'include',
+        });
+
+        if (!resCrear.ok) {
+          const msg = await resCrear.text().catch(() => '');
+          throw new Error(`No se pudo crear ResponsablePago. HTTP ${resCrear.status}. ${msg}`);
+        }
+
+        const creado = await resCrear.json();
+        responsablePagoId = creado?.id ?? null;
+      } 
+      else if (resBuscar.status === 401) {
+        router.push('/login');
+        return;
+      } 
+      else {
+        throw new Error(`Error buscando ResponsablePago.`);
+      }
+
+      if (!responsablePagoId) {
+        window.alert('No se pudo determinar el ID del Responsable de Pago.');
+        return;
+      }
+
+      router.push(
+        `/facturar/detalle?` +
+        `habitacion=${encodeURIComponent(numero)}&` +
+        `fecha=${encodeURIComponent(fecha)}&` +
+        `responsable=${encodeURIComponent(String(huesped.id))}&` +
+        `responsablePagoId=${encodeURIComponent(String(responsablePagoId))}&` +
+        `personaId=${encodeURIComponent(String(responsablePagoId))}&` +
+        `cuit=${encodeURIComponent(cuitLimpio)}&` +
+        `razonSocial=${encodeURIComponent(`${huesped.nombres ?? ''} ${huesped.apellido ?? ''}`.trim())}&` +
+        `telefono=${encodeURIComponent(huesped.telefono || '')}&` +
+        `nacionalidad=${encodeURIComponent(huesped.nacionalidad || '')}&` +
+        `tipoDocumento=${encodeURIComponent(huesped.tipoDocumento || '')}&` +
+        `documentacion=${encodeURIComponent(huesped.documentacion || '')}`
+      );
+
+    } catch (err) {
+      console.error(err);
+      window.alert('Ocurrió un error al procesar el Responsable de Pago.');
     }
   };
 
@@ -192,105 +262,45 @@ export default function FacturarPage() {
       window.alert('Por favor, selecciona un huésped responsable de pago de la lista.');
       return;
     }
-
     const seleccionado = resultados.find((h) => h.id === selectedHuespedId);
-
-    if (!seleccionado) {
-      window.alert('No se pudo identificar el huésped seleccionado. Intente nuevamente.');
-      return;
-    }
+    if (!seleccionado) return;
 
     if (typeof seleccionado.edad === 'number' && seleccionado.edad < 18) {
       window.alert('La persona seleccionada es menor de edad, seleccione otra');
       return;
     }
 
-    if (!SPRING_BOOT_API_URL) {
-      window.alert('Error de configuración: NEXT_PUBLIC_API_URL no definido.');
-      return;
-    }
-
     const cuitDigits = cuitSoloDigitos((seleccionado as any).cuit);
 
-    let responsablePagoId: number | null = null;
-
+    // Si tiene CUIT válido, procesamos directamente
     if (cuitDigits && esCuitValido11(cuitDigits)) {
-      try {
-        const urlBuscar = `${SPRING_BOOT_API_URL}${ENDPOINT_RDP_BUSCAR_POR_CUIT}?cuit=${encodeURIComponent(cuitDigits)}`;
-        const resBuscar = await fetch(urlBuscar, { credentials: 'include' });
-
-        if (resBuscar.ok) {
-          const rdp = await resBuscar.json();
-          responsablePagoId = rdp?.id ?? null;
-        } else if (resBuscar.status === 404) {
-          const razonSocial = `${seleccionado.nombres ?? ''} ${seleccionado.apellido ?? ''}`.trim();
-
-          const dtoCrear = {
-            cuit: cuitDigits,
-            razonSocial,
-            direccion: (seleccionado as any).direccion ?? null,
-            telefono: (seleccionado as any).telefono ?? '',
-            nacionalidad: (seleccionado as any).nacionalidad ?? '',
-          };
-
-          const urlCrear = `${SPRING_BOOT_API_URL}${ENDPOINT_RDP_CREAR}`;
-
-          const resCrear = await fetch(urlCrear, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dtoCrear),
-            credentials: 'include',
-          });
-
-          if (!resCrear.ok) {
-            const msg = await resCrear.text().catch(() => '');
-            throw new Error(`No se pudo crear ResponsablePago. HTTP ${resCrear.status}. ${msg}`);
-          }
-
-          const creado = await resCrear.json();
-          responsablePagoId = creado?.id ?? null;
-        } else if (resBuscar.status === 401) {
-          router.push('/login');
-          return;
-        } else {
-          const txt = await resBuscar.text().catch(() => '');
-          throw new Error(`Error buscando ResponsablePago. HTTP ${resBuscar.status}. ${txt}`);
-        }
-      } catch (err) {
-        console.error(err);
-
-        window.alert(
-          'No se pudo resolver automáticamente el Responsable de Pago para este huésped.\n' +
-          'Puede facturar a nombre de un tercero o dar de alta el Responsable de Pago manualmente.'
-        );
-        return;
-      }
+      await procesarResponsablePago(seleccionado, cuitDigits);
     } else {
-      const confirmacion = window.confirm(
-        'El huésped seleccionado no tiene CUIT válido.\n\n' +
-        '¿Desea ingresar el CUIT y condición fiscal ahora?\n\n' +
-        'Presione Aceptar para continuar o Cancelar para facturar a un tercero.'
-      );
-
-      if (confirmacion) {
-        setMostrarModalCuit(true);
-      }
-      return;
+      // Si NO tiene CUIT válido, mostramos el modal de opciones
+      setMostrarModalOpciones(true);
     }
-
-    if (!responsablePagoId) {
-      window.alert('No se pudo determinar el Responsable de Pago (ID inválido). Intente nuevamente o use el flujo de tercero.');
-      return;
-    }
-
-    router.push(
-      `/facturar/detalle?habitacion=${encodeURIComponent(numero)}&fecha=${encodeURIComponent(
-        fecha
-      )}&responsable=${encodeURIComponent(String(selectedHuespedId))}&responsablePagoId=${encodeURIComponent(
-        String(responsablePagoId)
-      )}`
-    );
   };
+
+ const handleOpcionConsumidorFinal = async () => {
+  setMostrarModalOpciones(false);
+  const seleccionado = resultados.find((h) => h.id === selectedHuespedId);
+  if (!seleccionado) return;
+
+  router.push(
+    `/facturar/detalle?` +
+    `habitacion=${encodeURIComponent(numero)}&` +
+    `fecha=${encodeURIComponent(fecha)}&` +
+    `responsable=${encodeURIComponent(String(seleccionado.id))}&` +
+    `personaId=${encodeURIComponent(String(seleccionado.id))}&` + 
+    
+    `cuit=&` + // Sin CUIT
+    `razonSocial=${encodeURIComponent(`${seleccionado.nombres ?? ''} ${seleccionado.apellido ?? ''}`.trim())}&` +
+    `telefono=${encodeURIComponent(seleccionado.telefono || '')}&` +
+    `nacionalidad=${encodeURIComponent(seleccionado.nacionalidad || '')}&` +
+    `tipoDocumento=${encodeURIComponent(seleccionado.tipoDocumento || '')}&` +
+    `documentacion=${encodeURIComponent(seleccionado.documentacion || '')}`
+  );
+};
 
   const handleCancelar = () => {
     router.push('/menu');
@@ -305,112 +315,38 @@ export default function FacturarPage() {
     </header>
   );
 
-  // VISTA 1: CRITERIOS (habitacion + fecha)
   if (!isListing) {
     return (
       <main className="ui-hero">
         <div className="ui-hero-bg" />
         <div className="ui-hero-overlay-65" />
-
         <div className="ui-hero-card">
-          <h1 className="ui-hero-title">Generar Factura</h1>
-
-          {error && (<div className="error-box">
-            <div className="error-icon">
-              <Image src="img/iconoError.svg" alt="icono" width={40} height={40} />
-            </div>
-            <p className="error-text">
-              {error}
-            </p>
-          </div>
-          )}
-
-
-
-
-
-          <form className="form" onSubmit={handleBuscar}>
-            <div className="contenedor-input-grupo">
-
-              <div className="input-con-accion">
-                <input
-                  ref={numeroRef}
-                  type="number"
-                  min="1"
-                  placeholder="N° Habitación"
-                  value={numero}
-                  onChange={(e) => {
-                    setNumero(e.target.value);
-                    setError(null);
-                  }}
-                  onFocus={() => setMostrarGrilla(false)}
-                />
-
-                <button
-                  type="button"
-                  className="boton-desplegable"
-                  onClick={() => setMostrarGrilla(!mostrarGrilla)}
-                  title="Ver habitaciones disponibles"
-                >
-                  ▼
-                </button>
-              </div>
-
-              {mostrarGrilla && (
-                <div className="menu-flotante">
-                  {listaHabitaciones.length > 0 ? (
-                    listaHabitaciones.map((num) => (
-                      <button
-                        key={num}
-                        type="button"
-                        className="item-habitacion"
-                        onClick={() => {
-                          setNumero(String(num));
-                          setMostrarGrilla(false);
-                          setError(null);
-                        }}
-                      >
-                        {num}
-                      </button>
-                    ))
-                  ) : (
-                    <div style={{ padding: '10px', color: '#b8975a', textAlign: 'center' }}>
-                      Cargando...
-                    </div>
-                  )}
-                </div>
-              )}
-
-
-              {/* Fecha de salida */}
-              <div>
-                <input
-                  ref={fechaRef}
-                  type="date"
-                  className="ui-input-date"
-                  value={fecha}
-                  onChange={(e) => {
-                    setFecha(e.target.value);
-                    setError(null);
-                  }}
-                />
-              </div>
-            </div>
-
-            <div className="ui-actions-center">
-              <button type="submit" className="btn" disabled={loading}>
-                {loading ? 'Buscando...' : 'Buscar'}
-              </button>
-
-              <button type="button" onClick={handleCancelar} className="btn">
-                Cancelar
-              </button>
-            </div>
-          </form>
-        </div >
-      </main >
-
-
+           <h1 className="ui-hero-title">Generar Factura</h1>
+           {error && (<div className="error-box"><p className="error-text">{error}</p></div>)}
+           <form className="form" onSubmit={handleBuscar}>
+             <div className="contenedor-input-grupo">
+               <div className="input-con-accion">
+                 <input ref={numeroRef} type="number" min="1" placeholder="N° Habitación" value={numero} onChange={(e) => { setNumero(e.target.value); setError(null); }} onFocus={() => setMostrarGrilla(false)} />
+                 <button type="button" className="boton-desplegable" onClick={() => setMostrarGrilla(!mostrarGrilla)}>▼</button>
+               </div>
+               {mostrarGrilla && (
+                 <div className="menu-flotante">
+                   {listaHabitaciones.map((num) => (
+                     <button key={num} type="button" className="item-habitacion" onClick={() => { setNumero(String(num)); setMostrarGrilla(false); setError(null); }}>{num}</button>
+                   ))}
+                 </div>
+               )}
+               <div>
+                 <input ref={fechaRef} type="date" className="ui-input-date" value={fecha} onChange={(e) => { setFecha(e.target.value); setError(null); }} />
+               </div>
+             </div>
+             <div className="ui-actions-center">
+               <button type="submit" className="btn" disabled={loading}>{loading ? 'Buscando...' : 'Buscar'}</button>
+               <button type="button" onClick={handleCancelar} className="btn">Cancelar</button>
+             </div>
+           </form>
+        </div>
+      </main>
     );
   }
 
@@ -430,7 +366,6 @@ export default function FacturarPage() {
               <th>Edad</th>
             </tr>
           </thead>
-
           <tbody>
             {resultados.map((huesped) => {
               const selected = selectedHuespedId === huesped.id;
@@ -472,12 +407,58 @@ export default function FacturarPage() {
           </div>
         </div>
       </main>
+
       {mostrarModalCuit && selectedHuespedId && (
         <ModalCuit
           huespedId={selectedHuespedId}
           onClose={() => setMostrarModalCuit(false)}
           onSuccess={handleCuitActualizado}
         />
+      )}
+
+      {mostrarModalOpciones && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+          backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex',
+          justifyContent: 'center', alignItems: 'center'
+        }}>
+          <div style={{
+            backgroundColor: 'white', padding: '30px', borderRadius: '8px',
+            boxShadow: '0 4px 6px rgba(0,0,0,0.1)', maxWidth: '400px', width: '90%',
+            textAlign: 'center'
+          }}>
+            <h3 style={{ marginBottom: '20px', color: '#333' }}>Falta CUIT</h3>
+            <p style={{ marginBottom: '25px', color: '#666' }}>
+              El huésped seleccionado no tiene un CUIT válido registrado.
+              ¿Cómo desea proceder?
+            </p>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <button 
+                className="btn" 
+                onClick={() => { setMostrarModalOpciones(false); setMostrarModalCuit(true); }}
+              >
+                Cargar CUIT y Condición Fiscal
+              </button>
+              
+              <button 
+                className="btn" 
+                style={{ backgroundColor: '#6c757d' }} 
+                onClick={handleOpcionConsumidorFinal}
+              >
+                Continuar como Consumidor Final
+              </button>
+              
+              <button 
+                className="btn" 
+                style={{ backgroundColor: 'transparent', color: '#333', border: '1px solid #ccc' }}
+                onClick={() => setMostrarModalOpciones(false)}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -24,6 +24,7 @@ public class PersonaServiceImpl implements PersonaService{
     @Autowired
     private PersonaMapper personaMapper;
 
+    @Override
     public PersonaBusquedaDTO buscarPorCuit(String cuit) {
         String cuitLimpio = cuit.replaceAll("\\D", "");
 

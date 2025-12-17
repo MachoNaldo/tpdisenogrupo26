@@ -14,6 +14,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import grupo26diseno.tpdisenogrupo26.dtos.PersonaBusquedaDTO;
 import grupo26diseno.tpdisenogrupo26.service.PersonaService;
@@ -28,7 +30,9 @@ public class PersonaBusquedaController {
 
     @GetMapping("/buscar-por-cuit")
     @Operation(summary = "Buscar por CUIT", description = "Recupera los datos básicos de una persona dado su CUIT/CUIL.")
-    @ApiResponse(responseCode = "200", description = "Persona encontrada.")
+    @ApiResponse(responseCode = "200", description = "Persona encontrada.",
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = PersonaBusquedaDTO.class))
+    )
     @ApiResponse(responseCode = "404", description = "No existe ninguna persona con ese CUIT.")
     @ApiResponse(responseCode = "500", description = "Error interno del servidor.")
     public ResponseEntity<?> buscarPorCuit(@Parameter(description = "CUIT/CUIL sin guiones o con guiones") @RequestParam String cuit) {

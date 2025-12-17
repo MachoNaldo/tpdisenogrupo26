@@ -16,6 +16,7 @@ import org.springframework.format.annotation.DateTimeFormat.ISO;
 
 
 import grupo26diseno.tpdisenogrupo26.dtos.EstadiaDTO;
+import grupo26diseno.tpdisenogrupo26.dtos.EstadiaFacturaDTO;
 import grupo26diseno.tpdisenogrupo26.excepciones.DisponibilidadException;
 import grupo26diseno.tpdisenogrupo26.model.Estadia;
 import grupo26diseno.tpdisenogrupo26.service.EstadiaService;
@@ -23,6 +24,8 @@ import grupo26diseno.tpdisenogrupo26.service.HabitacionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 
 
@@ -40,7 +43,8 @@ public class EstadiaController {
 
 
     @Operation(summary = "Registrar Ocupación (Check-in)", description = "Crea la estadía. Usa 'forzar=true' para ignorar solapamiento y ocupar la habitación de igual forma.")
-    @ApiResponse(responseCode = "201", description = "Estadía creada exitosamente.")
+    @ApiResponse(responseCode = "201", description = "Estadía creada exitosamente.",
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = EstadiaDTO.class)))
     @ApiResponse(responseCode = "409", description = "La habitación ya está ocupada.")
     @ApiResponse(responseCode = "400", description = "Datos inválidos.")
     @ApiResponse(responseCode = "500", description = "Error interno del servidor.")
@@ -63,21 +67,12 @@ public class EstadiaController {
     @ApiResponse(responseCode = "200", description = "Estadía encontrada")
     @ApiResponse(responseCode = "404", description = "No se encontró estadía en esa habitación para esa fecha")
     @GetMapping("/facturar/buscar")
-    public ResponseEntity<Estadia> obtenerDatos(
-            @RequestParam("habitacion") Long habitacion,
-            @RequestParam("fecha") @DateTimeFormat(iso = ISO.DATE) LocalDate fecha) {
-
-        Estadia estadia = estadiaService.buscarEstadiaCompleta(habitacion, fecha);
-
-        if (estadia == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        if (fecha.isBefore(estadia.getFechaCheckOut())) {
-            estadia.setFechaCheckOut(fecha);
-        }
-
-        return ResponseEntity.ok(estadia);
+    public ResponseEntity<EstadiaFacturaDTO> buscarEstadiaParaFacturar(
+            @RequestParam long habitacion,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+        
+        EstadiaFacturaDTO estadiaDTO = estadiaService.obtenerEstadiaParaFacturar(habitacion, fecha);
+        return ResponseEntity.ok(estadiaDTO);
     }
 
 

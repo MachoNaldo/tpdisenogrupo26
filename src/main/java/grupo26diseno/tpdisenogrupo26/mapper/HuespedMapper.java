@@ -15,22 +15,25 @@ import grupo26diseno.tpdisenogrupo26.model.TipoSexo;
 @Component
 public class HuespedMapper {
 
-
-     @Autowired
+    @Autowired
     private DireccionMapper direccionMapper;
 
     public Huesped crearEntidad(HuespedDTO dto) {
         Huesped h = new Huesped();
+
         h.setApellido(dto.getApellido());
         h.setCondicionFiscal(CondicionFiscal.valueOf(dto.getCondicionFiscal()));
         h.setCuit(dto.getCuit());
         h.setDocumentacion(dto.getDocumentacion());
         h.setEmail(dto.getEmail());
-        LocalDate hoy = LocalDate.now();
+
         h.setFechaNacimiento(dto.getFechaNacimiento());
-        int edad = Period.between(dto.getFechaNacimiento(), hoy).getYears();
-        h.setEdad(edad);
-        
+        if (dto.getFechaNacimiento() != null) {
+            LocalDate hoy = LocalDate.now();
+            int edad = Period.between(dto.getFechaNacimiento(), hoy).getYears();
+            h.setEdad(edad);
+        }
+
         h.setNacionalidad(dto.getNacionalidad());
         h.setNombres(dto.getNombres());
         h.setOcupacion(dto.getOcupacion());
@@ -38,31 +41,38 @@ public class HuespedMapper {
         h.setTelefono(dto.getTelefono());
         h.setTipoDocumento(TipoDoc.valueOf(dto.getTipoDocumento()));
 
-        h.setDireccion(direccionMapper.crearEntidad(dto.getDireccion()));
+        if (dto.getDireccion() != null) {
+            h.setDireccion(direccionMapper.crearEntidad(dto.getDireccion()));
+        }
 
         return h;
     }
+
+    
     public HuespedDTO crearDTO(Huesped h) {
-    HuespedDTO dto = new HuespedDTO();
-    dto.setId(h.getId());
-    dto.setApellido(h.getApellido());
-    dto.setCondicionFiscal(h.getCondicionFiscal().name());
-    dto.setCuit(h.getCuit());
-    dto.setDocumentacion(h.getDocumentacion());
-    dto.setEmail(h.getEmail());
-    dto.setFechaNacimiento(h.getFechaNacimiento());
-    dto.setEdad(h.getEdad());
-    dto.setNacionalidad(h.getNacionalidad());
-    dto.setNombres(h.getNombres());
-    dto.setOcupacion(h.getOcupacion());
-    dto.setSexo(h.getSexo().name());
-    dto.setTelefono(h.getTelefono());
-    dto.setTipoDocumento(h.getTipoDocumento().name());
+        HuespedDTO dto = new HuespedDTO();
+        dto.setId(h.getId());
+        dto.setApellido(h.getApellido());
+        dto.setCondicionFiscal(h.getCondicionFiscal().name());
+        dto.setCuit(h.getCuit());
+        dto.setDocumentacion(h.getDocumentacion());
+        dto.setEmail(h.getEmail());
+        dto.setFechaNacimiento(h.getFechaNacimiento());
+        dto.setEdad(h.getEdad());
+        dto.setNacionalidad(h.getNacionalidad());
+        dto.setNombres(h.getNombres());
+        dto.setOcupacion(h.getOcupacion());
+        dto.setSexo(h.getSexo().name());
+        dto.setTelefono(h.getTelefono());
+        dto.setTipoDocumento(h.getTipoDocumento().name());
+        return dto;
+    }
 
-    // Dejo comentado ya que en realidad al buscar huespedes no mostramos la direccion, para mostrarla habria que modificar el front y en el mapper de direccion hacer el crearDTO
-    //dto.setDireccion(direccionMapper.crearDTO(h.getDireccion()));
-
-    return dto;
-}
-
+    public HuespedDTO crearDTOCompleto(Huesped h) {
+        HuespedDTO dto = crearDTO(h);
+        if (h.getDireccion() != null) {
+            dto.setDireccion(direccionMapper.crearDTO(h.getDireccion()));
+        }
+        return dto;
+    }
 }

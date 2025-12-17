@@ -1,6 +1,6 @@
 package grupo26diseno.tpdisenogrupo26.model;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 import jakarta.persistence.Column;
@@ -34,7 +34,7 @@ public class Factura {
     private int numero;
     
     @Column(nullable = false)
-    private int importeTotal;
+    private double importeTotal;
     
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -42,17 +42,20 @@ public class Factura {
     
     @Temporal(TemporalType.DATE)
     @Column(nullable = false)
-    private Date fechaConfeccion;
+    private LocalDate fechaConfeccion;
     
     @Column(nullable = false)
-    private int importeNeto;
+    private double importeNeto;
     
     @Column(nullable = false)
-    private int iva;
+    private String tipo;
+
+    @Column(nullable = false)
+    private double iva;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "responsable_pago_id", nullable = false)
-    private ResponsablePago responsablePago;
+    @JoinColumn(name = "persona_id", nullable = false)
+    private Persona responsable;
 
     @OneToMany(mappedBy = "factura")
     private List<Pago> pagos;

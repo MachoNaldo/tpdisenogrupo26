@@ -18,6 +18,9 @@ type PersonaApi = {
   razonSocial?: string;
   nombres?: string;
   apellido?: string;
+  telefono?: string;
+  nacionalidad?: string;
+  tipoDocumento?: string;
 };
 
 function normalizarCuit(value: string): string {
@@ -170,16 +173,35 @@ export default function FacturarTerceroPage() {
 
     // Navegar según el tipo encontrado
     if (personaEncontrada.tipo === 'HUESPED') {
+      // Para huésped: pasar responsable + responsablePagoId + datos
+      const razonSocial = `${personaEncontrada.apellido ?? ''} ${personaEncontrada.nombres ?? ''}`.trim();
+      
       router.push(
-        `/facturar/detalle?habitacion=${encodeURIComponent(habitacion)}&fecha=${encodeURIComponent(
-          fecha
-        )}&responsable=${encodeURIComponent(String(personaEncontrada.id))}`
+        `/facturar/detalle?` +
+        `habitacion=${encodeURIComponent(habitacion)}&` +
+        `fecha=${encodeURIComponent(fecha)}&` +
+        `responsable=${encodeURIComponent(String(personaEncontrada.id))}&` +
+        `personaId=${encodeURIComponent(String(personaEncontrada.id))}&` +
+        `cuit=${encodeURIComponent(personaEncontrada.cuit || '')}&` +
+        `razonSocial=${encodeURIComponent(razonSocial)}&` +
+        `telefono=${encodeURIComponent(personaEncontrada.telefono || '')}&` +
+        `nacionalidad=${encodeURIComponent(personaEncontrada.nacionalidad || '')}&` +
+        `tipoDocumento=${encodeURIComponent(personaEncontrada.tipoDocumento || '')}&` +
+        `documentacion=${encodeURIComponent(personaEncontrada.documentacion || '')}`
       );
     } else if (personaEncontrada.tipo === 'RESPONSABLE_PAGO') {
+      // Para responsable de pago: pasar responsablePagoId + datos (sin responsable)
       router.push(
-        `/facturar/detalle?habitacion=${encodeURIComponent(habitacion)}&fecha=${encodeURIComponent(
-          fecha
-        )}&responsablePagoId=${encodeURIComponent(String(personaEncontrada.id))}`
+        `/facturar/detalle?` +
+        `habitacion=${encodeURIComponent(habitacion)}&` +
+        `fecha=${encodeURIComponent(fecha)}&` +
+        `personaId=${encodeURIComponent(String(personaEncontrada.id))}&` +
+        `cuit=${encodeURIComponent(personaEncontrada.cuit || '')}&` +
+        `razonSocial=${encodeURIComponent(personaEncontrada.razonSocial || '')}&` +
+        `telefono=${encodeURIComponent(personaEncontrada.telefono || '')}&` +
+        `nacionalidad=${encodeURIComponent(personaEncontrada.nacionalidad || '')}&` +
+        `tipoDocumento=${encodeURIComponent(personaEncontrada.tipoDocumento || '')}&` +
+        `documentacion=${encodeURIComponent(personaEncontrada.documentacion || '')}`
       );
     }
   };

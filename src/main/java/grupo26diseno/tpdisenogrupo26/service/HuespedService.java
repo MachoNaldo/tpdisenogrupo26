@@ -9,6 +9,9 @@ import grupo26diseno.tpdisenogrupo26.excepciones.DocumentoUsadoException;
 import grupo26diseno.tpdisenogrupo26.excepciones.HuespedYaHospedadoException;
 import grupo26diseno.tpdisenogrupo26.model.Huesped;
 import grupo26diseno.tpdisenogrupo26.model.TipoDoc;
+import jakarta.persistence.EntityNotFoundException;
+
+
 
 public interface HuespedService {
     /**
@@ -62,4 +65,38 @@ public interface HuespedService {
      * @throws IllegalArgumentException Si no se encuentra ningún huésped.
      */
     public HuespedDTO buscarPorCuit(String cuit);
+
+    /**
+     * Obtiene un huésped por ID y lo retorna convertido a DTO.
+     * @param id ID del huésped a buscar.
+     * @return DTO del huésped encontrado.
+     * @throws EntityNotFoundException Si el huésped no existe.
+     */
+    HuespedDTO obtenerPorId(Long id);
+
+    /**
+     * Verifica si ya existe un huésped con el mismo tipo y número de documento.
+     * @param tipoDocumento Tipo de documento del huésped.
+     * @param documentacion Número de documento del huésped.
+     * @return true si ya existe un huésped con ese tipo y número de documento, false en caso contrario.
+     */
+    boolean existeDocumento(TipoDoc tipoDocumento, String documentacion);
+    
+    /**
+     * Elimina un huésped basado en su CUIT.
+     * @param cuit CUIT del huésped a eliminar.
+     * @throws EntityNotFoundException Si no existe un huésped con ese CUIT.
+     */
+    void eliminarPorCuit(String cuit);
+
+
+    /**
+     * Actualiza los datos de un huésped existente.
+     * @param id  ID del huésped a actualizar.
+     * @param dto Datos del huésped a actualizar.
+     * @return DTO del huésped actualizado.
+     * @throws DocumentoUsadoException Si se intenta cambiar el documento a uno que ya posee otro huésped.
+     */
+    HuespedDTO actualizarHuesped(Long id, HuespedDTO dto) throws DocumentoUsadoException;
+
 }
