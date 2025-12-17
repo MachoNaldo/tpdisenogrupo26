@@ -84,7 +84,7 @@ export default function Menu() {
           {/* Facturar */}
           <Link href="/facturar" className="menu-card">
             <div className="icon-wrapper">
-              <Image src="/img/1.png" alt="Facturar" width={100} height={80} className="menu-icon opacity-90"/>
+              <Image src="/img/facturar.png" alt="Facturar" width={100} height={80} className="menu-icon opacity-90"/>
             </div>
             <p className="menu-label font-serif"> Facturar</p>
           </Link>
