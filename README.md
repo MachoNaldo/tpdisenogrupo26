@@ -22,3 +22,9 @@ El usuario para ingresar al sistema se generan automaticamente una vez se ejecut
 Usuario: admin
 Contraseña: admin
 
+Para ejecutar las pruebas unitarias, ingresar el siguiente comando:
+
+.\mvnw clean verify
+
+Para verificar el porcentaje cubierto en las clases Huesped, Reserva, Usuario, ir a la carptea raiz del proyecto, 
+por ejemplo: C:\Users\user\Documents\tpdisenogrupo26\target\site\jacoco/index
