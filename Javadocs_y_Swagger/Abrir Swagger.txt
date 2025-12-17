@@ -1,0 +1,7 @@
+Pasos para visualizar:
+
+_ Entrar a "https://editor.swagger.io/"
+
+_ Ir a "File" y despues a "Import file"
+
+_ Subir el archivo "swagger.json"

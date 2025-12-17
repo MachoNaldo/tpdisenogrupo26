@@ -1,0 +1,11 @@
+grupo26diseno.tpdisenogrupo26
+grupo26diseno.tpdisenogrupo26.config
+grupo26diseno.tpdisenogrupo26.controller
+grupo26diseno.tpdisenogrupo26.dtos
+grupo26diseno.tpdisenogrupo26.excepciones
+grupo26diseno.tpdisenogrupo26.mapper
+grupo26diseno.tpdisenogrupo26.model
+grupo26diseno.tpdisenogrupo26.repository
+grupo26diseno.tpdisenogrupo26.service
+grupo26diseno.tpdisenogrupo26.service.CalculadoraFiscalStrategy
+grupo26diseno.tpdisenogrupo26.service.handler
