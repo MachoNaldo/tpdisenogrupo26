@@ -337,8 +337,7 @@ export default function FacturarPage() {
                  </div>
                )}
                <div>
-                 <input ref={fechaRef} type="date" className="ui-input-date" value={fecha} onChange={(e) => { setFecha(e.target.value); setError(null); }} />
-               </div>
+                 <input ref={fechaRef} type="text" placeholder="Fecha de Salida" className="ui-input-date" value={fecha} onChange={(e) => { setFecha(e.target.value); setError(null); }} onFocus={(e) => (e.target.type = "date")}onBlur={(e) => { if (!e.target.value) e.target.type = "text"; }}/>               </div>
              </div>
              <div className="ui-actions-center">
                <button type="submit" className="btn" disabled={loading}>{loading ? 'Buscando...' : 'Buscar'}</button>
